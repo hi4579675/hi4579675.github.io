@@ -34,7 +34,6 @@ color:
   secondary-dark: "7A4E48"
 
 # Build settings
-theme: minima
 plugins:
   - jekyll-feed
 
