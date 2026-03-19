@@ -502,12 +502,15 @@ header .container {
 .header-flex {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 40px;
+    justify-content: center;
+    gap: 80px;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .header-left {
-    flex: 1;
+    max-width: 400px;
+    flex-shrink: 0;
 }
 
 .header-hello {
@@ -543,6 +546,46 @@ header .container {
     margin-bottom: 35px;
 }
 
+.header-btn-wrap {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.tech-stack {
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stack-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.stack-label {
+    font-size: 0.7em;
+    color: #aaa;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 60px;
+    flex-shrink: 0;
+}
+
+.stack-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.78em;
+    font-weight: 500;
+    background: #faf0ef;
+    color: #C4837A;
+    border: 1px solid #e8c8c5;
+}
+
 .header-cta {
     background-color: #C4837A;
     color: #fff !important;
@@ -560,38 +603,27 @@ header .container {
 }
 
 .header-right {
-    flex: 1;
     display: flex;
     justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
 }
 
-.blob-container {
-    position: relative;
-    width: 380px;
-    height: 380px;
-}
-
-.blob-container::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: #F5E0DE;
+.blob-wrap {
+    width: 360px;
+    height: 360px;
     border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    top: 0;
-    left: 0;
-    z-index: 0;
+    background: #F5E0DE;
+    overflow: hidden;
     animation: blob-morph 8s ease-in-out infinite;
+    flex-shrink: 0;
 }
 
 .profile-img {
-    position: absolute;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-    z-index: 1;
-    animation: blob-morph 8s ease-in-out infinite;
+    display: block;
 }
 
 @keyframes blob-morph {
@@ -605,7 +637,7 @@ header .container {
         flex-direction: column-reverse;
         text-align: center;
     }
-    .blob-container {
+    .blob-wrap {
         width: 240px;
         height: 240px;
     }
