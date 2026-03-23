@@ -549,6 +549,9 @@ header .container {
 .header-btn-wrap {
     text-align: center;
     margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
 }
 
 .tech-stack {
@@ -599,6 +602,17 @@ header .container {
 
 .header-cta:hover {
     background-color: #A06860;
+    color: #fff !important;
+}
+
+.header-cta-outline {
+    background-color: transparent !important;
+    color: #C4837A !important;
+    border: 2px solid #C4837A !important;
+}
+
+.header-cta-outline:hover {
+    background-color: #C4837A !important;
     color: #fff !important;
 }
 

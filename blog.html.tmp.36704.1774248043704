@@ -1,0 +1,185 @@
+---
+layout: blog-page
+title: Blog
+---
+
+<style>
+  .blog-page {
+    padding: 160px 0 80px;
+    min-height: 100vh;
+    background: #fdf8f7;
+  }
+
+  .blog-page .container {
+    max-width: 1100px;
+  }
+
+  .blog-section-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #b06a6a;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .blog-section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e8d5d5;
+  }
+
+  .blog-carousel-wrap {
+    position: relative;
+    margin-bottom: 60px;
+  }
+
+  .blog-cards-track {
+    display: flex;
+    gap: 24px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 12px;
+    scrollbar-width: none;
+  }
+
+  .blog-cards-track::-webkit-scrollbar {
+    display: none;
+  }
+
+  .blog-card {
+    flex: 0 0 300px;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(176,106,106,0.08);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 32px rgba(176,106,106,0.18);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .blog-card-thumb {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: rgba(255,255,255,0.25);
+    letter-spacing: -2px;
+  }
+
+  .thumb-perf {
+    background: linear-gradient(135deg, #b06a6a 0%, #7a3f3f 100%);
+  }
+
+  .blog-card-body {
+    padding: 18px 20px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .blog-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .blog-tag {
+    font-size: 0.7rem;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: #f5e8e8;
+    color: #b06a6a;
+    font-weight: 600;
+  }
+
+  .blog-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #2d2d2d;
+    line-height: 1.5;
+    margin: 0;
+    flex: 1;
+  }
+
+  .blog-nav-btns {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 12px;
+  }
+
+  .blog-nav-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #e8d5d5;
+    background: #fff;
+    color: #b06a6a;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+
+  .blog-nav-btn:hover {
+    background: #b06a6a;
+    color: #fff;
+    border-color: #b06a6a;
+  }
+</style>
+
+<section class="blog-page">
+  <div class="container">
+
+    <!-- 성능최적화 -->
+    <div class="blog-section-title">성능 최적화</div>
+    <div class="blog-carousel-wrap">
+      <div class="blog-nav-btns">
+        <button class="blog-nav-btn" onclick="scrollCards('perf', -1)"><i class="fa fa-chevron-left"></i></button>
+        <button class="blog-nav-btn" onclick="scrollCards('perf', 1)"><i class="fa fa-chevron-right"></i></button>
+      </div>
+      <div class="blog-cards-track" id="track-perf">
+        <a class="blog-card" href="https://fhtepgocprkswjfgka.tistory.com/54" target="_blank">
+          <div class="blog-card-thumb thumb-perf">DB</div>
+          <div class="blog-card-body">
+            <div class="blog-card-tags">
+              <span class="blog-tag">db최적화</span>
+              <span class="blog-tag">SnowflakeID</span>
+              <span class="blog-tag">백엔드</span>
+              <span class="blog-tag">성능튜닝</span>
+              <span class="blog-tag">페이지네이션</span>
+            </div>
+            <p class="blog-card-title">대규모 시스템의 게시글 조회 성능 최적화</p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  function scrollCards(trackId, dir) {
+    var track = document.getElementById('track-' + trackId);
+    track.scrollBy({ left: dir * 330, behavior: 'smooth' });
+  }
+</script>
