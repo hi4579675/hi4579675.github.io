@@ -297,6 +297,22 @@ section.success {
     background: #fff;
 }
 
+.btn-contact {
+    margin-top: 15px;
+    border: solid 2px #C4837A;
+    font-size: 18px;
+    color: #C4837A;
+    background: transparent;
+    transition: all .3s ease-in-out;
+}
+
+.btn-contact:hover,
+.btn-contact:focus {
+    background: #C4837A;
+    color: #fff;
+    border-color: #C4837A;
+}
+
 .floating-label-form-group {
     position: relative;
     margin-bottom: 0;
