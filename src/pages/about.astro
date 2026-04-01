@@ -43,6 +43,8 @@
     .btn-ghost-v:hover { border-color: rgba(192,153,255,.6); }
     .btn-ghost-o { background: transparent; color: #ffc777; border: 1px solid rgba(255,199,119,.25); }
     .btn-ghost-o:hover { border-color: rgba(255,199,119,.5); }
+    .btn-ghost-t { background: transparent; color: #86e1fc; border: 1px solid rgba(134,225,252,.25); }
+    .btn-ghost-t:hover { border-color: rgba(134,225,252,.5); }
 
     @keyframes blob-morph {
       0%,100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
@@ -59,8 +61,8 @@
     .section-heading { font-size: 13px; font-weight: 500; color: #c8d3f5; padding: 2rem 0 1.2rem; letter-spacing: .04em; }
 
     /* SKILLS TAB */
-    .skills-section { padding-bottom: 2rem; border-bottom: 1px solid #1e2340; }
-    .tab-nav { display: flex; gap: 0; border-bottom: 1px solid #1e2340; margin-bottom: 1.4rem; }
+    .skills-section { padding-bottom: 2rem;  }
+    .tab-nav { display: flex; gap: 0; border-bottom: 2px solid #1e2340; margin-bottom: 1.4rem; }
     .tab-btn {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
@@ -87,12 +89,12 @@
     .tp  { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
     .tgr { background: rgba(100,116,139,.1);  color: #94a3b8; border: 1px solid rgba(100,116,139,.2); }
 
-    .stats-section { padding-bottom: 2rem; border-bottom: 1px solid #1e2340; }
+    .stats-section { padding-bottom: 2rem;   }
     .stats-grid { display: flex; flex-direction: column; gap: 12px; }
     .stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
     .stats-row img { border-radius: 8px; height: auto; }
 
-    .intro-section { padding-bottom: 2rem; border-bottom: 1px solid #1e2340; }
+    .intro-section { padding-bottom: 2rem;  }
     .intro-cards { display: flex; flex-direction: column; gap: 16px; }
     .intro-card { background: #0f1120; border: 1px solid #1e2340; border-radius: 10px; padding: 1.4rem 1.6rem; }
     .intro-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: .9rem; }
@@ -126,13 +128,16 @@
       <h1>Hanna</h1>
       <p class="tagline">Java · Python </p>
       <p class="desc">
-        백엔드 개발과 <em>생성형 AI</em>를 함께 다루는 엔지니어.<br>
-        안정적인 서버 아키텍처와 LLM 파이프라인을 구현합니다.
+       
+        <em>안정적인 서버</em> 아키텍처와 <em>LLM 파이프라인</em>을 구현합니다. <br>
+        백엔드 기반 위에
+<em>AI를 얹는 개발자</em>를 목표로 합니다.
       </p>
       <div class="btns">
-        <a href="/blog/" class="btn btn-primary">Blog</a>
+        
         <a href="https://github.com/hi4579675" target="_blank" class="btn btn-ghost-v">GitHub</a>
         <a href="/portfolio/" class="btn btn-ghost-o">Portfolio</a>
+        <a href="https://fhtepgocprkswjfgka.tistory.com/" target="_blank" class="btn btn-ghost-t">Tistory</a>
       </div>
     </div>
     <div class="avatar-wrap">
@@ -145,17 +150,17 @@
   <h2 class="section-heading">Skills</h2>
   <div class="skills-section">
     <div class="tab-nav">
-      <button class="tab-btn active" data-tab="lang">Language</button>
-      <button class="tab-btn" data-tab="backend">Backend</button>
+      <button class="tab-btn" data-tab="lang">Language</button>
+      <button class="tab-btn active" data-tab="backend">Backend</button>
       <button class="tab-btn" data-tab="ai">AI / LLM</button>
       <button class="tab-btn" data-tab="devops">DevOps</button>
       <button class="tab-btn" data-tab="tools">Tools</button>
     </div>
-    <div class="tab-panel active" id="tab-lang">
+    <div class="tab-panel" id="tab-lang">
       <span class="tag tb">Java</span>
       <span class="tag tv">Python</span>
     </div>
-    <div class="tab-panel" id="tab-backend">
+    <div class="tab-panel active" id="tab-backend">
       <span class="tag tv">Spring Boot</span>
       <span class="tag tg">FastAPI</span>
       <span class="tag tp">Redis</span>

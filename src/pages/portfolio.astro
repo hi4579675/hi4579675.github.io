@@ -27,34 +27,74 @@
     .page-title em { color: #82aaff; font-style: normal; }
     .page-desc { margin-top: .6rem; font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.8; }
 
-    .section-head { padding: 1.8rem 0 1rem; }
+    /* TABS */
+    .tab-nav { display: flex; border-bottom: 1px solid #1e2340; margin: 1.8rem 0 1.4rem; }
+    .tab-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #444b6a;
+      background: none; border: none; padding: 8px 16px; cursor: pointer;
+      letter-spacing: .05em; border-bottom: 2px solid transparent; margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: #c8d3f5; }
+    .tab-btn.active { color: #82aaff; border-bottom-color: #82aaff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
     .project-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 
     .project-card {
-      background: #0f1120; border: 1px solid #1e2340; border-radius: 10px; padding: 1.4rem;
-      transition: border-color .2s, transform .15s; display: flex; flex-direction: column; gap: 10px;
+      background: #0f1120; border: 1px solid #1e2340; border-radius: 10px; overflow: hidden;
+      transition: border-color .2s, transform .15s; display: flex; flex-direction: column;
       cursor: pointer;
     }
-    .project-card:hover { border-color: #2d3561; transform: translateY(-2px); }
+    .project-card:hover { border-color: #2d3561; transform: translateY(-3px); }
 
-    .card-emoji { font-size: 22px; line-height: 1; }
+    /* 썸네일 */
+    .card-thumb {
+      position: relative; overflow: hidden;
+      aspect-ratio: 16/9; flex-shrink: 0;
+    }
+    .card-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .4s ease;
+      display: block;
+    }
+    .project-card:hover .card-thumb img { transform: scale(1.07); }
+
+    /* 썸네일 위 GitHub 아이콘 */
+    .card-gh {
+      position: absolute; top: 10px; right: 10px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(9,11,20,.75); backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      color: #c8d3f5; text-decoration: none;
+      opacity: 0; transform: translateY(-4px);
+      transition: opacity .2s, transform .2s, background .15s;
+      z-index: 2;
+    }
+    .card-gh svg { width: 14px; height: 14px; fill: currentColor; }
+    .project-card:hover .card-gh { opacity: 1; transform: translateY(0); }
+    .card-gh:hover { background: rgba(130,170,255,.3); color: #82aaff; }
+
+    /* 카드 본문 */
+    .card-body { padding: 1.1rem 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 8px; flex: 1; }
     .card-title { font-size: 14px; color: #c8d3f5; font-weight: 500; line-height: 1.35; }
     .card-desc { font-size: 12px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; flex: 1; }
 
     .card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
     .tag { font-size: 10px; padding: 2px 9px; border-radius: 4px; letter-spacing: .03em; }
+
+    .card-footer { display: flex; align-items: center; padding-top: 8px; border-top: 1px solid #1e2340; margin-top: 4px; }
+    .card-gh-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #444b6a; text-decoration: none; transition: color .15s; letter-spacing: .03em; }
+    .card-gh-link:hover { color: #82aaff; }
+    .card-gh-link svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
     .tb { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
     .tv { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
     .tc { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
     .tg { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
     .to { background: rgba(255,199,119,.09); color: #ffc777; border: 1px solid rgba(255,199,119,.18); }
     .tp { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
-
-    .card-links { display: flex; gap: 10px; margin-top: 4px; }
-    .card-link { font-size: 11px; color: #444b6a; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: color .15s; letter-spacing: .03em; }
-    .card-link:hover { color: #82aaff; }
-    .card-link svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
 
     /* MODAL */
     .modal-overlay {
@@ -146,70 +186,133 @@
     <p class="page-desc">직접 설계하고 구현한 프로젝트들입니다.</p>
   </div>
 
-  <div class="section-head"></div>
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="java">Java · Spring Boot</button>
+    <button class="tab-btn" data-tab="fastapi">FastAPI · LangChain</button>
+  </div>
 
-  <div class="project-grid">
+  <!-- Java / Spring Boot -->
+  <div class="tab-panel active" id="tab-java">
+    <div class="project-grid">
 
-    <div class="project-card" data-modal="jikimi">
-      <div class="card-emoji">📄</div>
-      <div class="card-title">계약지킴이 (Jikimi)</div>
-      <div class="card-desc">
-        임차인을 위한 임대차 계약 AI 분석 서비스.<br>
-        계약서(PDF/이미지)를 업로드하면 OCR → 법령 대조 → 독소 조항 리포트를 즉시 생성합니다.
+      <div class="project-card" data-modal="onul">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80" alt="오늘뭐해" loading="lazy" />
+          <a href="https://github.com/hi4579675/onul-mwhe" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">오늘 뭐해?</div>
+          <div class="card-desc">하루 동선 추천 앱. 지역·기분·예산을 입력하면 AI가 점심/카페/놀거리까지 영업시간·이동시간을 고려한 하루 코스를 통째로 만들어줍니다.</div>
+          <div class="card-tags">
+            <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag to">Kakao API</span><span class="tag tc">LLM</span>
+          </div>
+          <div class="card-footer">
+            <a href="https://github.com/hi4579675/onul-mwhe" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="card-tags">
-        <span class="tag tv">FastAPI</span>
-        <span class="tag tb">Spring Boot</span>
-        <span class="tag tc">RAG</span>
-        <span class="tag tv">LLM</span>
-        <span class="tag to">OCR</span>
+
+      <div class="project-card" data-modal="fridge">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=800&q=80" alt="냉비서" loading="lazy" />
+          <a href="https://github.com/fridge2fork-project/fridge2fork" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">냉비서 부탁해!</div>
+          <div class="card-desc">1인 가구를 위한 냉장고 재료 기반 레시피 추천 서비스. 재료를 등록하면 매칭률 순으로 레시피를 추천하고, 유통기한 임박 재료 활용 챌린지로 식재료 낭비를 줄입니다.</div>
+          <div class="card-tags">
+            <span class="tag tb">Spring Boot</span><span class="tag tg">Python</span><span class="tag to">PostgreSQL</span>
+          </div>
+          <div class="card-footer">
+            <a href="https://github.com/fridge2fork-project/fridge2fork" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
       </div>
+
     </div>
+  </div>
 
-    <div class="project-card" data-modal="onul">
-      <div class="card-emoji">📍</div>
-      <div class="card-title">오늘 뭐해?</div>
-      <div class="card-desc">
-        하루 동선 추천 앱. 지역·기분·예산을 입력하면 AI가 점심/카페/놀거리까지
-        영업시간·이동시간을 고려한 하루 코스를 통째로 만들어줍니다.
+  <!-- FastAPI / LangChain -->
+  <div class="tab-panel" id="tab-fastapi">
+    <div class="project-grid">
+
+      <div class="project-card" data-modal="jikimi">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80" alt="계약지킴이" loading="lazy" />
+          <a href="https://github.com/hi4579675/jikimi" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">계약지킴이 (Jikimi)</div>
+          <div class="card-desc">임차인을 위한 임대차 계약 AI 분석 서비스. 계약서(PDF/이미지)를 업로드하면 OCR → 법령 대조 → 독소 조항 리포트를 즉시 생성합니다.</div>
+          <div class="card-tags">
+            <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag tc">RAG</span><span class="tag tv">LLM</span><span class="tag to">OCR</span>
+          </div>
+          <div class="card-footer">
+            <a href="https://github.com/hi4579675/jikimi" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
       </div>
-      <div class="card-tags">
-        <span class="tag tv">FastAPI</span>
-        <span class="tag tb">Spring Boot</span>
-        <span class="tag to">Kakao API</span>
-        <span class="tag tc">LLM</span>
+
+      <div class="project-card" data-modal="review">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80" alt="ReView" loading="lazy" />
+          <a href="https://github.com/hi4579675/ReView" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">ReView</div>
+          <div class="card-desc">diff만 보는 리뷰어는 그만. 레포 전체를 RAG로 인덱싱해 변경 코드가 다른 파일에 미치는 영향까지 이해하는 AI 코드 리뷰어.</div>
+          <div class="card-tags">
+            <span class="tag tv">FastAPI</span><span class="tag tc">RAG</span><span class="tag tg">Python</span><span class="tag tb">GitHub Actions</span><span class="tag to">SQS</span>
+          </div>
+          <div class="card-footer">
+            <a href="https://github.com/hi4579675/ReView" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
       </div>
+
+      <div class="project-card" data-modal="langchain">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800&q=80" alt="LangChain 이슈서치" loading="lazy" />
+          <a href="https://github.com/hi4579675/langchain-issue-search" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">LangChain을 도와줘~!</div>
+          <div class="card-desc">LangChain GitHub bug 이슈 3,600+개를 벡터화한 트러블슈팅 RAG 시스템. 유사 이슈를 시맨틱 검색으로 즉시 찾아줍니다.</div>
+          <div class="card-tags">
+            <span class="tag tg">LangChain</span><span class="tag tc">RAG</span><span class="tag tv">FastAPI</span><span class="tag tg">Python</span><span class="tag tb">PostgreSQL</span>
+          </div>
+          <div class="card-footer">
+            <a href="https://github.com/hi4579675/langchain-issue-search" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
+              <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+              GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-    <div class="project-card" data-modal="fridge">
-      <div class="card-emoji">🧊</div>
-      <div class="card-title">냉비서 부탁해!</div>
-      <div class="card-desc">
-        1인 가구를 위한 냉장고 재료 기반 레시피 추천 서비스.
-        재료를 등록하면 매칭률 순으로 레시피를 추천하고,
-        유통기한 임박 재료 활용 챌린지로 식재료 낭비를 줄입니다.
-      </div>
-      <div class="card-tags">
-        <span class="tag tb">Spring Boot</span>
-        <span class="tag tg">Python</span>
-        <span class="tag to">MySQL</span>
-      </div>
-    </div>
-
-    <div class="project-card" data-modal="blog">
-      <div class="card-emoji">✍️</div>
-      <div class="card-title">hanna.log</div>
-      <div class="card-desc">
-        지금 보고 계신 이 블로그. 백엔드 개발 경험과 AI 파이프라인 트러블슈팅을 기록합니다.
-        Astro + Starlight 기반, Tokyo Night 테마.
-      </div>
-      <div class="card-tags">
-        <span class="tag tc">Astro</span>
-        <span class="tag tg">Starlight</span>
-        <span class="tag tb">GitHub Pages</span>
-      </div>
-    </div>
-
   </div>
 </main>
 
@@ -264,16 +367,27 @@
       ],
       github: 'https://github.com/fridge2fork-project/fridge2fork',
     },
-    blog: {
-      emoji: '✍️',
-      title: 'hanna.log',
-      tags: `<span class="tag tc">Astro</span><span class="tag tg">Starlight</span><span class="tag tb">GitHub Pages</span>`,
+    review: {
+      emoji: '👁️',
+      title: 'ReView',
+      tags: `<span class="tag tv">FastAPI</span><span class="tag tc">RAG</span><span class="tag tg">Python</span><span class="tag tb">GitHub Actions</span><span class="tag to">SQS</span>`,
       sections: [
-        { label: 'OVERVIEW', body: `<p>백엔드 개발 경험과 AI 파이프라인 트러블슈팅을 기록하는 기술 블로그입니다.</p>` },
-        { label: 'FEATURES', body: `<ul><li>Astro 6 + Starlight 기반 정적 사이트</li><li>Tokyo Night 커스텀 테마 (CSS 전체 오버라이드)</li><li>블로그 포스트 커스텀 라우팅 (Starlight docs 우회)</li><li>GitHub Pages 자동 배포 (GitHub Actions)</li></ul>` },
-        { label: 'WHAT I DID', body: `<p>디자인부터 개발까지 단독으로 설계·구현했습니다.</p>` },
+        { label: 'OVERVIEW', body: `<p>diff만 보는 리뷰어는 그만. <em>레포 전체를 이해하는 AI 코드 리뷰어</em>입니다.<br>PR의 변경 코드가 다른 파일에 어떤 영향을 미치는지까지 파악해 리뷰합니다.</p><p style="margin-top:.8rem;font-size:12px;color:#636d94;font-family:'Noto Sans KR',sans-serif;">팀 프로젝트에서 PR 코드 리뷰에 30분~1시간이 걸리던 경험에서 출발했습니다. diff만 봐서는 맥락을 알기 어렵고, 결국 레포를 뒤지고 관련 파일을 열어봐야 코멘트를 남길 수 있었습니다.</p>` },
+        { label: 'FEATURES', body: `<ul><li><em>컨텍스트 인식 리뷰</em> — 레포 전체를 RAG로 인덱싱해 의존성까지 파악</li><li><em>AST 기반 청킹</em> — 함수/클래스 단위로 코드를 분리해 검색 정확도 향상</li><li><em>Query Decomposition</em> — 버그 / 컨벤션 / 성능 관점으로 자동 분리해서 검색</li><li><em>하이브리드 검색</em> — 벡터 유사도 + 키워드 매칭 결합</li><li><em>Cross-encoder 리랭킹</em> — 노이즈 제거 후 상위 컨텍스트만 LLM에 전달</li><li><em>멀티턴 대화</em> — PR 리뷰 중 추가 질문 가능</li><li><em>SQS 비동기 처리</em> — 여러 PR 동시 처리 시 안정적인 큐 관리</li><li><em>GitHub Actions 연동</em> — 별도 서버 없이 PR 오픈 시 자동 실행</li></ul>` },
+        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
       ],
-      github: 'https://github.com/hi4579675/hi4579675.github.io',
+      github: 'https://github.com/hi4579675/ReView',
+    },
+    langchain: {
+      emoji: '🔍',
+      title: 'LangChain을 도와줘~!',
+      tags: `<span class="tag tg">LangChain</span><span class="tag tc">RAG</span><span class="tag tv">FastAPI</span><span class="tag tg">Python</span><span class="tag tb">PostgreSQL</span>`,
+      sections: [
+        { label: 'OVERVIEW', body: `<p>LangChain GitHub의 bug 이슈 <em>3,600+개</em>를 벡터화한 트러블슈팅 RAG 시스템입니다.<br>유사 이슈를 시맨틱 검색으로 즉시 찾아줍니다.</p>` },
+        { label: 'FEATURES', body: `<ul><li>GitHub Issues API로 bug 레이블 이슈 3,600+개 수집</li><li>OpenAI Embeddings → Pinecone 벡터 DB 저장</li><li>FastAPI 기반 시맨틱 검색 엔드포인트</li><li>LangChain 에러 발생 시 유사 해결 사례 즉시 검색</li></ul>` },
+        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
+      ],
+      github: 'https://github.com/hi4579675/langchain-issue-search',
     },
   };
 
@@ -304,6 +418,16 @@
     overlay.classList.remove('open');
     document.body.style.overflow = '';
   }
+
+  // 탭 전환
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
 
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('click', () => openModal(card.dataset.modal));
