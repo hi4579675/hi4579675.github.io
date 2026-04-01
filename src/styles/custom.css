@@ -1,0 +1,208 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap');
+
+/* Aurora X × Tokyo Night */
+:root {
+  --sl-color-accent: #82aaff;
+  --sl-color-accent-high: #c099ff;
+  --sl-color-white: #c8d3f5;
+  --sl-color-gray-1: #c8d3f5;
+  --sl-color-gray-2: #a9b1d6;
+  --sl-color-gray-3: #636d94;
+  --sl-color-gray-4: #444b6a;
+  --sl-color-gray-5: #1e2340;
+  --sl-color-gray-6: #13162b;
+  --sl-color-black: #0d0f1a;
+  --sl-font: 'JetBrains Mono', 'Noto Sans KR', sans-serif;
+  --sl-sidebar-width: 0px;
+  --sl-sidebar-gap: 0px;
+}
+
+:root[data-theme='dark'] {
+  --sl-color-bg: #0d0f1a;
+  --sl-color-bg-nav: #090b14;
+  --sl-color-bg-sidebar: #090b14;
+  --sl-color-hairline: #1e2340;
+}
+
+/* 기본 배경 강제 다크 */
+body { background: #0d0f1a !important; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif !important; }
+.page { background: #0d0f1a !important; }
+
+/* Starlight 헤더 wrapper → 커스텀 nav 스타일로 덮어쓰기 */
+header.header {
+  background: #090b14 !important;
+  border-bottom: 1px solid #1e2340 !important;
+  padding: 0 2.5rem !important;
+  height: 52px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 200 !important;
+}
+
+/* 사이드바 숨기기 */
+.sidebar-pane,
+nav.sidebar,
+.sidebar,
+starlight-menu-button,
+.mobile-preferences {
+  display: none !important;
+}
+
+/* 우측 TOC 숨기기 */
+.right-sidebar,
+.right-sidebar-panel,
+aside.right-sidebar,
+.page-sidebar {
+  display: none !important;
+}
+
+/* 콘텐츠 영역 - 중앙 정렬 / 너비 고정 */
+.main-frame {
+  padding-inline-start: 0 !important;
+}
+
+.content-panel {
+  max-width: 720px !important;
+  margin-inline: auto !important;
+  padding: 2.5rem 2rem 5rem !important;
+}
+
+/* ===== 블로그 포스트 타이포그래피 ===== */
+
+/* 페이지 제목 (블로그 포스트 h1) */
+.content-panel h1 {
+  font-size: 1.35rem !important;
+  font-weight: 500 !important;
+  color: #c8d3f5 !important;
+  line-height: 1.45 !important;
+  margin-bottom: 0.6rem !important;
+  font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif !important;
+  letter-spacing: -.01em !important;
+}
+
+/* 제목 아래 구분선 */
+.content-panel > header,
+.content-panel .page-title + * {
+  border-bottom: 1px solid #1e2340 !important;
+  padding-bottom: 1.2rem !important;
+  margin-bottom: 2rem !important;
+}
+
+/* 날짜/메타 정보 */
+.content-panel header time,
+.content-panel header .meta,
+[class*="blog"][class*="meta"],
+[class*="meta"] time {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.7rem !important;
+  color: #444b6a !important;
+  letter-spacing: .05em !important;
+}
+
+/* 태그 */
+[class*="tag"],
+[class*="blog"][class*="tag"] {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.65rem !important;
+}
+
+/* 아티클 본문 heading */
+.sl-markdown-content h2 {
+  font-size: 1.05rem !important;
+  font-weight: 500 !important;
+  color: #c8d3f5 !important;
+  margin-top: 2.2rem !important;
+  margin-bottom: 0.8rem !important;
+  padding-bottom: 0.4rem !important;
+  border-bottom: 1px solid #1e2340 !important;
+}
+
+.sl-markdown-content h3 {
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  color: #a9b1d6 !important;
+  margin-top: 1.6rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.sl-markdown-content h4,
+.sl-markdown-content h5,
+.sl-markdown-content h6 {
+  font-size: 0.9rem !important;
+  color: #a9b1d6 !important;
+}
+
+/* 본문 텍스트 */
+.sl-markdown-content {
+  font-size: 0.9rem !important;
+}
+
+.sl-markdown-content p,
+.sl-markdown-content li,
+.sl-markdown-content blockquote {
+  font-family: 'Noto Sans KR', sans-serif !important;
+  font-size: 0.9rem !important;
+  color: #a9b1d6 !important;
+  line-height: 1.9 !important;
+  margin-bottom: 0.9rem !important;
+}
+
+/* 인라인 코드 */
+.sl-markdown-content :not(pre) > code {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  background: #13162b !important;
+  color: #86e1fc !important;
+  padding: 0.1em 0.4em !important;
+  border-radius: 3px !important;
+  border: 1px solid #1e2340 !important;
+}
+
+/* 코드 블록 */
+.sl-markdown-content pre {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  background: #0f1120 !important;
+  border: 1px solid #1e2340 !important;
+  border-radius: 8px !important;
+  padding: 1.2rem !important;
+  overflow-x: auto !important;
+  margin: 1.2rem 0 !important;
+  line-height: 1.6 !important;
+}
+
+/* 인용구 */
+.sl-markdown-content blockquote {
+  border-left: 3px solid #2d3561 !important;
+  padding-left: 1rem !important;
+  margin-left: 0 !important;
+  color: #636d94 !important;
+}
+
+/* 구분선 */
+.sl-markdown-content hr {
+  border: none !important;
+  border-top: 1px solid #1e2340 !important;
+  margin: 2rem 0 !important;
+}
+
+/* 링크 */
+.sl-markdown-content a {
+  color: #82aaff !important;
+  text-decoration: none !important;
+}
+.sl-markdown-content a:hover {
+  color: #9fbaff !important;
+  text-decoration: underline !important;
+}
+
+/* 블로그 목록 페이지 (/blog/) */
+[class*="blog-list"],
+[class*="post-list"] {
+  max-width: 720px !important;
+  margin-inline: auto !important;
+}

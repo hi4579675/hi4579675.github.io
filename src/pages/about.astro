@@ -1,0 +1,264 @@
+---
+// src/pages/about.astro
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>about — hanna.log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
+
+    nav { background: #090b14; border-bottom: 1px solid #1e2340; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #82aaff; font-weight: 500; letter-spacing: .06em; text-decoration: none; }
+    .logo span { color: #c099ff; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .05em; transition: color .15s; }
+    .nav-links a:hover, .nav-links a.active { color: #82aaff; }
+
+    main { max-width: 860px; margin: 0 auto; padding: 0 2rem 5rem; }
+
+    .hero { padding: 3.5rem 0 3rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; border-bottom: 1px solid #1e2340; }
+    .hero-left { flex: 1; }
+    .typing-line { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #86e1fc; margin-bottom: 1.2rem; letter-spacing: .06em; height: 22px; }
+    .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: #c3e88d; flex-shrink: 0; }
+    #typed-text { color: #86e1fc; }
+    .cursor { display: inline-block; width: 2px; height: .85em; background: #86e1fc; margin-left: 1px; vertical-align: middle; animation: blink .7s step-end infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    h1 { font-size: 36px; font-weight: 500; color: #c8d3f5; line-height: 1.2; }
+    h1 em { color: #82aaff; font-style: normal; }
+    .tagline { font-size: 13px; color: #c099ff; margin-top: 6px; letter-spacing: .04em; }
+    .desc { margin-top: 1rem; font-size: 13px; color: #636d94; line-height: 1.9; font-family: 'Noto Sans KR', sans-serif; max-width: 420px; }
+    .desc em { color: #86e1fc; font-style: normal; }
+    .btns { display: flex; gap: 9px; margin-top: 1.8rem; flex-wrap: wrap; }
+    .btn { font-size: 12px; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; border: none; letter-spacing: .04em; transition: all .15s; text-decoration: none; display: inline-block; }
+    .btn-primary { background: #82aaff; color: #0d0f1a; font-weight: 500; }
+    .btn-primary:hover { background: #9fbaff; }
+    .btn-ghost-v { background: transparent; color: #c099ff; border: 1px solid rgba(192,153,255,.3); }
+    .btn-ghost-v:hover { border-color: rgba(192,153,255,.6); }
+    .btn-ghost-o { background: transparent; color: #ffc777; border: 1px solid rgba(255,199,119,.25); }
+    .btn-ghost-o:hover { border-color: rgba(255,199,119,.5); }
+
+    @keyframes blob-morph {
+      0%,100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+      20%     { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+      40%     { border-radius: 50% 60% 30% 60% / 30% 70% 60% 40%; }
+      60%     { border-radius: 40% 50% 60% 30% / 60% 40% 50% 70%; }
+      80%     { border-radius: 55% 45% 40% 60% / 45% 55% 65% 35%; }
+    }
+    @keyframes glow-pulse { 0%,100%{box-shadow:0 0 28px rgba(130,170,255,.22),0 0 56px rgba(130,170,255,.08)} 50%{box-shadow:0 0 44px rgba(130,170,255,.42),0 0 88px rgba(130,170,255,.16)} }
+    .avatar-wrap { flex-shrink: 0; position: relative; width: 240px; height: 240px; }
+    .avatar { width: 240px; height: 240px; object-fit: cover; display: block; position: relative; z-index: 1; animation: blob-morph 9s ease-in-out infinite, glow-pulse 4s ease-in-out infinite; }
+    .ring1 { position: absolute; inset: -10px; border: 1.5px solid rgba(130,170,255,.22); animation: blob-morph 9s ease-in-out infinite 1.5s; }
+
+    .section-heading { font-size: 13px; font-weight: 500; color: #c8d3f5; padding: 2rem 0 1.2rem; letter-spacing: .04em; }
+
+    /* SKILLS TAB */
+    .skills-section { padding-bottom: 2rem; border-bottom: 1px solid #1e2340; }
+    .tab-nav { display: flex; gap: 0; border-bottom: 1px solid #1e2340; margin-bottom: 1.4rem; }
+    .tab-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #444b6a;
+      background: none;
+      border: none;
+      padding: 8px 14px;
+      cursor: pointer;
+      letter-spacing: .05em;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: #c8d3f5; }
+    .tab-btn.active { color: #82aaff; border-bottom-color: #82aaff; }
+    .tab-panel { display: none; flex-wrap: wrap; gap: 7px; }
+    .tab-panel.active { display: flex; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; letter-spacing: .03em; }
+    .tb  { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
+    .tv  { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
+    .tc  { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
+    .tg  { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
+    .to  { background: rgba(255,199,119,.09); color: #ffc777; border: 1px solid rgba(255,199,119,.18); }
+    .tp  { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
+    .tgr { background: rgba(100,116,139,.1);  color: #94a3b8; border: 1px solid rgba(100,116,139,.2); }
+
+    .stats-section { padding-bottom: 2rem; border-bottom: 1px solid #1e2340; }
+    .stats-grid { display: flex; flex-direction: column; gap: 12px; }
+    .stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .stats-row img { border-radius: 8px; height: auto; }
+
+    .intro-section { padding-bottom: 2rem; border-bottom: 1px solid #1e2340; }
+    .intro-cards { display: flex; flex-direction: column; gap: 16px; }
+    .intro-card { background: #0f1120; border: 1px solid #1e2340; border-radius: 10px; padding: 1.4rem 1.6rem; }
+    .intro-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: .9rem; }
+    .intro-card-icon { width: 16px; height: 16px; color: #82aaff; flex-shrink: 0; }
+    .intro-card-title { font-size: 13px; font-weight: 500; color: #c8d3f5; letter-spacing: .02em; }
+    .intro-card-body { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.85; }
+    .intro-card-body em { color: #86e1fc; font-style: normal; }
+
+    footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">hanna<span>.log</span></a>
+  <div class="nav-links">
+    <a href="/">home</a>
+    <a href="/blog/">blog</a>
+    <a href="/about/" class="active">about</a>
+    <a href="/portfolio/">portfolio</a>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="hero-left">
+      <div class="typing-line">
+        <span class="typing-dot"></span>
+        <span id="typed-text"></span><span class="cursor"></span>
+      </div>
+      <h1>Hanna</h1>
+      <p class="tagline">Java · Python</p>
+      <p class="desc">
+        백엔드 개발과 <em>생성형 AI</em>를 함께 다루는 엔지니어.<br>
+        안정적인 서버 아키텍처와 LLM 파이프라인을 구현합니다.
+      </p>
+      <div class="btns">
+        <a href="/blog/" class="btn btn-primary">Blog</a>
+        <a href="https://github.com/hi4579675" target="_blank" class="btn btn-ghost-v">GitHub</a>
+        <a href="/portfolio/" class="btn btn-ghost-o">Portfolio</a>
+      </div>
+    </div>
+    <div class="avatar-wrap">
+      <div class="ring1"></div>
+      <img src="/profile.jpg" alt="Hanna" class="avatar" />
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <h2 class="section-heading">Skills</h2>
+  <div class="skills-section">
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="lang">Language</button>
+      <button class="tab-btn" data-tab="backend">Backend</button>
+      <button class="tab-btn" data-tab="ai">AI / LLM</button>
+      <button class="tab-btn" data-tab="devops">DevOps</button>
+      <button class="tab-btn" data-tab="tools">Tools</button>
+    </div>
+    <div class="tab-panel active" id="tab-lang">
+      <span class="tag tb">Java</span>
+      <span class="tag tv">Python</span>
+    </div>
+    <div class="tab-panel" id="tab-backend">
+      <span class="tag tv">Spring Boot</span>
+      <span class="tag tg">FastAPI</span>
+      <span class="tag tp">Redis</span>
+      <span class="tag tb">MySQL</span>
+      <span class="tag tb">PostgreSQL</span>
+      <span class="tag tp">Oracle</span>
+      <span class="tag tg">Swagger</span>
+    </div>
+    <div class="tab-panel" id="tab-ai">
+      <span class="tag tg">LangChain</span>
+      <span class="tag tv">OpenAI</span>
+      <span class="tag tc">RAG Pipeline</span>
+      <span class="tag tb">VectorDB</span>
+      <span class="tag tg">LlamaIndex</span>
+      <span class="tag to">LangSmith</span>
+      <span class="tag tv">Embeddings</span>
+    </div>
+    <div class="tab-panel" id="tab-devops">
+      <span class="tag tgr">Docker</span>
+      <span class="tag tgr">GitHub Actions</span>
+      <span class="tag tgr">AWS</span>
+      <span class="tag tgr">Git</span>
+    </div>
+    <div class="tab-panel" id="tab-tools">
+      <span class="tag tgr">Claude</span>
+      <span class="tag tgr">Cursor</span>
+      <span class="tag tgr">IntelliJ</span>
+      <span class="tag tgr">VSCode</span>
+    </div>
+  </div>
+
+  <!-- ABOUT ME -->
+  <h2 class="section-heading">About me</h2>
+  <div class="intro-section">
+    <div class="intro-cards">
+      <div class="intro-card">
+        <div class="intro-card-header">
+          <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span class="intro-card-title">낯선 기술도 빠르게 적응하는 개발자</span>
+        </div>
+        <p class="intro-card-body">
+          처음 접하는 기술 앞에서 물러서지 않습니다. 인턴십 기간 동안 <em>Python 기반 RAG 시스템</em>이라는 생소한 영역에 뛰어들어, 형태소 분석기 교체·프롬프트 반복 개선·<em>Hybrid Search</em> 도입까지 실무에 직접 적용하며 빠르게 익혔습니다. 어떤 환경에서도 필요한 기술을 흡수해 팀에 기여할 준비가 되어있습니다.<br><br>
+          <em>Claude, Cursor</em> 등 AI 도구를 적극 활용해 생산성을 높이는 것도 그 일환입니다.
+        </p>
+      </div>
+      <div class="intro-card">
+        <div class="intro-card-header">
+          <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="intro-card-title">소통을 중요시 하는 개발자</span>
+        </div>
+        <p class="intro-card-body">
+          독단적인 판단보다 <em>질문과 확인</em>을 통해 팀의 방향성과 일치하는 코드를 짜는 것에 집중합니다. RAG 시스템 구축 중 로직의 타당성을 수시로 점검받고 피드백을 반영한 결과, 짧은 시간 안에 안정적인 파이프라인을 완성할 수 있었습니다.<br><br>
+          앞으로도 <em>메모와 소통</em>으로 팀의 리소스를 아끼는 개발자가 되겠습니다.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <h2 class="section-heading">Stats</h2>
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stats-row">
+        <img
+          src="https://github-readme-activity-graph.vercel.app/graph?username=hi4579675&theme=tokyo-night&hide_border=true&area=true&radius=6"
+          alt="Activity Graph" loading="lazy" style="width:100%;border-radius:8px;" />
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  const lines = ["Backend Developer", "Java · Spring Engineer", "AI & LLM Enthusiast"];
+  let li = 0, ci = 0, deleting = false;
+  const el = document.getElementById('typed-text');
+  function type() {
+    const cur = lines[li];
+    if (!deleting) {
+      el.textContent = cur.slice(0, ++ci);
+      if (ci === cur.length) { deleting = true; setTimeout(type, 1400); return; }
+    } else {
+      el.textContent = cur.slice(0, --ci);
+      if (ci === 0) { deleting = false; li = (li + 1) % lines.length; }
+    }
+    setTimeout(type, deleting ? 40 : 80);
+  }
+  type();
+</script>
+</body>
+</html>

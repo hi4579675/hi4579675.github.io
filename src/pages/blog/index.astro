@@ -1,0 +1,130 @@
+---
+import { getCollection } from 'astro:content';
+
+const allDocs = await getCollection('docs', (e) => e.id.startsWith('blog/'));
+const posts = allDocs
+  .filter((p) => p.data.date)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+const catColor: Record<string, string> = {
+  Redis: 'tp', 'Spring Boot': 'tb', '분산락': 'tb',
+  LangChain: 'tv', Pinecone: 'tc', JPA: 'tb', QueryDSL: 'tg',
+  MSA: 'tc', Kafka: 'tv', OpenAI: 'tv', RateLimit: 'to',
+};
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blog — hanna.log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
+
+    nav { background: #090b14; border-bottom: 1px solid #1e2340; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #82aaff; font-weight: 500; letter-spacing: .06em; text-decoration: none; }
+    .logo span { color: #c099ff; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .05em; transition: color .15s; }
+    .nav-links a:hover, .nav-links a.active { color: #82aaff; }
+
+    main { max-width: 720px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+    .page-header { padding: 3rem 0 1.8rem; border-bottom: 1px solid #1e2340; }
+    .page-title { font-size: 13px; color: #444b6a; letter-spacing: .12em; }
+    .page-desc { margin-top: .5rem; font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; }
+
+    .post-list { list-style: none; margin-top: 0; }
+
+    .post-item {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid #1e2340;
+    }
+    .post-item:last-child { border-bottom: none; }
+
+    .post-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+
+    .post-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #c8d3f5;
+      text-decoration: none;
+      font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif;
+      line-height: 1.4;
+      transition: color .15s;
+      flex: 1;
+    }
+    .post-title:hover { color: #82aaff; }
+
+    .post-date { font-size: 11px; color: #2e3455; letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
+
+    .post-excerpt {
+      margin-top: .55rem;
+      font-size: 13px;
+      color: #636d94;
+      font-family: 'Noto Sans KR', sans-serif;
+      line-height: 1.75;
+    }
+
+    .post-tags { display: flex; gap: 5px; margin-top: .7rem; flex-wrap: wrap; }
+    .tag { font-size: 10px; padding: 2px 9px; border-radius: 4px; letter-spacing: .03em; }
+    .tb { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
+    .tv { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
+    .tc { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
+    .tg { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
+    .to { background: rgba(255,199,119,.09); color: #ffc777; border: 1px solid rgba(255,199,119,.18); }
+    .tp { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
+
+    footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">hanna<span>.log</span></a>
+  <div class="nav-links">
+    <a href="/">home</a>
+    <a href="/blog/" class="active">blog</a>
+    <a href="/about/">about</a>
+    <a href="/portfolio/">portfolio</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <p class="page-desc">백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.</p>
+  </div>
+
+  <ul class="post-list">
+    {posts.map((post) => {
+      const slug = post.id.replace(/^blog\//, '');
+      const date = new Date(post.data.date);
+      const dateStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
+      const tags: string[] = (post.data.tags as string[]) ?? [];
+      return (
+        <li class="post-item">
+          <div class="post-top">
+            <a href={`/blog/${slug}/`} class="post-title">{post.data.title}</a>
+            <span class="post-date">{dateStr}</span>
+          </div>
+          {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt as string}</p>}
+          {tags.length > 0 && (
+            <div class="post-tags">
+              {tags.map((tag) => (
+                <span class={`tag ${catColor[tag] ?? 'tb'}`}>{tag}</span>
+              ))}
+            </div>
+          )}
+        </li>
+      );
+    })}
+  </ul>
+</main>
+
+<footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+
+</body>
+</html>

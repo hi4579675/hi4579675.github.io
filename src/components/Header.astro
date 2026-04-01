@@ -1,0 +1,32 @@
+---
+const path = Astro.url.pathname;
+---
+<a href="/" class="logo">hanna<span>.log</span></a>
+<nav class="nav-links">
+  <a href="/" class={path === '/' ? 'active' : ''}>home</a>
+  <a href="/blog/" class={path.startsWith('/blog') ? 'active' : ''}>blog</a>
+  <a href="/about/" class={path.startsWith('/about') ? 'active' : ''}>about</a>
+  <a href="/portfolio/" class={path.startsWith('/portfolio') ? 'active' : ''}>portfolio</a>
+</nav>
+
+<style>
+  .logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: #82aaff;
+    font-weight: 500;
+    letter-spacing: .06em;
+    text-decoration: none;
+  }
+  .logo span { color: #c099ff; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #444b6a;
+    text-decoration: none;
+    letter-spacing: .05em;
+    transition: color .15s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: #82aaff; }
+</style>
