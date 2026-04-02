@@ -1,5 +1,33 @@
 ---
-// src/pages/index.astro
+import { getCollection } from 'astro:content';
+
+const allDocs = await getCollection('docs', (e) => e.id.startsWith('blog/'));
+const posts = allDocs
+  .filter((p) => p.data.date)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+const catOrder = ['develops', 'ai', 'performance', 'troubleshooting', 'architecture'];
+const catLabel: Record<string, string> = {
+  develops: 'Develops',
+  ai: 'AI · LLM',
+  performance: 'Performance',
+  troubleshooting: 'Troubleshooting',
+  architecture: 'Architecture',
+};
+const catBadge: Record<string, string> = {
+  develops: 'cat-dev',
+  ai: 'cat-ai',
+  performance: 'cat-perf',
+  troubleshooting: 'cat-trouble',
+  architecture: 'cat-arch',
+};
+
+const grouped: Record<string, typeof posts> = {};
+for (const post of posts) {
+  const cat = (post.data as any).category ?? 'develops';
+  if (!grouped[cat]) grouped[cat] = [];
+  grouped[cat].push(post);
+}
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -28,16 +56,16 @@
     .hero-left { flex: 1; }
 
     /* 타이핑 — 보더 없음, 텍스트만 */
-    .typing-line { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #86e1fc; margin-bottom: 1.2rem; letter-spacing: .06em; height: 22px; }
+    .typing-line { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #86e1fc; margin-bottom: 1.2rem; letter-spacing: .06em; height: 22px; }
     .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: #c3e88d; flex-shrink: 0; }
     #typed-text { color: #86e1fc; }
     .cursor { display: inline-block; width: 2px; height: .85em; background: #86e1fc; margin-left: 1px; vertical-align: middle; animation: blink .7s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    h1 { font-size: 54px; font-weight: 500; color: #c8d3f5; line-height: 1.15; }
+    h1 { font-size: 57px; font-weight: 500; color: #c8d3f5; line-height: 1.15; }
     h1 em { color: #82aaff; font-style: normal; }
-    .tagline { font-size: 13px; color: #c099ff; margin-top: 8px; letter-spacing: .04em; font-family: 'Noto Sans KR', sans-serif; }
-    .desc { margin-top: 1rem; font-size: 13px; color: #636d94; line-height: 1.9; font-family: 'Noto Sans KR', sans-serif; max-width: 420px; }
+    .tagline { font-size: 14px; color: #c099ff; margin-top: 8px; letter-spacing: .04em; font-family: 'Noto Sans KR', sans-serif; }
+    .desc { margin-top: 1rem; font-size: 14px; color: #636d94; line-height: 1.9; font-family: 'Noto Sans KR', sans-serif; max-width: 420px; }
     .desc em { color: #86e1fc; font-style: normal; }
 
     .btns { display: flex; gap: 9px; margin-top: 1.8rem; flex-wrap: wrap; }
@@ -77,29 +105,30 @@
     .tp { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
 
     /* BLOG */
-    .section-head { padding: 1.8rem 0 1rem; display: flex; align-items: center; justify-content: space-between; }
-    .section-title { font-size: 11px; color: #444b6a; letter-spacing: .12em; }
-    .section-more { font-size: 11px; color: #82aaff; text-decoration: none; }
+    .section-head { padding: 2rem 0 1.2rem; display: flex; align-items: center; justify-content: flex-end; }
+    .section-more { font-size: 12px; color: #82aaff; text-decoration: none; letter-spacing: .04em; }
     .section-more:hover { color: #9fbaff; }
 
-    .blog-featured { background: #0f1120; border: 1px solid #1e2340; border-radius: 10px; padding: 1.4rem 1.6rem; transition: border-color .2s; text-decoration: none; display: block; margin-bottom: 12px; }
-    .blog-featured:hover { border-color: #2d3561; }
-    .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: .7rem; }
-    .cat { font-size: 10px; padding: 2px 9px; border-radius: 3px; letter-spacing: .05em; }
+    .cat { font-size: 11px; padding: 3px 11px; border-radius: 4px; letter-spacing: .05em; }
     .cat-trouble { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.2); }
+    .cat-dev     { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
     .cat-ai      { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
     .cat-perf    { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
-    .cat-arch    { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
-    .card-date { font-size: 10px; color: #2e3455; }
-    .card-title { font-size: 15px; color: #c8d3f5; font-weight: 500; margin-bottom: .5rem; line-height: 1.4; }
-    .card-desc { font-size: 12px; color: #444b6a; font-family: 'Noto Sans KR', sans-serif; line-height: 1.65; }
-    .card-tags { display: flex; gap: 5px; margin-top: .9rem; flex-wrap: wrap; }
-    .card-tag { font-size: 10px; padding: 2px 8px; border-radius: 3px; }
+    .cat-arch    { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
 
-    .blog-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 11px; }
-    .blog-card { background: #0f1120; border: 1px solid #1e2340; border-radius: 10px; padding: 1.1rem; transition: border-color .2s, transform .15s; text-decoration: none; display: block; }
-    .blog-card:hover { border-color: #2d3561; transform: translateY(-2px); }
-    .blog-card .card-title { font-size: 13px; }
+    /* Category group */
+    .blog-cat-group { margin-bottom: 2.2rem; }
+    .cat-group-head { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
+
+    .cat-post-item {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+      padding: .75rem 0; border-bottom: 1px solid #1a1d2e;
+      text-decoration: none;
+    }
+    .cat-post-item:last-child { border-bottom: none; }
+    .cat-post-title { font-size: 14px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.4; transition: color .15s; flex: 1; }
+    .cat-post-item:hover .cat-post-title { color: #c8d3f5; }
+    .cat-post-date { font-size: 11px; color: #2e3455; white-space: nowrap; flex-shrink: 0; letter-spacing: .04em; }
 
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
 
@@ -161,46 +190,27 @@
     <a href="/blog/" class="section-more">all posts →</a>
   </div>
 
-  <a href="/blog/redis-distributed-lock/" class="blog-featured">
-    <div class="card-top">
-      <span class="cat cat-trouble">troubleshooting</span>
-      <span class="card-date">2026.03.25</span>
-    </div>
-    <div class="card-title">Redis 분산락으로 결제 동시성 문제 해결하기</div>
-    <div class="card-desc">멀티 인스턴스 환경에서 동일 요청이 중복 처리되는 문제를 발견. Redisson을 활용한 분산락 적용 과정과 타임아웃 전략을 정리했습니다.</div>
-    <div class="card-tags">
-      <span class="card-tag tp">Redis</span>
-      <span class="card-tag tv">Spring Boot</span>
-      <span class="card-tag tb">분산락</span>
-    </div>
-  </a>
-
-  <div class="blog-grid">
-    <a href="/blog/rag-hallucination/" class="blog-card">
-      <div class="card-top"><span class="cat cat-ai">ai / llm</span><span class="card-date">2026.03.18</span></div>
-      <div class="card-title">RAG 파이프라인에서 Hallucination 줄이기</div>
-      <div class="card-desc">LangChain + PostgreSQL 구성에서 청킹 전략과 re-ranking 적용 경험.</div>
-      <div class="card-tags"><span class="card-tag tv">LangChain</span><span class="card-tag tc">PostgreSQL</span></div>
-    </a>
-    <a href="/blog/n-plus-one/" class="blog-card">
-      <div class="card-top"><span class="cat cat-perf">performance</span><span class="card-date">2026.03.10</span></div>
-      <div class="card-title">N+1 문제, QueryDSL Fetch Join으로 해결</div>
-      <div class="card-desc">JPA 연관관계 조회 N+1을 QueryDSL로 개선하고 쿼리 수를 줄인 과정.</div>
-      <div class="card-tags"><span class="card-tag tb">JPA</span><span class="card-tag tg">QueryDSL</span></div>
-    </a>
-    <a href="/blog/outbox-pattern/" class="blog-card">
-      <div class="card-top"><span class="cat cat-arch">architecture</span><span class="card-date">2026.03.02</span></div>
-      <div class="card-title">Outbox 패턴으로 이벤트 유실 없애기</div>
-      <div class="card-desc">트랜잭션 커밋과 이벤트 발행 불일치를 Outbox 패턴으로 해결.</div>
-      <div class="card-tags"><span class="card-tag tc">MSA</span><span class="card-tag tv">Kafka</span></div>
-    </a>
-    <a href="/blog/openai-rate-limit/" class="blog-card">
-      <div class="card-top"><span class="cat cat-trouble">troubleshooting</span><span class="card-date">2026.02.22</span></div>
-      <div class="card-title">OpenAI API Rate Limit 우회 전략</div>
-      <div class="card-desc">고트래픽에서 rate limit에 막힌 경험과 큐잉 + 재시도 로직으로 안정화.</div>
-      <div class="card-tags"><span class="card-tag tv">OpenAI</span><span class="card-tag to">RateLimit</span></div>
-    </a>
-  </div>
+  {catOrder.filter(cat => grouped[cat]?.length > 0).map(cat => {
+    const catPosts = grouped[cat].slice(0, 3);
+    return (
+      <div class="blog-cat-group">
+        <div class="cat-group-head">
+          <span class={`cat ${catBadge[cat]}`}>{catLabel[cat]}</span>
+        </div>
+        {catPosts.map(post => {
+          const slug = post.id.replace(/^blog\//, '');
+          const date = new Date(post.data.date);
+          const dateStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
+          return (
+            <a href={`/blog/${slug}/`} class="cat-post-item">
+              <span class="cat-post-title">{post.data.title}</span>
+              <span class="cat-post-date">{dateStr}</span>
+            </a>
+          );
+        })}
+      </div>
+    );
+  })}
 </main>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>

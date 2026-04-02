@@ -17,6 +17,7 @@ const catClass: Record<string, string> = {
   develops: 'cat-dev',
   performance: 'cat-perf',
   architecture: 'cat-arch',
+  ai: 'cat-ai',
 };
 ---
 <!DOCTYPE html>
@@ -87,6 +88,7 @@ const catClass: Record<string, string> = {
     .cat-dev     { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
     .cat-perf    { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
     .cat-arch    { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
+    .cat-ai      { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
 
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
   </style>
@@ -110,6 +112,7 @@ const catClass: Record<string, string> = {
     <div class="tab-nav">
       <button class="tab-btn active" data-cat="all">all</button>
       <button class="tab-btn" data-cat="develops">develops</button>
+      <button class="tab-btn" data-cat="ai">ai · llm</button>
       <button class="tab-btn" data-cat="troubleshooting">troubleshooting</button>
       <button class="tab-btn" data-cat="performance">performance</button>
       <button class="tab-btn" data-cat="architecture">architecture</button>

@@ -9,7 +9,7 @@
   <title>portfolio — hanna.log</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
+  <style is:global>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
 
@@ -78,16 +78,23 @@
     .card-gh:hover { background: rgba(130,170,255,.3); color: #82aaff; }
 
     /* 카드 본문 */
-    .card-body { padding: 1.1rem 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-    .card-title { font-size: 14px; color: #c8d3f5; font-weight: 500; line-height: 1.35; }
-    .card-desc { font-size: 12px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; flex: 1; }
+    .card-body { padding: 1.2rem 1.3rem 1.4rem; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .card-title { font-size: 15px; color: #c8d3f5; font-weight: 500; line-height: 1.35; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; }
+    .card-desc { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.75; flex: 1; }
 
     .card-tags { display: flex; gap: 5px; flex-wrap: wrap; }
-    .tag { font-size: 10px; padding: 2px 9px; border-radius: 4px; letter-spacing: .03em; }
+    .tag { font-size: 11px; padding: 4px 12px; border-radius: 20px; letter-spacing: .03em; }
 
-    .card-footer { display: flex; align-items: center; padding-top: 8px; border-top: 1px solid #1e2340; margin-top: 4px; }
-    .card-gh-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #444b6a; text-decoration: none; transition: color .15s; letter-spacing: .03em; }
-    .card-gh-link:hover { color: #82aaff; }
+    .card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; margin-top: 2px; }
+    .card-detail-link {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; color: #444b6a; text-decoration: none;
+      font-family: 'Noto Sans KR', sans-serif;
+      transition: color .15s;
+    }
+    .card-detail-link:hover { color: #82aaff; }
+    .card-gh-link { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #2e3455; text-decoration: none; transition: color .15s; }
+    .card-gh-link:hover { color: #636d94; }
     .card-gh-link svg { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
     .tb { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
     .tv { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
@@ -98,71 +105,69 @@
 
     /* MODAL */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(9,11,20,.88);
-      backdrop-filter: blur(6px);
-      z-index: 300;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+      display: none; position: fixed; inset: 0;
+      background: rgba(9,11,20,.88); backdrop-filter: blur(6px);
+      z-index: 300; align-items: center; justify-content: center; padding: 1rem;
     }
     .modal-overlay.open { display: flex; }
 
     .modal {
-      background: #0f1120;
-      border: 1px solid #2d3561;
-      border-radius: 14px;
-      padding: 2rem 2rem 1.8rem;
-      max-width: 580px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      position: relative;
-      animation: modal-in .18s ease;
+      background: #0f1120; border: 1px solid #2d3561; border-radius: 14px;
+      width: 100%; max-width: 800px; height: 90vh; max-height: 900px; overflow-y: auto;
+      position: relative; transform: translateY(20px); transition: transform .25s;
     }
-    @keyframes modal-in {
-      from { opacity: 0; transform: translateY(12px) scale(.98); }
-      to   { opacity: 1; transform: translateY(0)   scale(1); }
-    }
+    .modal-overlay.open .modal { transform: translateY(0); }
 
     .modal-close {
-      position: absolute; top: 1rem; right: 1rem;
-      background: none; border: none; color: #444b6a; cursor: pointer;
-      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-      border-radius: 6px; transition: color .15s, background .15s;
+      position: sticky; top: 1rem; float: right; margin: 1rem 1rem 0 0;
+      background: #0d0f1a; border: 1px solid #2d3561; color: #636d94; cursor: pointer;
+      width: 30px; height: 30px; border-radius: 50%; font-size: 13px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s, color .15s; z-index: 10;
     }
-    .modal-close:hover { color: #c8d3f5; background: #1e2340; }
-    .modal-close svg { width: 16px; height: 16px; stroke: currentColor; }
+    .modal-close:hover { border-color: #82aaff; color: #82aaff; }
 
-    .modal-emoji { font-size: 28px; line-height: 1; margin-bottom: .8rem; }
-    .modal-title { font-size: 18px; font-weight: 500; color: #c8d3f5; margin-bottom: .5rem; }
-    .modal-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1.4rem; }
-
-    .modal-section { margin-bottom: 1.4rem; }
-    .modal-section-label {
-      font-size: 10px; color: #444b6a; letter-spacing: .1em;
-      margin-bottom: .6rem; padding-bottom: .4rem; border-bottom: 1px solid #1e2340;
+    .modal-header {
+      display: flex; gap: 1.25rem; padding: 1.5rem 1.5rem 1.25rem;
+      border-bottom: 1px solid #1e2340; align-items: flex-start;
     }
-    .modal-section p, .modal-section li {
-      font-size: 13px; color: #a9b1d6; font-family: 'Noto Sans KR', sans-serif;
-      line-height: 1.85; margin-bottom: .4rem;
+    .modal-img { width: 120px; height: 80px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+    .modal-title-wrap { display: flex; flex-direction: column; gap: .35rem; min-width: 0; }
+    .modal-title { font-size: 18px; font-weight: 700; color: #c8d3f5; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; line-height: 1.3; }
+    .modal-subtitle { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; font-size: 11px; color: #444b6a; letter-spacing: .08em; }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .2rem; }
+    .modal-github-btn {
+      display: inline-flex; align-items: center; gap: .4rem;
+      font-size: 12px; font-weight: 600; color: #82aaff;
+      text-decoration: none; margin-top: .4rem; transition: opacity .15s;
     }
-    .modal-section ul { padding-left: 1.2rem; }
-    .modal-section em { color: #86e1fc; font-style: normal; }
+    .modal-github-btn:hover { opacity: .75; }
 
-    .modal-links { display: flex; gap: 10px; padding-top: 1rem; border-top: 1px solid #1e2340; }
-    .modal-link {
-      font-size: 12px; color: #c8d3f5; text-decoration: none;
-      display: inline-flex; align-items: center; gap: 5px;
-      transition: color .15s; letter-spacing: .03em;
+    .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .modal-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: #82aaff; margin-bottom: .6rem; padding-bottom: .4rem;
+      border-bottom: 1px solid #1e2340; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif;
     }
-    .modal-link:hover { color: #82aaff; }
-    .modal-link svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+    .modal-text { font-size: 13.5px; color: #a9b1d6; line-height: 1.85; word-break: keep-all; font-family: 'Noto Sans KR', sans-serif; }
+    .modal-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
+    .modal-list li {
+      font-size: 13.5px; color: #a9b1d6; padding-left: 1rem;
+      position: relative; line-height: 1.6; word-break: keep-all;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+    .modal-list li::before { content: '·'; position: absolute; left: 0; color: #82aaff; }
 
+    @media (max-width: 860px) {
+      .modal { max-width: 100%; height: 95vh; max-height: 95vh; }
+    }
     @media (max-width: 640px) {
       .project-grid { grid-template-columns: 1fr; }
+      .modal { height: 100vh; max-height: 100vh; border-radius: 0; }
+      .modal-header { flex-direction: column; }
+      .modal-img { width: 100%; height: 140px; }
+      .modal-overlay { padding: 0; align-items: flex-end; }
     }
 
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
@@ -209,9 +214,9 @@
             <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag to">Kakao API</span><span class="tag tc">LLM</span>
           </div>
           <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
             <a href="https://github.com/hi4579675/onul-mwhe" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
               <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-              GitHub
             </a>
           </div>
         </div>
@@ -231,9 +236,9 @@
             <span class="tag tb">Spring Boot</span><span class="tag tg">Python</span><span class="tag to">PostgreSQL</span>
           </div>
           <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
             <a href="https://github.com/fridge2fork-project/fridge2fork" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
               <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-              GitHub
             </a>
           </div>
         </div>
@@ -260,9 +265,9 @@
             <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag tc">RAG</span><span class="tag tv">LLM</span><span class="tag to">OCR</span>
           </div>
           <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
             <a href="https://github.com/hi4579675/jikimi" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
               <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-              GitHub
             </a>
           </div>
         </div>
@@ -282,9 +287,9 @@
             <span class="tag tv">FastAPI</span><span class="tag tc">RAG</span><span class="tag tg">Python</span><span class="tag tb">GitHub Actions</span><span class="tag to">SQS</span>
           </div>
           <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
             <a href="https://github.com/hi4579675/ReView" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
               <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-              GitHub
             </a>
           </div>
         </div>
@@ -304,9 +309,9 @@
             <span class="tag tg">LangChain</span><span class="tag tc">RAG</span><span class="tag tv">FastAPI</span><span class="tag tg">Python</span><span class="tag tb">PostgreSQL</span>
           </div>
           <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
             <a href="https://github.com/hi4579675/langchain-issue-search" target="_blank" class="card-gh-link" onclick="event.stopPropagation()">
               <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-              GitHub
             </a>
           </div>
         </div>
@@ -319,97 +324,118 @@
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal" id="modal-panel">
-    <button class="modal-close" id="modal-close">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round">
-        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-      </svg>
-    </button>
-    <div id="modal-content"></div>
+    <button class="modal-close" id="modal-close" aria-label="닫기">✕</button>
+    <div class="modal-header">
+      <img class="modal-img" id="modal-img" src="" alt="" />
+      <div class="modal-title-wrap">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="modal-subtitle" id="modal-subtitle"></p>
+        <div class="modal-tags" id="modal-tags"></div>
+        <a class="modal-github-btn" id="modal-github" href="" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          GitHub
+        </a>
+      </div>
+    </div>
+    <div class="modal-body">
+      <section class="modal-section">
+        <h3 class="modal-section-title">프로젝트 개요</h3>
+        <p class="modal-text" id="modal-overview"></p>
+      </section>
+      <section class="modal-section">
+        <h3 class="modal-section-title">내가 맡은 역할</h3>
+        <ul class="modal-list" id="modal-role"></ul>
+      </section>
+      <section class="modal-section">
+        <h3 class="modal-section-title">어려웠던 점</h3>
+        <p class="modal-text" id="modal-challenge"></p>
+      </section>
+      <section class="modal-section">
+        <h3 class="modal-section-title">해결 방법</h3>
+        <p class="modal-text" id="modal-solution"></p>
+      </section>
+    </div>
   </div>
 </div>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
 
 <script>
-  const gh = `<svg width="14" height="14" viewBox="0 0 24 24" style="fill:currentColor;flex-shrink:0"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>`;
-
   const modals = {
     jikimi: {
-      emoji: '📄',
+      img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80',
       title: '계약지킴이 (Jikimi)',
+      subtitle: 'JIKIMI',
       tags: `<span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag tc">RAG</span><span class="tag tv">LLM</span><span class="tag to">OCR</span>`,
-      sections: [
-        { label: 'OVERVIEW', body: `<p>임차인을 위한 임대차 계약서 AI 분석 서비스입니다.<br>변호사 없이도 <em>서명 전에 한 번 더 읽어주는 AI</em>를 목표로 개발했습니다.</p>` },
-        { label: 'FEATURES', body: `<ul><li>PDF / 이미지 계약서 업로드 → OCR 텍스트 추출</li><li>관련 법령 벡터 DB 대조 (RAG 파이프라인)</li><li>독소 조항 자동 탐지 및 리스크 리포트 생성</li><li>Spring Boot API 서버 + FastAPI AI 서버 분리 구조</li></ul>` },
-        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
-      ],
+      overview: '임차인을 위한 임대차 계약서 AI 분석 서비스입니다. 변호사 없이도 서명 전에 한 번 더 읽어주는 AI를 목표로 개발했습니다.',
+      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
+      challenge: '여기에 어려웠던 점을 적어주세요.',
+      solution: '여기에 해결 방법을 적어주세요.',
       github: 'https://github.com/hi4579675/jikimi',
     },
     onul: {
-      emoji: '📍',
+      img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80',
       title: '오늘 뭐해?',
+      subtitle: 'ONUL',
       tags: `<span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag to">Kakao API</span><span class="tag tc">LLM</span>`,
-      sections: [
-        { label: 'OVERVIEW', body: `<p>지역·기분·예산을 입력하면 AI가 <em>하루 동선 코스</em>를 통째로 만들어주는 추천 앱입니다.</p>` },
-        { label: 'FEATURES', body: `<ul><li>Kakao Map / Local API 병렬 호출로 장소 수집</li><li>Feasibility Filter — 영업시간·이동시간 사전 검증</li><li>LLM Re-rank — 기분·예산에 맞는 최종 코스 정렬</li><li>점심 → 카페 → 놀거리 순서의 하루 일정 자동 생성</li></ul>` },
-        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
-      ],
+      overview: '지역·기분·예산을 입력하면 AI가 하루 동선 코스를 통째로 만들어주는 추천 앱입니다.',
+      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
+      challenge: '여기에 어려웠던 점을 적어주세요.',
+      solution: '여기에 해결 방법을 적어주세요.',
       github: 'https://github.com/hi4579675/onul-mwhe',
     },
     fridge: {
-      emoji: '🧊',
+      img: 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=800&q=80',
       title: '냉비서 부탁해!',
+      subtitle: 'FRIDGE2FORK',
       tags: `<span class="tag tb">Spring Boot</span><span class="tag tg">Python</span><span class="tag to">MySQL</span>`,
-      sections: [
-        { label: 'OVERVIEW', body: `<p>1인 가구를 위한 냉장고 재료 기반 레시피 추천 서비스입니다.<br>식재료 낭비를 줄이는 것을 목표로 합니다.</p>` },
-        { label: 'FEATURES', body: `<ul><li>보유 재료 등록 → 매칭률 순 레시피 추천</li><li>유통기한 임박 재료 우선 활용 챌린지</li><li>Python 크롤러로 레시피 데이터 수집</li><li>Spring Boot REST API + MySQL 백엔드</li></ul>` },
-        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
-      ],
+      overview: '1인 가구를 위한 냉장고 재료 기반 레시피 추천 서비스입니다. 식재료 낭비를 줄이는 것을 목표로 합니다.',
+      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
+      challenge: '여기에 어려웠던 점을 적어주세요.',
+      solution: '여기에 해결 방법을 적어주세요.',
       github: 'https://github.com/fridge2fork-project/fridge2fork',
     },
     review: {
-      emoji: '👁️',
+      img: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
       title: 'ReView',
+      subtitle: 'REVIEW',
       tags: `<span class="tag tv">FastAPI</span><span class="tag tc">RAG</span><span class="tag tg">Python</span><span class="tag tb">GitHub Actions</span><span class="tag to">SQS</span>`,
-      sections: [
-        { label: 'OVERVIEW', body: `<p>diff만 보는 리뷰어는 그만. <em>레포 전체를 이해하는 AI 코드 리뷰어</em>입니다.<br>PR의 변경 코드가 다른 파일에 어떤 영향을 미치는지까지 파악해 리뷰합니다.</p><p style="margin-top:.8rem;font-size:12px;color:#636d94;font-family:'Noto Sans KR',sans-serif;">팀 프로젝트에서 PR 코드 리뷰에 30분~1시간이 걸리던 경험에서 출발했습니다. diff만 봐서는 맥락을 알기 어렵고, 결국 레포를 뒤지고 관련 파일을 열어봐야 코멘트를 남길 수 있었습니다.</p>` },
-        { label: 'FEATURES', body: `<ul><li><em>컨텍스트 인식 리뷰</em> — 레포 전체를 RAG로 인덱싱해 의존성까지 파악</li><li><em>AST 기반 청킹</em> — 함수/클래스 단위로 코드를 분리해 검색 정확도 향상</li><li><em>Query Decomposition</em> — 버그 / 컨벤션 / 성능 관점으로 자동 분리해서 검색</li><li><em>하이브리드 검색</em> — 벡터 유사도 + 키워드 매칭 결합</li><li><em>Cross-encoder 리랭킹</em> — 노이즈 제거 후 상위 컨텍스트만 LLM에 전달</li><li><em>멀티턴 대화</em> — PR 리뷰 중 추가 질문 가능</li><li><em>SQS 비동기 처리</em> — 여러 PR 동시 처리 시 안정적인 큐 관리</li><li><em>GitHub Actions 연동</em> — 별도 서버 없이 PR 오픈 시 자동 실행</li></ul>` },
-        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
-      ],
+      overview: 'diff만 보는 리뷰어는 그만. 레포 전체를 RAG로 인덱싱해 변경 코드가 다른 파일에 미치는 영향까지 이해하는 AI 코드 리뷰어입니다.',
+      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
+      challenge: '여기에 어려웠던 점을 적어주세요.',
+      solution: '여기에 해결 방법을 적어주세요.',
       github: 'https://github.com/hi4579675/ReView',
     },
     langchain: {
-      emoji: '🔍',
+      img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800&q=80',
       title: 'LangChain을 도와줘~!',
+      subtitle: 'LC-ISSUE-SEARCH',
       tags: `<span class="tag tg">LangChain</span><span class="tag tc">RAG</span><span class="tag tv">FastAPI</span><span class="tag tg">Python</span><span class="tag tb">PostgreSQL</span>`,
-      sections: [
-        { label: 'OVERVIEW', body: `<p>LangChain GitHub의 bug 이슈 <em>3,600+개</em>를 벡터화한 트러블슈팅 RAG 시스템입니다.<br>유사 이슈를 시맨틱 검색으로 즉시 찾아줍니다.</p>` },
-        { label: 'FEATURES', body: `<ul><li>GitHub Issues API로 bug 레이블 이슈 3,600+개 수집</li><li>OpenAI Embeddings → Pinecone 벡터 DB 저장</li><li>FastAPI 기반 시맨틱 검색 엔드포인트</li><li>LangChain 에러 발생 시 유사 해결 사례 즉시 검색</li></ul>` },
-        { label: 'WHAT I DID', body: `<p>여기에 본인이 담당한 역할을 적어주세요.</p>` },
-      ],
+      overview: 'LangChain GitHub의 bug 이슈 3,600+개를 벡터화한 트러블슈팅 RAG 시스템입니다. 유사 이슈를 시맨틱 검색으로 즉시 찾아줍니다.',
+      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
+      challenge: '여기에 어려웠던 점을 적어주세요.',
+      solution: '여기에 해결 방법을 적어주세요.',
       github: 'https://github.com/hi4579675/langchain-issue-search',
     },
   };
 
   const overlay = document.getElementById('modal-overlay');
-  const content = document.getElementById('modal-content');
 
   function openModal(key) {
     const m = modals[key];
     if (!m) return;
-    const sections = m.sections.map(s => `
-      <div class="modal-section">
-        <div class="modal-section-label">${s.label}</div>
-        ${s.body}
-      </div>`).join('');
-    content.innerHTML = `
-      <div class="modal-emoji">${m.emoji}</div>
-      <div class="modal-title">${m.title}</div>
-      <div class="modal-tags">${m.tags}</div>
-      ${sections}
-      <div class="modal-links">
-        <a href="${m.github}" target="_blank" class="modal-link" style="color:#c8d3f5;text-decoration:none;">${gh} GitHub</a>
-      </div>`;
+    document.getElementById('modal-img').src = m.img || '';
+    document.getElementById('modal-img').alt = m.title;
+    document.getElementById('modal-title').textContent = m.title;
+    document.getElementById('modal-subtitle').textContent = m.subtitle || '';
+    document.getElementById('modal-tags').innerHTML = m.tags;
+    const ghBtn = document.getElementById('modal-github');
+    ghBtn.href = m.github;
+    document.getElementById('modal-overview').textContent = m.overview || '';
+    const roleEl = document.getElementById('modal-role');
+    roleEl.innerHTML = (m.role || []).map(r => `<li>${r}</li>`).join('');
+    document.getElementById('modal-challenge').textContent = m.challenge || '';
+    document.getElementById('modal-solution').textContent = m.solution || '';
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
