@@ -150,7 +150,7 @@
       color: #82aaff; margin-bottom: .6rem; padding-bottom: .4rem;
       border-bottom: 1px solid #1e2340; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif;
     }
-    .modal-text { font-size: 13.5px; color: #a9b1d6; line-height: 1.85; word-break: keep-all; font-family: 'Noto Sans KR', sans-serif; }
+    .modal-text { font-size: 13.5px; color: #a9b1d6; line-height: 1.85; word-break: keep-all; font-family: 'Noto Sans KR', sans-serif; white-space: pre-wrap; }
     .modal-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: .45rem; }
     .modal-list li {
       font-size: 13.5px; color: #a9b1d6; padding-left: 1rem;
@@ -289,14 +289,14 @@
 
       <div class="project-card" data-modal="langchain">
         <div class="card-thumb">
-          <img src="https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800&q=80" alt="LangChain 이슈서치" loading="lazy" />
+          <img src="/langchain-demo.png" alt="LangChain 이슈서치" loading="lazy" />
           <a href="https://github.com/hi4579675/langchain-issue-search" target="_blank" class="card-gh" onclick="event.stopPropagation()">
             <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
           </a>
         </div>
         <div class="card-body">
-          <div class="card-title">LangChain을 도와줘~!</div>
-          <div class="card-desc">LangChain GitHub bug 이슈 3,600+개를 벡터화한 트러블슈팅 RAG 시스템. 유사 이슈를 시맨틱 검색으로 즉시 찾아줍니다.</div>
+          <div class="card-title">랭체인 119</div>
+          <div class="card-desc">LangChain GitHub bug 이슈 3,600+개를 벡터화한 트러블슈팅 RAG 시스템. </div>
           <div class="card-tags">
             <span class="tag tg">LangChain</span><span class="tag tc">RAG</span><span class="tag tv">FastAPI</span><span class="tag tg">Python</span><span class="tag tb">PostgreSQL</span>
           </div>
@@ -357,10 +357,17 @@
       title: '계약지킴이 (Jikimi)',
       subtitle: 'JIKIMI',
       tags: `<span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag tc">RAG</span><span class="tag tv">LLM</span><span class="tag to">OCR</span>`,
-      overview: '임차인을 위한 임대차 계약서 AI 분석 서비스입니다. 변호사 없이도 서명 전에 한 번 더 읽어주는 AI를 목표로 개발했습니다.',
-      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
-      challenge: '여기에 어려웠던 점을 적어주세요.',
-      solution: '여기에 해결 방법을 적어주세요.',
+      overview: '임대차 계약 만료를 앞둔 어머니가 변호사 검토 비용 부담으로 그냥 서명하려 하셨습니다. 공인중개사는 계약 성사가 목적이라 임차인 편이 되기 어렵고, 법률 챗봇은 계약서를 직접 읽지 못합니다. 그 공백을 채우기 위해 계약서를 업로드하면 독소 조항을 즉시 탐지하는 AI 분석 서비스를 만들었습니다.',
+      role: [
+        'OCR 파이프라인부터 RAG 검색, LLM 분석, Spring Boot AI 통합 설계까지 전체 시스템을 단독 설계 및 구현했습니다.',
+        'OCR 파이프라인: pdfplumber 기반 텍스트 추출, 조항 단위 파싱, 노이즈(페이지 번호·서명란·별지) 정제',
+        'Hybrid RAG: BM25 + pgvector 벡터 검색을 RRF로 병합, 상가임대차보호법 36개 조문 임베딩 및 검색',
+        'LLM 분석: GPT-4o 기반 독소 조항 판별, Hallucination 방지를 위한 법령 조항 교차 검증 프롬프트 설계',
+        'Spring Boot AI 통합: AIServiceClient 인터페이스 추상화, Resilience4j Circuit Breaker + TimeLimiter로 AI 장애 격리, 202 Accepted + polling 비동기 패턴 구현',
+        '인프라: Docker Compose 기반 PostgreSQL + pgvector 환경 구성, AWS 배포',
+      ],
+      challenge: '1. 법령 참조문이 조항으로 오탐: 본문 중간의 "제10조의4제1항" 같은 법령 인용문이 실제 조항 번호로 잘못 파싱되어 12개 조항이 21개로 뻥튀기됨.\n2. 페이지 번호가 조항 내용에 삽입: pdfplumber가 PDF 레이아웃을 선형 텍스트로 변환하는 과정에서 "- 1 / 3 -"가 제8조 본문 중간에 끼어들어 내용이 잘림.\n3. async 함수 내 동기 블로킹: async def search_legal_context 안에서 psycopg2(동기)와 Gemini 클라이언트(동기)를 직접 호출하여 이벤트 루프 전체가 블로킹됨.',
+      solution: '1. 줄 시작(^) + 괄호 제목이 바로 뒤따르는 패턴만 실제 조항으로 인식하도록 정규식 변경. 본문 중간의 법령 참조문은 줄 시작에 위치하지 않으므로 자연스럽게 필터링됨.\n   전: pattern = r\'(제\\d+조(?:의\\d+)?)\'\n   후: pattern = r\'(?m)^[ \\t]*(제\\d+조(?:의\\d+)?)\\s*[（(]\'\n2. 페이지 번호 앞뒤 줄바꿈까지 함께 제거하는 정규식으로 해결. 단순 패턴 제거가 아니라 앞뒤 \\n*를 묶어서 내용 사이 빈 줄이 남지 않도록 처리.\n3. 동기 블로킹 로직을 _embed, _query_db로 분리하고 asyncio.to_thread()로 위임. asyncpg 교체도 검토했으나 PoC 단계에서 드라이버 교체는 오버엔지니어링이라 판단하고 to_thread로 블로킹만 해소.',
       github: 'https://github.com/hi4579675/jikimi',
     },
     onul: {
@@ -397,14 +404,21 @@
       github: 'https://github.com/hi4579675/ReView',
     },
     langchain: {
-      img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=800&q=80',
-      title: 'LangChain을 도와줘~!',
-      subtitle: 'LC-ISSUE-SEARCH',
+      img: '/langchain-demo.png',
+      title: '랭체인 119',
+      subtitle: 'LANGCHAIN-ISSUE-INSIGHT',
       tags: `<span class="tag tg">LangChain</span><span class="tag tc">RAG</span><span class="tag tv">FastAPI</span><span class="tag tg">Python</span><span class="tag tb">PostgreSQL</span>`,
-      overview: 'LangChain GitHub의 bug 이슈 3,600+개를 벡터화한 트러블슈팅 RAG 시스템입니다. 유사 이슈를 시맨틱 검색으로 즉시 찾아줍니다.',
-      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
-      challenge: '여기에 어려웠던 점을 적어주세요.',
-      solution: '여기에 해결 방법을 적어주세요.',
+      overview: 'LangChain을 쓰다 보면 공식 문서에 없는 에러를 자주 만납니다. GPT-4에 물어보면 "버전이 달라서 모른다"는 답변만 돌아오고, Stack Overflow엔 아직 답이 없는 경우도 많습니다. 그래서 깃허브 이슈를 수집하여 트러블슈팅 RAG 시스템을 만들었습니다.',
+      role: [
+        '데이터 수집 파이프라인부터 RAG 파이프라인, API 서버, 평가 프레임워크까지 전체 시스템을 단독 설계 및 구현했습니다.',
+        '데이터 수집: GitHub API rate limit 자동 제어 클라이언트, 이슈·댓글 수집 및 노이즈 정제',
+        'RAG 파이프라인: 코드블록 분리 청킹, Gemini 배치 임베딩, pgvector 저장',
+        '검색·리랭킹: 벡터 유사도 × 키워드 매칭 × solution 가중치 × 최신성 점수 결합',
+        '평가 프레임워크: Hit@k, MRR, NDCG 지표 구현, 검색 구성별 ablation 실험 설계 및 실행',
+        '인프라: Docker Compose 기반 PostgreSQL + pgvector 환경 구성',
+      ],
+      challenge: '1. BTree 인덱스 크기 초과: 코드블록이 긴 청크는 content 길이가 BTree 인덱스 한계(2,704 bytes)를 초과하여 upsert 실패.\n2. 수집 중 무한 대기: 특정 이슈에서 Gemini API 또는 GitHub API 응답이 돌아오지 않아 파이프라인 전체가 멈추는 현상 발생.\n3. solution 댓글 선별 기준 없음: GitHub 이슈 댓글 중 어떤 것이 실제 해결책인지 판단하는 레이블이 없음.\n4. 키워드 매칭 효과 미검증: Hybrid Reranking의 각 가중치를 직관으로 설정했으나 실제 효과를 수치로 확인하지 못한 상태.',
+      solution: '1. content 전체 대신 MD5 해시를 인덱싱하고, UPSERT의 ON CONFLICT 절도 md5(content) 표현식으로 맞춤.\n2. 이슈 단위로 별도 Process를 생성하고 p.join(timeout=180)으로 OS 레벨 강제 종료. Thread와 달리 Process.kill()은 실제로 멈추기 때문에 스레드 기반 타임아웃의 한계를 우회.\n3. 댓글의 👍 reactions 수가 가장 높은 댓글을 solution으로 간주. 단, "thanks" / "+1" 등 노이즈 패턴과 30자 미만 댓글을 사전 필터링하여 정확도 보완.\n4. eval/compare.py로 구성별 ablation 실험 설계. 키워드 매칭이 MRR +36.8%로 가장 큰 기여를 했으며, 최신성 점수는 이 데이터셋에서 효과가 제한적임을 수치로 확인.',
       github: 'https://github.com/hi4579675/langchain-issue-search',
     },
   };
