@@ -102,6 +102,19 @@
     .blog-card .card-title { font-size: 13px; }
 
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+
+    @media (max-width: 640px) {
+      .hero { flex-direction: column; align-items: center; text-align: center; padding: 2.5rem 0 2rem; gap: 1.6rem; }
+      .avatar-wrap { order: -1; width: 180px; height: 180px; }
+      .avatar { width: 180px; height: 180px; }
+      .ring1 { inset: -8px; }
+      h1 { font-size: 40px; }
+      .typing-line { justify-content: center; }
+      .desc { max-width: 100%; }
+      .btns { justify-content: center; }
+      .stack-label { min-width: 70px; }
+      .blog-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
