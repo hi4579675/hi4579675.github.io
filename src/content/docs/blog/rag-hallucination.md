@@ -5,6 +5,7 @@ tags:
   - LangChain
   - Pinecone
 excerpt: LangChain + Pinecone 구성에서 청킹 전략과 re-ranking 적용 경험.
+category: develops
 ---
 
 LangChain + Pinecone 구성에서 청킹 전략과 re-ranking 적용 경험.

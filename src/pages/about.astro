@@ -30,21 +30,12 @@
     .cursor { display: inline-block; width: 2px; height: .85em; background: #86e1fc; margin-left: 1px; vertical-align: middle; animation: blink .7s step-end infinite; }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    h1 { font-size: 36px; font-weight: 500; color: #c8d3f5; line-height: 1.2; }
+    h1 { font-size: 54px; font-weight: 500; color: #c8d3f5; line-height: 1.15; }
     h1 em { color: #82aaff; font-style: normal; }
-    .tagline { font-size: 13px; color: #c099ff; margin-top: 6px; letter-spacing: .04em; }
+    .tagline { font-size: 13px; color: #c099ff; margin-top: 8px; letter-spacing: .04em; font-family: 'Noto Sans KR', sans-serif; }
     .desc { margin-top: 1rem; font-size: 13px; color: #636d94; line-height: 1.9; font-family: 'Noto Sans KR', sans-serif; max-width: 420px; }
     .desc em { color: #86e1fc; font-style: normal; }
-    .btns { display: flex; gap: 9px; margin-top: 1.8rem; flex-wrap: wrap; }
-    .btn { font-size: 12px; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace; border: none; letter-spacing: .04em; transition: all .15s; text-decoration: none; display: inline-block; }
-    .btn-primary { background: #82aaff; color: #0d0f1a; font-weight: 500; }
-    .btn-primary:hover { background: #9fbaff; }
-    .btn-ghost-v { background: transparent; color: #c099ff; border: 1px solid rgba(192,153,255,.3); }
-    .btn-ghost-v:hover { border-color: rgba(192,153,255,.6); }
-    .btn-ghost-o { background: transparent; color: #ffc777; border: 1px solid rgba(255,199,119,.25); }
-    .btn-ghost-o:hover { border-color: rgba(255,199,119,.5); }
-    .btn-ghost-t { background: transparent; color: #86e1fc; border: 1px solid rgba(134,225,252,.25); }
-    .btn-ghost-t:hover { border-color: rgba(134,225,252,.5); }
+    .hero-stack { display: flex; gap: 7px; margin-top: 1.6rem; flex-wrap: wrap; }
 
     @keyframes blob-morph {
       0%,100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
@@ -103,6 +94,13 @@
     .intro-card-body { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.85; }
     .intro-card-body em { color: #86e1fc; font-style: normal; }
 
+    .links-section { padding-bottom: 2rem; }
+    .links-list { display: flex; flex-direction: column; gap: 10px; }
+    .link-item { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #444b6a; font-size: 13px; letter-spacing: .03em; transition: color .15s; width: fit-content; }
+    .link-item:hover { color: #82aaff; }
+    .link-item svg { width: 16px; height: 16px; fill: currentColor; flex-shrink: 0; }
+    .link-item .link-label { color: #2e3455; font-size: 11px; letter-spacing: .06em; }
+
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
   </style>
 </head>
@@ -126,18 +124,27 @@
         <span id="typed-text"></span><span class="cursor"></span>
       </div>
       <h1>Hanna</h1>
-      <p class="tagline">Java · Python </p>
+    
+
       <p class="desc">
        
         <em>안정적인 서버</em> 아키텍처와 <em>LLM 파이프라인</em>을 구현합니다. <br>
         백엔드 기반 위에
 <em>AI를 얹는 개발자</em>를 목표로 합니다.
       </p>
-      <div class="btns">
-        
-        <a href="https://github.com/hi4579675" target="_blank" class="btn btn-ghost-v">GitHub</a>
-        <a href="/portfolio/" class="btn btn-ghost-o">Portfolio</a>
-        <a href="https://fhtepgocprkswjfgka.tistory.com/" target="_blank" class="btn btn-ghost-t">Tistory</a>
+        <br>
+      <div class="hero-stack">
+        <span class="tag tb">Java</span>
+        <span class="tag tv">Spring Boot</span>
+        <span class="tag tg">FastAPI</span>
+        <span class="tag tv">Python</span>
+        <span class="tag tg">LangChain</span>
+        <span class="tag tc">RAG</span>
+        <div style="width:100%;height:0"></div>
+        <span class="tag tp">Redis</span>
+        <span class="tag tgr">Docker</span>
+        <span class="tag tgr">AWS</span>
+        <span class="tag tgr">GitHub Actions</span>
       </div>
     </div>
     <div class="avatar-wrap">
@@ -145,6 +152,37 @@
       <img src="/profile.jpg" alt="Hanna" class="avatar" />
     </div>
   </section>
+
+  <!-- ABOUT ME -->
+  <h2 class="section-heading">About me</h2>
+  <div class="intro-section">
+    <div class="intro-cards">
+      <div class="intro-card">
+        <div class="intro-card-header">
+          <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span class="intro-card-title">낯선 기술도 빠르게 적응하는 개발자</span>
+        </div>
+        <p class="intro-card-body">
+          처음 접하는 기술 앞에서 물러서지 않습니다. 인턴십 기간 동안 <em>Python 기반 RAG 시스템</em>이라는 생소한 영역에 뛰어들어, 형태소 분석기 교체·프롬프트 반복 개선·<em>Hybrid Search</em> 도입까지 실무에 직접 적용하며 빠르게 익혔습니다. 어떤 환경에서도 필요한 기술을 흡수해 팀에 기여할 준비가 되어있습니다.<br><br>
+          <em>Claude, Cursor</em> 등 AI 도구를 적극 활용해 생산성을 높이는 것도 그 일환입니다.
+        </p>
+      </div>
+      <div class="intro-card">
+        <div class="intro-card-header">
+          <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="intro-card-title">소통을 중요시 하는 개발자</span>
+        </div>
+        <p class="intro-card-body">
+          독단적인 판단보다 <em>질문과 확인</em>을 통해 팀의 방향성과 일치하는 코드를 짜는 것에 집중합니다. RAG 시스템 구축 중 로직의 타당성을 수시로 점검받고 피드백을 반영한 결과, 짧은 시간 안에 안정적인 파이프라인을 완성할 수 있었습니다.<br><br>
+          앞으로도 <em>메모와 소통</em>으로 팀의 리소스를 아끼는 개발자가 되겠습니다.
+        </p>
+      </div>
+    </div>
+  </div>
 
   <!-- SKILLS -->
   <h2 class="section-heading">Skills</h2>
@@ -192,37 +230,6 @@
     </div>
   </div>
 
-  <!-- ABOUT ME -->
-  <h2 class="section-heading">About me</h2>
-  <div class="intro-section">
-    <div class="intro-cards">
-      <div class="intro-card">
-        <div class="intro-card-header">
-          <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-          </svg>
-          <span class="intro-card-title">낯선 기술도 빠르게 적응하는 개발자</span>
-        </div>
-        <p class="intro-card-body">
-          처음 접하는 기술 앞에서 물러서지 않습니다. 인턴십 기간 동안 <em>Python 기반 RAG 시스템</em>이라는 생소한 영역에 뛰어들어, 형태소 분석기 교체·프롬프트 반복 개선·<em>Hybrid Search</em> 도입까지 실무에 직접 적용하며 빠르게 익혔습니다. 어떤 환경에서도 필요한 기술을 흡수해 팀에 기여할 준비가 되어있습니다.<br><br>
-          <em>Claude, Cursor</em> 등 AI 도구를 적극 활용해 생산성을 높이는 것도 그 일환입니다.
-        </p>
-      </div>
-      <div class="intro-card">
-        <div class="intro-card-header">
-          <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span class="intro-card-title">소통을 중요시 하는 개발자</span>
-        </div>
-        <p class="intro-card-body">
-          독단적인 판단보다 <em>질문과 확인</em>을 통해 팀의 방향성과 일치하는 코드를 짜는 것에 집중합니다. RAG 시스템 구축 중 로직의 타당성을 수시로 점검받고 피드백을 반영한 결과, 짧은 시간 안에 안정적인 파이프라인을 완성할 수 있었습니다.<br><br>
-          앞으로도 <em>메모와 소통</em>으로 팀의 리소스를 아끼는 개발자가 되겠습니다.
-        </p>
-      </div>
-    </div>
-  </div>
-
   <!-- STATS -->
   <h2 class="section-heading">Stats</h2>
   <div class="stats-section">
@@ -232,6 +239,21 @@
           src="https://github-readme-activity-graph.vercel.app/graph?username=hi4579675&theme=tokyo-night&hide_border=true&area=true&radius=6"
           alt="Activity Graph" loading="lazy" style="width:100%;border-radius:8px;" />
       </div>
+    </div>
+  </div>
+
+  <!-- LINKS -->
+  <h2 class="section-heading">Links</h2>
+  <div class="links-section">
+    <div class="links-list">
+      <a href="https://github.com/hi4579675" target="_blank" class="link-item">
+        <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+        github.com/hi4579675
+      </a>
+      <a href="https://fhtepgocprkswjfgka.tistory.com/" target="_blank" class="link-item">
+        <svg viewBox="0 0 24 24"><path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/></svg>
+        fhtepgocprkswjfgka.tistory.com
+      </a>
     </div>
   </div>
 </main>

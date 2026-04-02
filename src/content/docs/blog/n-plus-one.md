@@ -5,6 +5,7 @@ tags:
   - JPA
   - QueryDSL
 excerpt: JPA 연관관계 조회 N+1을 QueryDSL로 개선하고 쿼리 수를 줄인 과정.
+category: performance
 ---
 
 JPA 연관관계 조회 N+1을 QueryDSL로 개선하고 쿼리 수를 줄인 과정.

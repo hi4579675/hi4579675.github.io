@@ -5,6 +5,7 @@ tags:
   - MSA
   - Kafka
 excerpt: 트랜잭션 커밋과 이벤트 발행 불일치를 Outbox 패턴으로 해결.
+category: architecture
 ---
 
 트랜잭션 커밋과 이벤트 발행 불일치를 Outbox 패턴으로 해결.
