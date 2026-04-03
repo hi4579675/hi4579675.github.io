@@ -108,7 +108,7 @@ const catClass: Record<string, string> = {
 <main>
   <div class="page-header">
     <h1 class="page-title">Blog</h1>
-    <p class="page-desc">백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.</p>
+    <p class="page-desc" id="page-desc">백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.</p>
     <div class="tab-nav">
       <button class="tab-btn active" data-cat="all">all</button>
       <button class="tab-btn" data-cat="develops">develops</button>
@@ -153,11 +153,23 @@ const catClass: Record<string, string> = {
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
 
 <script>
+  const descMap: Record<string, string> = {
+    all:              '백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.',
+    develops:         '프로젝트 개발 회고, 기술 선택 이유, 구현 상세를 기록합니다.',
+    ai:               'LLM·RAG·임베딩 등 생성형 AI 파이프라인 설계와 실험을 기록합니다.',
+    troubleshooting:  '마주친 버그와 에러, 원인 분석과 해결 과정을 기록합니다.',
+    performance:      '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험을 기록합니다.',
+    architecture:     '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정을 기록합니다.',
+  };
+
+  const descEl = document.getElementById('page-desc')!;
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       (btn as HTMLElement).classList.add('active');
-      const cat = (btn as HTMLElement).dataset.cat;
+      const cat = (btn as HTMLElement).dataset.cat!;
+      descEl.textContent = descMap[cat] ?? descMap['all'];
       document.querySelectorAll<HTMLElement>('.post-item').forEach(item => {
         item.style.display = (cat === 'all' || item.dataset.cat === cat) ? '' : 'none';
       });
