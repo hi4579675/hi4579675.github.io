@@ -1,6 +1,6 @@
 ---
 title: "N+1 문제, QueryDSL Fetch Join으로 해결"
-date: 2026-03-10
+date: 2026-03-05
 tags:
   - JPA
   - QueryDSL

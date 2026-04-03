@@ -1,6 +1,6 @@
 ---
 title: RAG 파이프라인에서 Hallucination 줄이기
-date: 2026-03-18
+date: 2026-03-11
 tags:
   - LangChain
   - Pinecone

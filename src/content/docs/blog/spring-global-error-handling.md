@@ -423,6 +423,54 @@ public enum ErrorCode { ... } // ❌ BaseErrorCode 구현 안 됨
 
 ---
 
+## 전체 흐름 정리
+
+에러가 발생했을 때 실제로 어떤 순서로 처리되는지 한눈에 정리한다.
+
+```
+Service
+└── throw new CustomException(ErrorCode.USER_NOT_FOUND)
+      │
+      │  RuntimeException을 상속하므로 Spring이 자동으로 감지
+      ▼
+GlobalExceptionHandler.handleCustomException()
+└── e.getBaseErrorCode()
+      → ErrorCode.USER_NOT_FOUND
+      → .getReasonHttpStatus()
+      → ResponseDto { httpStatus: 404, code: "USER_NOT_FOUND", message: "유저를 찾을 수 없습니다.", isSuccess: false }
+└── ApiResponse.onFailure(errorCode)
+      → ResponseEntity.status(404).body(ApiResponse)
+      │
+      ▼
+클라이언트 응답
+
+{
+  "success": false,
+  "code": "USER_NOT_FOUND",
+  "message": "유저를 찾을 수 없습니다.",
+  "data": null
+}
+```
+
+성공 흐름도 동일한 구조다.
+
+```
+Controller
+└── return ApiResponse.onSuccess(SuccessCode.LOGIN_SUCCESS, tokenResponse)
+      │
+      ▼
+클라이언트 응답
+
+{
+  "success": true,
+  "code": "LOGIN_SUCCESS",
+  "message": "로그인에 성공했습니다.",
+  "data": { "accessToken": "..." }
+}
+```
+
+---
+
 ## 마무리
 
 이 구조를 한 줄로 요약하면 이렇다.

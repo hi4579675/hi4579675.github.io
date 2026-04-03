@@ -90,6 +90,21 @@ const catClass: Record<string, string> = {
     .cat-arch    { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
     .cat-ai      { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
 
+    /* PAGINATION */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 2.5rem 0 0; }
+    .pagination.hidden { display: none; }
+    .page-btn {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a;
+      background: none; border: 1px solid #1e2340; border-radius: 6px;
+      padding: 5px 11px; cursor: pointer; letter-spacing: .04em;
+      transition: color .15s, border-color .15s, background .15s;
+      min-width: 34px; text-align: center;
+    }
+    .page-btn:hover { color: #c8d3f5; border-color: #2d3561; }
+    .page-btn.active { color: #82aaff; background: rgba(130,170,255,.08); border-color: rgba(130,170,255,.35); }
+    .page-btn:disabled { opacity: .3; cursor: default; pointer-events: none; }
+    .page-arrow { font-size: 13px; }
+
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
   </style>
 </head>
@@ -148,33 +163,98 @@ const catClass: Record<string, string> = {
       );
     })}
   </ul>
+
+  <nav class="pagination" id="pagination" aria-label="페이지 탐색">
+    <button class="page-btn page-arrow" id="pg-prev">←</button>
+    <span id="pg-numbers" style="display:flex;gap:6px;"></span>
+    <button class="page-btn page-arrow" id="pg-next">→</button>
+  </nav>
 </main>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
 
 <script>
+  const PER_PAGE = 10;
+
   const descMap: Record<string, string> = {
-    all:              '백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.',
-    develops:         '프로젝트 개발 회고, 기술 선택 이유, 구현 상세를 기록합니다.',
-    ai:               'LLM·RAG·임베딩 등 생성형 AI 파이프라인 설계와 실험을 기록합니다.',
-    troubleshooting:  '마주친 버그와 에러, 원인 분석과 해결 과정을 기록합니다.',
-    performance:      '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험을 기록합니다.',
-    architecture:     '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정을 기록합니다.',
+    all:             '백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.',
+    develops:        '프로젝트 개발 회고, 기술 선택 이유, 구현 상세를 기록합니다.',
+    ai:              'LLM·RAG·임베딩 등 생성형 AI 파이프라인 설계와 실험을 기록합니다.',
+    troubleshooting: '마주친 버그와 에러, 원인 분석과 해결 과정을 기록합니다.',
+    performance:     '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험을 기록합니다.',
+    architecture:    '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정을 기록합니다.',
   };
 
-  const descEl = document.getElementById('page-desc')!;
+  const descEl      = document.getElementById('page-desc')!;
+  const pagination  = document.getElementById('pagination')!;
+  const pgNumbers   = document.getElementById('pg-numbers')!;
+  const pgPrev      = document.getElementById('pg-prev') as HTMLButtonElement;
+  const pgNext      = document.getElementById('pg-next') as HTMLButtonElement;
+  const allItems    = Array.from(document.querySelectorAll<HTMLElement>('.post-item'));
 
-  document.querySelectorAll('.tab-btn').forEach(btn => {
+  let currentCat  = 'all';
+  let currentPage = 1;
+
+  function getVisibleItems(): HTMLElement[] {
+    return currentCat === 'all'
+      ? allItems
+      : allItems.filter(item => item.dataset.cat === currentCat);
+  }
+
+  function render() {
+    const items     = getVisibleItems();
+    const totalPages = Math.ceil(items.length / PER_PAGE);
+    const start     = (currentPage - 1) * PER_PAGE;
+    const end       = start + PER_PAGE;
+
+    // 아이템 표시 여부
+    allItems.forEach(item => { item.style.display = 'none'; });
+    if (currentCat === 'all') {
+      items.slice(start, end).forEach(item => { item.style.display = ''; });
+    } else {
+      // 카테고리 탭: 페이지네이션 없이 전체 표시
+      items.forEach(item => { item.style.display = ''; });
+    }
+
+    // 페이지네이션: all 탭 + 2페이지 이상일 때만 표시
+    const showPagination = currentCat === 'all' && totalPages > 1;
+    pagination.classList.toggle('hidden', !showPagination);
+
+    if (!showPagination) return;
+
+    // 번호 버튼 렌더
+    pgNumbers.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+      btn.textContent = String(i);
+      btn.addEventListener('click', () => { currentPage = i; render(); });
+      pgNumbers.appendChild(btn);
+    }
+
+    pgPrev.disabled = currentPage === 1;
+    pgNext.disabled = currentPage === totalPages;
+  }
+
+  pgPrev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(); } });
+  pgNext.addEventListener('click', () => {
+    const total = Math.ceil(getVisibleItems().length / PER_PAGE);
+    if (currentPage < total) { currentPage++; render(); }
+  });
+
+  document.querySelectorAll<HTMLElement>('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      (btn as HTMLElement).classList.add('active');
-      const cat = (btn as HTMLElement).dataset.cat!;
-      descEl.textContent = descMap[cat] ?? descMap['all'];
-      document.querySelectorAll<HTMLElement>('.post-item').forEach(item => {
-        item.style.display = (cat === 'all' || item.dataset.cat === cat) ? '' : 'none';
-      });
+      btn.classList.add('active');
+      currentCat  = btn.dataset.cat!;
+      currentPage = 1;
+      descEl.textContent = descMap[currentCat] ?? descMap['all'];
+      render();
     });
   });
+
+  // 초기 렌더
+  render();
 </script>
 
 </body>

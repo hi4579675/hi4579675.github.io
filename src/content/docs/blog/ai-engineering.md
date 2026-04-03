@@ -1,6 +1,6 @@
 ---
 title: AI 엔지니어링이란 무엇인가 — 모델을 만드는 게 아니라 다루는 기술
-date: 2026-04-02
+date: 2026-03-17
 tags:
   - AI Engineering
   - LLM

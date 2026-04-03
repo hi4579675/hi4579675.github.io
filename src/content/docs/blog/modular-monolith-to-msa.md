@@ -1,6 +1,6 @@
 ---
 title: "Modular Monolith에서 MSA로: 서비스 성장을 위한 아키텍처 여정"
-date: 2026-04-03
+date: 2026-03-29
 tags:
   - MSA
 excerpt: 처음부터 MSA로 짜야 하나요? 모놀리식에서 Modular Monolith를 거쳐 MSA로 가는 흐름과, 각 단계가 왜 필요한지를 정리했습니다.
