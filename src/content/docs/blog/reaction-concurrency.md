@@ -126,15 +126,36 @@ COMMIT
 트랜잭션이 시작될 때 `SELECT ... FOR UPDATE`로 해당 레코드에 배타 락을 건다.
 다른 트랜잭션은 락이 해제될 때까지 대기한다.
 
+#### PESSIMISTIC_READ vs PESSIMISTIC_WRITE
+
+JPA의 비관적 락에는 두 종류가 있다.
+
+| | PESSIMISTIC_READ | PESSIMISTIC_WRITE |
+|--|--|--|
+| 실제 SQL | `SELECT ... LOCK IN SHARE MODE` | `SELECT ... FOR UPDATE` |
+| 다른 트랜잭션 읽기 | 가능 | 불가 (블로킹) |
+| 다른 트랜잭션 쓰기 | 불가 (블로킹) | 불가 (블로킹) |
+| 용도 | 읽는 동안 수정 방지 | 수정할 것을 보장 |
+
+카운터를 증가시키는 목적이므로 반드시 `PESSIMISTIC_WRITE`를 써야 한다.
+`PESSIMISTIC_READ`를 쓰면 두 트랜잭션이 동시에 공유 락을 잡고 서로 업데이트를 기다리는 **데드락**이 발생할 수 있다.
+
+#### 구현 코드
+
 ```java
 // ReactionCountRepository.java
 public interface ReactionCountRepository extends JpaRepository<ReactionCount, Long> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints(@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000"))
     @Query("SELECT rc FROM ReactionCount rc WHERE rc.postId = :postId AND rc.emojiType = :emojiType")
     Optional<ReactionCount> findByPostIdAndEmojiTypeWithLock(Long postId, String emojiType);
 }
 ```
+
+`@QueryHint`로 락 타임아웃을 설정해두는 게 좋다.
+락 대기 중 서버 장애가 나거나 처리가 지연되면 다른 요청들이 무한정 대기할 수 있기 때문이다.
+3000ms 이상 기다려도 락을 못 얻으면 예외를 던지도록 한다.
 
 ```java
 // ReactionService.java
@@ -142,7 +163,6 @@ public interface ReactionCountRepository extends JpaRepository<ReactionCount, Lo
 public void addReaction(Long userId, Long postId, String emojiType) {
     // reactions 테이블 처리 (유니크 제약으로 중복 방지)
 
-    // 카운트 레코드에 락을 걸고 조회
     ReactionCount reactionCount = reactionCountRepository
         .findByPostIdAndEmojiTypeWithLock(postId, emojiType)
         .orElseGet(() -> ReactionCount.of(postId, emojiType));
@@ -152,33 +172,66 @@ public void addReaction(Long userId, Long postId, String emojiType) {
 }
 ```
 
+#### 실제 실행 흐름
+
 ```
 트랜잭션 A        데이터베이스        트랜잭션 B
 
 SELECT FOR UPDATE ──────────────▶
 ◀──────────────   count = 1, 락 보유
-                                    (락 획득 대기...)
-
+                                    SELECT FOR UPDATE  (블로킹 - 대기)
 count = 2 갱신
 COMMIT, 락 해제   count = 2
 
-                                    (락 획득)
-                                    SELECT FOR UPDATE
+                                    락 획득
                                     ◀──────────────   count = 2
                                     count = 3 갱신
                                     COMMIT
                   count = 3 ✅
 ```
 
-**장점:** 구현이 단순하다. 재시도 로직이 필요 없다.
+#### 주의: 레코드가 없을 때 문제
 
-**단점:** 락을 보유하는 동안 다른 요청이 블로킹된다. 트래픽이 몰리면 대기 큐가 쌓일 수 있다.
+`orElseGet(() -> ReactionCount.of(postId, emojiType))`은 카운트 레코드가 없을 때 새로 만드는 코드다.
+
+문제는 `SELECT ... FOR UPDATE`는 **존재하는 레코드에만 락을 걸 수 있다**는 점이다.
+레코드가 없으면 락 없이 둘 다 통과하고, 둘 다 INSERT를 시도하다가 유니크 제약 위반이 발생한다.
+
+```
+트랜잭션 A        데이터베이스        트랜잭션 B
+
+SELECT FOR UPDATE → 없음 (락 없이 통과)
+                                    SELECT FOR UPDATE → 없음 (락 없이 통과)
+INSERT count=1    ──────────────▶   INSERT count=1    ──────────────▶
+                  ← 성공               ← 유니크 제약 위반!
+```
+
+이를 방지하는 가장 간단한 방법은 **게시글 생성 시 모든 이모지 타입의 카운트 레코드를 미리 0으로 초기화**하는 것이다.
+
+```java
+// 게시글 생성 시
+public void createPost(...) {
+    Post post = postRepository.save(Post.of(...));
+
+    // 모든 이모지 타입 카운트 레코드 미리 생성
+    List<ReactionCount> initialCounts = EmojiType.values().stream()
+            .map(emoji -> ReactionCount.of(post.getId(), emoji.name(), 0L))
+            .toList();
+    reactionCountRepository.saveAll(initialCounts);
+}
+```
+
+이렇게 하면 `SELECT ... FOR UPDATE` 시점에 항상 레코드가 존재하므로 락이 정상적으로 동작한다.
+
+**장점:** 구현이 단순하다. 충돌이 나도 재시도 로직 없이 DB가 알아서 직렬화한다.
+
+**단점:** 락을 보유하는 동안 다른 요청이 블로킹된다. 트래픽이 몰리면 대기 큐가 쌓인다.
 
 ---
 
 #### 참고: DB 단에서 원자적으로 처리하는 방법
 
-비관적 락 대신 아래처럼 `UPDATE` 한 줄로도 동시성을 해결할 수 있다.
+비관적 락 없이 `UPDATE` 한 줄로도 동시성을 해결할 수 있다.
 
 ```sql
 UPDATE reaction_counts
@@ -186,17 +239,19 @@ SET count = count + 1
 WHERE post_id = ? AND emoji_type = ?
 ```
 
-DB가 `count = count + 1`을 원자적으로 처리해주기 때문에 SELECT → UPDATE 두 단계를 거치지 않아도 경합이 발생하지 않는다.
+DB가 `count = count + 1`을 원자적으로 처리해주기 때문에 SELECT → UPDATE 두 단계 없이도 경합이 발생하지 않는다.
 
 JPA에서는 `@Modifying` + `@Query`로 쓸 수 있다.
 
 ```java
 @Modifying
-@Query("UPDATE ReactionCount rc SET rc.count = rc.count + 1 WHERE rc.postId = :postId AND rc.emojiType = :emojiType")
+@Query("UPDATE ReactionCount rc SET rc.count = rc.count + 1 " +
+       "WHERE rc.postId = :postId AND rc.emojiType = :emojiType")
 int incrementCount(Long postId, String emojiType);
 ```
 
-다만 이 방식은 JPA의 1차 캐시(영속성 컨텍스트)를 우회하는 벌크 연산이라, 같은 트랜잭션 내에서 엔티티를 다시 조회해야 최신 값을 볼 수 있다는 점을 주의해야 한다.
+단, 이 방식은 JPA의 1차 캐시(영속성 컨텍스트)를 우회하는 벌크 연산이라 같은 트랜잭션 내에서 엔티티를 다시 조회해야 최신 값을 볼 수 있다.
+또한 레코드가 없으면 갱신 행이 0이 되어 무시되므로, 역시 레코드 사전 초기화가 필요하다.
 
 ---
 
@@ -206,6 +261,8 @@ int incrementCount(Long postId, String emojiType);
 
 레코드에 `version` 컬럼을 추가한다. 업데이트 시 `WHERE version = 읽었던_버전`을 조건으로 걸어,
 그 사이 다른 트랜잭션이 수정했다면 갱신 행이 0이 되어 충돌을 감지한다.
+
+#### 구현 코드
 
 ```java
 // ReactionCount.java
@@ -221,9 +278,22 @@ public class ReactionCount {
     private long count;
 
     @Version
-    private Long version;  // JPA가 자동으로 version 체크
+    private Long version;  // JPA가 자동으로 version 조건 추가
 }
 ```
+
+`@Version`을 선언하면 JPA가 UPDATE 시 자동으로 version 조건을 추가한다.
+
+```sql
+-- JPA가 실제로 실행하는 SQL
+UPDATE reaction_counts
+SET count = ?, version = 2      -- version을 자동으로 +1
+WHERE id = ? AND version = 1    -- 읽었던 version을 조건으로
+```
+
+갱신된 행이 0이면 JPA는 `OptimisticLockException`을 던진다.
+
+#### 실제 실행 흐름
 
 ```
 트랜잭션 A        데이터베이스        트랜잭션 B
@@ -233,38 +303,82 @@ SELECT            ──────────────▶
                                     SELECT            ──────────────▶
                                     ◀──────────────   count=1, version=1
 
-UPDATE            ──────────────▶
-WHERE version=1
-◀──────────────   count=2, version=2
+UPDATE WHERE      ──────────────▶
+version=1
+◀──────────────   count=2, version=2 (성공)
 COMMIT
 
                                     UPDATE WHERE version=1 ──────────▶
-                                    ◀──────────────   갱신 0건 (version 불일치)
+                                    ◀──────────────   갱신 0건
                                     → OptimisticLockException
-                                    rollback (또는 재시도)
+                                    rollback
 ```
 
-트랜잭션 B는 실패한다. 여기서 두 가지 선택지가 있다.
+#### 예외 계층 구조
 
-- **실패 처리:** 클라이언트에 오류 응답
-- **재시도 처리:** 애플리케이션에서 직접 retry 구현
+Spring Data JPA는 `OptimisticLockException`을 `ObjectOptimisticLockingFailureException`으로 변환해서 던진다.
+
+```
+jakarta.persistence.OptimisticLockException          (JPA 표준)
+    ↓ Spring이 변환
+org.springframework.orm.ObjectOptimisticLockingFailureException
+    ↑ spring-retry의 @Retryable에서 잡을 타입
+```
+
+`@Retryable`을 쓸 때 어떤 예외를 잡을지 명확히 지정해야 한다.
+
+#### 재시도 구현 — @Transactional과 함께 쓸 때 주의점
+
+`@Retryable`과 `@Transactional`을 **같은 메서드에 동시에** 선언하면 AOP 적용 순서 문제가 생긴다.
 
 ```java
-// 재시도 예시 (spring-retry 사용)
-@Retryable(
-    retryFor = OptimisticLockingFailureException.class,
-    maxAttempts = 3,
-    backoff = @Backoff(delay = 50)
-)
-@Transactional
+// ❌ 잘못된 방식
+@Retryable(retryFor = ObjectOptimisticLockingFailureException.class, maxAttempts = 3)
+@Transactional  // @Transactional이 @Retryable 안쪽에서 동작하면 재시도가 의미 없을 수 있음
 public void addReaction(Long userId, Long postId, String emojiType) {
     // ...
 }
 ```
 
+`@Retryable`이 재시도를 하려면 트랜잭션이 완전히 롤백된 후 새 트랜잭션으로 다시 시작해야 한다.
+두 어노테이션이 같은 메서드에 있으면 이 순서가 보장되지 않을 수 있다.
+
+```java
+// ✅ 올바른 방식 — 메서드 분리
+@Service
+@RequiredArgsConstructor
+public class ReactionFacade {
+
+    private final ReactionService reactionService;
+
+    // @Retryable은 트랜잭션 바깥에서 동작 (트랜잭션 없음)
+    @Retryable(
+        retryFor = ObjectOptimisticLockingFailureException.class,
+        maxAttempts = 3,
+        backoff = @Backoff(delay = 50)
+    )
+    public void addReactionWithRetry(Long userId, Long postId, String emojiType) {
+        reactionService.addReaction(userId, postId, emojiType);  // @Transactional 메서드 호출
+    }
+    // 재시도 3회 모두 실패 시 @Recover로 처리하거나 예외 전파
+}
+
+@Service
+public class ReactionService {
+
+    @Transactional  // 트랜잭션은 여기서만
+    public void addReaction(Long userId, Long postId, String emojiType) {
+        // ...
+    }
+}
+```
+
+이렇게 분리하면 `addReaction()`이 예외를 던지고 트랜잭션이 롤백된 후,
+`addReactionWithRetry()`가 새 트랜잭션으로 다시 호출한다.
+
 **장점:** 락을 잡지 않으므로 읽기 성능에 영향을 주지 않는다. 충돌이 드문 상황에서 유리하다.
 
-**단점:** 충돌 발생 시 애플리케이션 레벨에서 후처리(재시도 또는 실패)를 직접 구현해야 한다. 충돌이 잦은 환경에서는 재시도 비용이 오히려 커진다.
+**단점:** 충돌 발생 시 재시도 로직을 직접 구현해야 한다. 충돌이 잦은 환경에서는 재시도 비용이 오히려 커진다.
 
 ---
 
