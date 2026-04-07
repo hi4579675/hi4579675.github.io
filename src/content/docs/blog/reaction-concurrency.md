@@ -1,78 +1,89 @@
 ---
-title: "리액션 카운트의 동시성 문제, 어떻게 풀까?"
+title: "좋아요 수 설계: 비정규화, Record Lock, 동시성 제어"
 date: 2026-04-07
 tags:
   - Spring Boot
   - 동시성
   - JPA
-excerpt: KKiri 프로젝트의 이모지 리액션 시스템을 구현하면서 마주친 동시성 문제와, 세 가지 해결 전략(비관적 락, 낙관적 락, 비동기 순차 처리)을 비교한 내용을 정리한다.
+excerpt: 리액션 카운트를 어떻게 설계할까? 비정규화 필요성부터 동시성 문제와 해결 전략까지, 설계 고민의 흐름을 따라가며 KKiri 프로젝트에서의 선택을 정리한다.
 category: architecture
 ---
 
-> KKiri 프로젝트의 이모지 리액션 시스템을 구현하면서 마주친 동시성 문제와,
-> 세 가지 해결 전략(비관적 락, 낙관적 락, 비동기 순차 처리)을 비교한 내용을 정리한다.
+> 리액션 카운트를 어떻게 설계할까? 비정규화 필요성부터 동시성 문제와 해결 전략까지,
+> 설계 고민의 흐름을 따라가며 KKiri 프로젝트에서의 선택을 정리한다.
 
 ---
 
-## 리액션 시스템 스펙
+## 왜 카운트를 미리 저장해야 하는가
 
-KKiri는 게시글에 이모지로 반응할 수 있는 기능을 제공한다.
+리액션 수를 보여줄 때 가장 단순한 방법은 조회 시점에 직접 집계하는 것이다.
 
-- 지원 이모지: `❤️` `😂` `😮` `😢` `🔥` `✅` `👍`
-- 같은 이모지는 유저당 1개만 허용 (중복 불가)
-- 다른 이모지는 동시에 여러 개 가능 (`👍`도 하고 `❤️`도 할 수 있음)
-- 응답 예시: `👍 12` / `❤️ 5` / `😂 3` — 이모지 타입별 개별 카운팅
-
-중복을 막기 위해 테이블에 유니크 제약을 걸었다.
-
-```java
-@Table(
-    name = "reactions",
-    uniqueConstraints = @UniqueConstraint(
-        columnNames = {"post_id", "user_id", "emoji_type"}
-    )
-)
-public class Reaction { ... }
+```sql
+SELECT emoji_type, COUNT(*) FROM reactions WHERE post_id = ? GROUP BY emoji_type
 ```
 
-`(post_id, user_id, emoji_type)` 조합이 유일하므로, 같은 유저가 같은 이모지를 두 번 누르는 건 DB 레벨에서 차단된다.
+데이터가 적을 때는 문제없다. 하지만 데이터가 쌓일수록 매 조회마다 전체 테이블을 스캔하는 비용이 커진다.
+
+게시글 목록처럼 "일부만 보여주는" 방식도 쓸 수 없다. 리액션 수는 전체 개수를 실시간으로 보여줘야 한다.
+
+조회 시점에 집계하는 비용이 크다면, 리액션이 생성/삭제될 때마다 미리 카운트를 갱신해두는 방법이 있다. 리액션 테이블의 게시글별 데이터 개수를 하나의 레코드로 비정규화해두는 것이다.
 
 ---
 
-## 현재 구현: 즉석 집계
+## 카운트 데이터의 특성
 
-처음에는 별도의 카운트 테이블 없이, 조회 시점에 `reactions` 테이블에서 직접 집계했다.
+비정규화 방식을 선택하기 전에, 카운트 데이터의 특성을 먼저 살펴볼 필요가 있다.
 
-```java
-// ReactionService.java
-public List<ReactionSummaryResponse> getReactions(Long userId, Long postId) {
-    List<Reaction> allReactions = reactionRepository.findByPostId(postId);
+**쓰기 트래픽은 상대적으로 크지 않다.**
 
-    Map<String, Long> counts = allReactions.stream()
-        .collect(Collectors.groupingBy(Reaction::getEmojiType, Collectors.counting()));
+사용자는 게시글을 조회하고, 마음에 드는 게시글을 찾은 뒤 직접 리액션 액션을 수행한다. 조회에 비해 쓰기는 적다.
 
-    Set<String> myEmojiTypes = reactionRepository
-        .findByPostIdAndUserId(postId, userId)
-        .stream()
-        .map(Reaction::getEmojiType)
-        .collect(Collectors.toSet());
+**데이터의 일관성이 비교적 중요하다.**
 
-    return counts.entrySet().stream()
-        .map(e -> new ReactionSummaryResponse(e.getKey(), e.getValue(), myEmojiTypes.contains(e.getKey())))
-        .toList();
-}
-```
+15명이 👍를 눌렀는데 카운트가 10으로 표시된다면? 리액션한 사용자 목록이 함께 표시될 경우 사용자는 즉시 불일치를 확인할 수 있다.
 
-이 방식은 동시성 문제가 없다. 카운트를 "저장"하지 않으므로 수정 충돌 자체가 발생하지 않는다.
-
-하지만 트래픽이 늘수록 매 조회마다 전체 `reactions`를 풀스캔하는 비용이 커진다.
-카운트를 별도로 저장해두고 빠르게 읽는 구조가 필요해진다.
+쓰기 트래픽이 상대적으로 적고 일관성이 중요하다면, 관계형 데이터베이스의 트랜잭션을 활용해볼 수 있다. 리액션 테이블의 데이터 생성/삭제와 카운트 갱신을 하나의 트랜잭션으로 묶는 것이다.
 
 ---
 
-## 카운트 테이블을 도입하면 생기는 문제
+## 카운트 테이블은 어디에, 어떻게?
 
-`reaction_counts` 테이블을 만들어 `(post_id, emoji_type)` 단위로 카운트를 저장한다고 하자.
+### 기존 테이블 컬럼으로 넣으면?
+
+카운트를 별도 테이블로 분리하지 않고, 기존 테이블의 컬럼으로 추가하는 방법이 있다. 1:1 관계이므로 어색함은 없어 보인다.
+
+하지만 여기에는 **Record Lock** 문제가 생긴다.
+
+MySQL에서 UPDATE 구문을 수행하면 해당 레코드에 Exclusive Lock이 걸린다. 트랜잭션이 커밋되기 전까지 다른 트랜잭션은 같은 레코드에 쓰기 작업을 할 수 없다.
+
+문제는 **게시글과 리액션 카운트의 Lifecycle이 다르다**는 점이다.
+
+- 게시글은 작성자가 쓰기 작업을 수행한다. 트래픽은 상대적으로 적다.
+- 리액션 카운트는 게시글을 조회한 모든 사용자가 쓰기 작업을 수행한다. 트래픽은 상대적으로 많다.
+
+서로 다른 주체에 의해 동일한 레코드에 락이 잡힐 수 있는 것이다. 두 기능은 사용자 입장에서 독립적으로 수행되는데, 리액션 카운트 갱신으로 인해 게시글 작성자의 쓰기 작업이 블로킹될 수 있다.
+
+이 문제를 방지하려면 게시글과 카운트의 변경을 **독립적인 테이블로 분리**해야 한다.
+
+### 어느 서비스/DB에?
+
+MSA 환경에서 서비스별로 독립적인 데이터베이스를 구성한다면, 카운트 테이블을 어디에 관리할지 결정해야 한다.
+
+리액션 테이블과 카운트 테이블은 함께 트랜잭션으로 묶여야 한다. 만약 두 테이블이 서로 다른 서비스의 데이터베이스에 있다면 분산 트랜잭션이 필요해진다. 분산 트랜잭션은 상대적으로 느리고 복잡하다.
+
+따라서 카운트 테이블은 **리액션 테이블과 동일한 서비스의 데이터베이스**에서 관리한다.
+
+### 샤딩 환경에서의 Shard Key
+
+샤딩이 고려된 분산 데이터베이스라면, 리액션 테이블과 카운트 테이블이 물리적으로 다른 샤드에 배치될 수 있다. 이 경우에도 분산 트랜잭션이 필요해진다.
+
+이를 피하려면 카운트 테이블의 Shard Key를 리액션 테이블과 동일하게 설정해야 한다. 두 테이블이 항상 같은 샤드에 존재하도록 보장하는 것이다.
+
+---
+
+## 카운트 테이블을 도입하면 생기는 동시성 문제
+
+카운트 테이블을 이렇게 설계했다고 하자.
 
 ```sql
 CREATE TABLE reaction_counts (
@@ -213,7 +224,6 @@ INSERT count=1    ──────────────▶   INSERT count=1
 public void createPost(...) {
     Post post = postRepository.save(Post.of(...));
 
-    // 모든 이모지 타입 카운트 레코드 미리 생성
     List<ReactionCount> initialCounts = EmojiType.values().stream()
             .map(emoji -> ReactionCount.of(post.getId(), emoji.name(), 0L))
             .toList();
@@ -334,7 +344,7 @@ org.springframework.orm.ObjectOptimisticLockingFailureException
 ```java
 // ❌ 잘못된 방식
 @Retryable(retryFor = ObjectOptimisticLockingFailureException.class, maxAttempts = 3)
-@Transactional  // @Transactional이 @Retryable 안쪽에서 동작하면 재시도가 의미 없을 수 있음
+@Transactional
 public void addReaction(Long userId, Long postId, String emojiType) {
     // ...
 }
@@ -351,22 +361,20 @@ public class ReactionFacade {
 
     private final ReactionService reactionService;
 
-    // @Retryable은 트랜잭션 바깥에서 동작 (트랜잭션 없음)
     @Retryable(
         retryFor = ObjectOptimisticLockingFailureException.class,
         maxAttempts = 3,
         backoff = @Backoff(delay = 50)
     )
     public void addReactionWithRetry(Long userId, Long postId, String emojiType) {
-        reactionService.addReaction(userId, postId, emojiType);  // @Transactional 메서드 호출
+        reactionService.addReaction(userId, postId, emojiType);
     }
-    // 재시도 3회 모두 실패 시 @Recover로 처리하거나 예외 전파
 }
 
 @Service
 public class ReactionService {
 
-    @Transactional  // 트랜잭션은 여기서만
+    @Transactional
     public void addReaction(Long userId, Long postId, String emojiType) {
         // ...
     }
@@ -404,7 +412,58 @@ public class ReactionService {
 
 ---
 
-## KKiri에서 선택한 방법
+## KKiri에서의 선택
+
+### 리액션 시스템 스펙
+
+KKiri는 게시글에 이모지로 반응할 수 있는 기능을 제공한다.
+
+- 지원 이모지: `❤️` `😂` `😮` `😢` `🔥` `✅` `👍`
+- 같은 이모지는 유저당 1개만 허용 (중복 불가)
+- 다른 이모지는 동시에 여러 개 가능 (`👍`도 하고 `❤️`도 할 수 있음)
+- 응답 예시: `👍 12` / `❤️ 5` / `😂 3` — 이모지 타입별 개별 카운팅
+
+중복을 막기 위해 테이블에 유니크 제약을 걸었다.
+
+```java
+@Table(
+    name = "reactions",
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {"post_id", "user_id", "emoji_type"}
+    )
+)
+public class Reaction { ... }
+```
+
+### 즉석 집계에서 비정규화로
+
+처음에는 별도의 카운트 테이블 없이, 조회 시점에 직접 집계했다.
+
+```java
+// ReactionService.java
+public List<ReactionSummaryResponse> getReactions(Long userId, Long postId) {
+    List<Reaction> allReactions = reactionRepository.findByPostId(postId);
+
+    Map<String, Long> counts = allReactions.stream()
+        .collect(Collectors.groupingBy(Reaction::getEmojiType, Collectors.counting()));
+
+    Set<String> myEmojiTypes = reactionRepository
+        .findByPostIdAndUserId(postId, userId)
+        .stream()
+        .map(Reaction::getEmojiType)
+        .collect(Collectors.toSet());
+
+    return counts.entrySet().stream()
+        .map(e -> new ReactionSummaryResponse(e.getKey(), e.getValue(), myEmojiTypes.contains(e.getKey())))
+        .toList();
+}
+```
+
+이 방식은 동시성 문제가 없다. 카운트를 "저장"하지 않으므로 수정 충돌 자체가 발생하지 않는다.
+
+하지만 트래픽이 늘수록 매 조회마다 전체 `reactions`를 풀스캔하는 비용이 커진다. 카운트를 별도로 저장해두고 빠르게 읽는 구조가 필요하다.
+
+### 전략 비교 및 선택
 
 KKiri는 소규모 친구 그룹 앱이다. 게시글 하나에 수십 명이 동시에 리액션을 누르는 상황은 현실적으로 거의 발생하지 않는다.
 
