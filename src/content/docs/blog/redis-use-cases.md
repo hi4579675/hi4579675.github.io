@@ -1,16 +1,16 @@
 ---
-title: "Redis, 실무에서 어디에 쓰이나"
+title: "Redis, 어디에 쓰이나"
 date: 2026-04-07
 tags:
   - Redis
   - Spring Boot
   - 캐싱
-excerpt: 캐싱, 토큰 저장, 카운터, 랭킹, 분산 락, Rate Limiting까지 — Redis가 실무에서 어떤 문제를 해결하는지 사용 사례 중심으로 정리한다.
+excerpt: 캐싱, 토큰 저장, 카운터, 랭킹, 분산 락, Rate Limiting까지 — Redis가 어떤 문제를 해결하는지 사용 사례 중심으로 정리한다.
 category: architecture
 ---
 
 > 캐싱, 토큰 저장, 카운터, 랭킹, 분산 락, Rate Limiting까지 —
-> Redis가 실무에서 어떤 문제를 해결하는지 사용 사례 중심으로 정리한다.
+> Redis가 어떤 문제를 해결하는지 사용 사례 중심으로 정리한다.
 
 ---
 
