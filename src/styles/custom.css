@@ -281,7 +281,6 @@ html[data-theme="light"] .sl-markdown-content :not(pre) > code {
 }
 
 html[data-theme="light"] .sl-markdown-content pre {
-  background: #f0f2f7 !important;
   border-color: #dfe2ef !important;
 }
 
