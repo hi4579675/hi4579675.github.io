@@ -6,7 +6,7 @@ tags:
   - Spring Boot
   - 캐싱
 excerpt: 캐싱, 토큰 저장, 카운터, 랭킹, 분산 락, Rate Limiting까지 — Redis가 어떤 문제를 해결하는지 사용 사례 중심으로 정리한다.
-category: architecture
+category: redis
 ---
 
 > 캐싱, 토큰 저장, 카운터, 랭킹, 분산 락, Rate Limiting까지 —

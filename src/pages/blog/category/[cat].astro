@@ -1,0 +1,179 @@
+---
+import ThemeToggle from '../../../components/ThemeToggle.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const cats = ['ticketing', 'develops', 'troubleshooting', 'performance', 'architecture', 'redis', 'ai'];
+  return cats.map((cat) => ({ params: { cat } }));
+}
+
+const { cat } = Astro.params;
+
+const allDocs = await getCollection('docs', (e) => e.id.startsWith('blog/'));
+const posts = allDocs
+  .filter((p) => p.data.date && ((p.data as any).category ?? 'develops') === cat)
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+
+const catColor: Record<string, string> = {
+  Redis: 'tp', 'Spring Boot': 'tb', '분산락': 'tb',
+  LangChain: 'tv', Pinecone: 'tc', JPA: 'tb', QueryDSL: 'tg',
+  MSA: 'tc', Kafka: 'tv', OpenAI: 'tv', RateLimit: 'to',
+  '동시성': 'tp', '시스템 설계': 'tc', RAG: 'tv', LLM: 'tv',
+  JWT: 'tb', FastAPI: 'tv',
+};
+
+const catMeta: Record<string, { display: string; desc: string; color: string }> = {
+  ticketing:       { display: 'ticketing',       desc: '오픈런 트래픽을 견디는 단일 구단 티켓팅 백엔드 시스템.', color: '#ff757f' },
+  develops:        { display: 'dev',             desc: '프로젝트 회고, 기술 선택 이유, 구현 상세.',              color: '#86e1fc' },
+  troubleshooting: { display: 'troubleshooting', desc: '마주친 버그와 에러, 원인 분석과 해결 과정.',             color: '#ffc777' },
+  performance:     { display: 'performance',     desc: '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험.',      color: '#c3e88d' },
+  architecture:    { display: 'architecture',    desc: '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정.',        color: '#82aaff' },
+  redis:           { display: 'redis',           desc: 'Redis 자료구조, 패턴, 실전 적용 사례.',                 color: '#ff757f' },
+  ai:              { display: 'ai · llm',        desc: 'LLM·RAG·임베딩 등 생성형 AI 파이프라인 설계와 실험.',   color: '#c099ff' },
+};
+
+const meta = catMeta[cat!] ?? { display: cat, desc: '', color: '#c8d3f5' };
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{meta.display} — hanna.log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})()</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #0d0f1a; }
+    html[data-theme='light'] { background: #f8f9fc; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
+
+    nav { background: #090b14; border-bottom: 1px solid #1e2340; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .logo { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #82aaff; font-weight: 500; letter-spacing: .06em; text-decoration: none; }
+    .logo span { color: #c099ff; }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .05em; transition: color .15s; }
+    .nav-links a:hover, .nav-links a.active { color: #82aaff; }
+
+    main { max-width: 860px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+
+    .page-header { padding: 3.5rem 0 2rem; border-bottom: 1px solid #1e2340; }
+    .back-link {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #444b6a;
+      text-decoration: none; letter-spacing: .05em; display: inline-flex; align-items: center;
+      gap: .4rem; margin-bottom: 1.4rem; transition: color .15s;
+    }
+    .back-link:hover { color: #82aaff; }
+    .page-title { font-size: 28px; font-weight: 500; margin-bottom: .4rem; letter-spacing: .02em; }
+    .page-desc  { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; }
+    .post-count { font-size: 11px; color: #444b6a; margin-top: .6rem; letter-spacing: .04em; }
+
+    .post-list { list-style: none; margin-top: 1rem; }
+    .post-item { padding: 1.5rem 0; border-bottom: 1px solid #1e2340; }
+    .post-item:last-child { border-bottom: none; }
+
+    .post-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .post-title {
+      font-size: 15px; font-weight: 500; color: #c8d3f5; text-decoration: none;
+      font-family: 'Noto Sans KR', sans-serif; line-height: 1.4; flex: 1;
+      transition: color .15s;
+    }
+    .post-title:hover { color: #82aaff; }
+    .post-date { font-size: 11px; color: #444b6a; letter-spacing: .05em; white-space: nowrap; flex-shrink: 0; }
+
+    .post-excerpt { margin-top: .55rem; font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.75; }
+    .post-tags { display: flex; gap: 5px; margin-top: .7rem; flex-wrap: wrap; }
+
+    .tag { font-size: 10px; padding: 2px 9px; border-radius: 4px; letter-spacing: .03em; }
+    .tb { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
+    .tv { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
+    .tc { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
+    .tg { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
+    .to { background: rgba(255,199,119,.09); color: #ffc777; border: 1px solid rgba(255,199,119,.18); }
+    .tp { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
+
+    .empty { padding: 3rem 0; font-size: 13px; color: #2e3455; font-family: 'Noto Sans KR', sans-serif; }
+
+    footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+
+    /* ── light mode ── */
+    [data-theme='light'] body { background: #f8f9fc; color: #1e2030; }
+    [data-theme='light'] nav { background: #ffffff; border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .logo { color: #2e6ff2; }
+    [data-theme='light'] .logo span { color: #7c3aed; }
+    [data-theme='light'] .nav-links a { color: #9599b3; }
+    [data-theme='light'] .nav-links a:hover,
+    [data-theme='light'] .nav-links a.active { color: #2e6ff2; }
+    [data-theme='light'] .page-header { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .back-link { color: #9599b3; }
+    [data-theme='light'] .back-link:hover { color: #2e6ff2; }
+    [data-theme='light'] .page-title { color: #1e2030; }
+    [data-theme='light'] .page-desc { color: #6e7491; }
+    [data-theme='light'] .post-count { color: #bcc1d4; }
+    [data-theme='light'] .post-item { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .post-title { color: #1e2030; }
+    [data-theme='light'] .post-title:hover { color: #2e6ff2; }
+    [data-theme='light'] .post-date { color: #bcc1d4; }
+    [data-theme='light'] .post-excerpt { color: #6e7491; }
+    [data-theme='light'] .empty { color: #bcc1d4; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">hanna<span>.log</span></a>
+  <div class="nav-links">
+    <a href="/">home</a>
+    <a href="/about/">about</a>
+    <a href="/blog/" class="active">blog</a>
+    <a href="/portfolio/">portfolio</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <a href="/blog/" class="back-link">← blog</a>
+    <h1 class="page-title" style={`color:${meta.color};`}>{meta.display}</h1>
+    {meta.desc && <p class="page-desc">{meta.desc}</p>}
+    <p class="post-count">{posts.length} posts</p>
+  </div>
+
+  {posts.length === 0 ? (
+    <p class="empty">아직 작성된 글이 없습니다.</p>
+  ) : (
+    <ul class="post-list">
+      {posts.map((post) => {
+        const slug    = post.id.replace(/^blog\//, '');
+        const date    = new Date(post.data.date);
+        const dateStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
+        const tags: string[] = (post.data.tags as string[]) ?? [];
+        return (
+          <li class="post-item">
+            <div class="post-top">
+              <a href={`/blog/${slug}/`} class="post-title">{post.data.title}</a>
+              <span class="post-date">{dateStr}</span>
+            </div>
+            {post.data.excerpt && (
+              <p class="post-excerpt">{post.data.excerpt as string}</p>
+            )}
+            {tags.length > 0 && (
+              <div class="post-tags">
+                {tags.map((tag) => (
+                  <span class={`tag ${catColor[tag] ?? 'tb'}`}>{tag}</span>
+                ))}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )}
+</main>
+
+<footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+<ThemeToggle />
+
+</body>
+</html>

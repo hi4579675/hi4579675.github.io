@@ -1,24 +1,43 @@
 ---
+import ThemeToggle from '../../components/ThemeToggle.astro';
 import { getCollection } from 'astro:content';
 
 const allDocs = await getCollection('docs', (e) => e.id.startsWith('blog/'));
-const posts = allDocs
-  .filter((p) => p.data.date)
-  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+const posts = allDocs.filter((p) => p.data.date);
 
-const catColor: Record<string, string> = {
-  Redis: 'tp', 'Spring Boot': 'tb', '분산락': 'tb',
-  LangChain: 'tv', Pinecone: 'tc', JPA: 'tb', QueryDSL: 'tg',
-  MSA: 'tc', Kafka: 'tv', OpenAI: 'tv', RateLimit: 'to',
-};
+type CatDef = { id: string; display: string; desc: string; color: string };
+type Group  = { label: string; cats: CatDef[] };
 
-const catClass: Record<string, string> = {
-  troubleshooting: 'cat-trouble',
-  develops: 'cat-dev',
-  performance: 'cat-perf',
-  architecture: 'cat-arch',
-  ai: 'cat-ai',
-};
+const groups: Group[] = [
+  {
+    label: 'project',
+    cats: [
+      { id: 'ticketing', display: 'ticketing', desc: '오픈런 트래픽을 견디는 단일 구단 티켓팅 백엔드 시스템.', color: '#ff757f' },
+    ],
+  },
+  {
+    label: 'topic',
+    cats: [
+      { id: 'develops',        display: 'dev',             desc: '프로젝트 회고, 기술 선택 이유, 구현 상세.',           color: '#86e1fc' },
+      { id: 'troubleshooting', display: 'troubleshooting', desc: '마주친 버그와 에러, 원인 분석과 해결 과정.',          color: '#ffc777' },
+      { id: 'performance',     display: 'performance',     desc: '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험.',   color: '#c3e88d' },
+      { id: 'architecture',    display: 'architecture',    desc: '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정.',     color: '#82aaff' },
+    ],
+  },
+  {
+    label: 'stack',
+    cats: [
+      { id: 'redis', display: 'redis',    desc: 'Redis 자료구조, 패턴, 실전 적용 사례.',              color: '#ff757f' },
+      { id: 'ai',    display: 'ai · llm', desc: 'LLM·RAG·임베딩 등 생성형 AI 파이프라인 설계와 실험.', color: '#c099ff' },
+    ],
+  },
+];
+
+const countByCat: Record<string, number> = {};
+for (const post of posts) {
+  const cat: string = (post.data as any).category ?? 'develops';
+  countByCat[cat] = (countByCat[cat] ?? 0) + 1;
+}
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -28,9 +47,12 @@ const catClass: Record<string, string> = {
   <title>blog — hanna.log</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
+    html { background: #0d0f1a; }
+    html[data-theme='light'] { background: #f8f9fc; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
 
     nav { background: #090b14; border-bottom: 1px solid #1e2340; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
     .logo { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #82aaff; font-weight: 500; letter-spacing: .06em; text-decoration: none; }
@@ -39,73 +61,65 @@ const catClass: Record<string, string> = {
     .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .05em; transition: color .15s; }
     .nav-links a:hover, .nav-links a.active { color: #82aaff; }
 
-    main { max-width: 860px; margin: 0 auto; padding: 0 2rem 6rem; }
+    main { max-width: 860px; margin: 0 auto; padding: 0 2.5rem 5rem; }
 
-    .page-header { padding: 3.5rem 0 0; border-bottom: 1px solid #1e2340; padding-bottom: 1.8rem; }
-    .page-title { font-size: 36px; font-weight: 500; color: #c8d3f5; margin-bottom: .5rem; }
-    .page-desc { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; }
+    .page-header { padding: 3rem 0 1.6rem; }
+    .page-title { font-size: 13px; font-weight: 400; color: #636d94; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; }
+    .page-headline { font-size: 32px; font-weight: 500; color: #c8d3f5; line-height: 1.2; }
+    .page-desc { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; margin-top: .7rem; }
 
-    /* TABS — pill style */
-    .tab-nav { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 1.4rem; }
-    .tab-btn {
-      font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #444b6a;
-      background: none; border: 1px solid #1e2340; border-radius: 20px;
-      padding: 5px 14px; cursor: pointer; letter-spacing: .05em;
-      transition: color .15s, border-color .15s, background .15s;
+    .groups { display: flex; flex-direction: column; gap: 2rem; margin-top: 1.5rem; padding: 1.5rem 0; }
+
+    .group-label { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #c8d3f5; margin-bottom: .7rem; }
+
+    .cat-list { list-style: none; display: flex; flex-direction: column; gap: .45rem; }
+
+    .cat-link {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .85rem 1.1rem;
+      background: #0f1120; border: 1px solid #1a1f38; border-radius: 8px;
+      text-decoration: none; gap: 1.2rem;
+      transition: border-color .18s, background .18s;
     }
-    .tab-btn:hover { color: #c8d3f5; border-color: #2d3561; }
-    .tab-btn.active { color: #82aaff; background: rgba(130,170,255,.08); border-color: rgba(130,170,255,.35); }
+    .cat-link:hover { background: #111528; border-color: #2d3561; }
 
-    .post-list { list-style: none; margin-top: 1rem; }
-    .post-item { padding: 1.5rem 0; border-bottom: 1px solid #1e2340; }
-    .post-item:last-child { border-bottom: none; }
-
-    .post-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-    .post-title {
-      font-size: 15px; font-weight: 500; color: #c8d3f5; text-decoration: none;
-      font-family: 'Noto Sans KR', sans-serif; line-height: 1.4;
-      transition: color .15s; flex: 1;
+    .cat-info { flex: 1; min-width: 0; }
+    .cat-name {
+      font-family: 'JetBrains Mono', monospace; font-size: 14px;
+      font-weight: 500; letter-spacing: .04em;
+      display: block; transition: opacity .15s;
     }
-    .post-title:hover { color: #82aaff; }
-
-    .post-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .post-date { font-size: 11px; color: #2e3455; letter-spacing: .05em; white-space: nowrap; }
-
-    .post-excerpt { margin-top: .55rem; font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.75; }
-    .post-tags { display: flex; gap: 5px; margin-top: .7rem; flex-wrap: wrap; }
-
-    .tag { font-size: 10px; padding: 2px 9px; border-radius: 4px; letter-spacing: .03em; }
-    .tb { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
-    .tv { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
-    .tc { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
-    .tg { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
-    .to { background: rgba(255,199,119,.09); color: #ffc777; border: 1px solid rgba(255,199,119,.18); }
-    .tp { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.18); }
-
-    /* category badges */
-    .cat { font-size: 10px; padding: 2px 9px; border-radius: 3px; letter-spacing: .05em; }
-    .cat-trouble { background: rgba(255,117,127,.09); color: #ff757f; border: 1px solid rgba(255,117,127,.2); }
-    .cat-dev     { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
-    .cat-perf    { background: rgba(195,232,141,.09); color: #c3e88d; border: 1px solid rgba(195,232,141,.18); }
-    .cat-arch    { background: rgba(130,170,255,.1);  color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
-    .cat-ai      { background: rgba(192,153,255,.1);  color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
-
-    /* PAGINATION */
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 2.5rem 0 0; }
-    .pagination.hidden { display: none; }
-    .page-btn {
-      font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a;
-      background: none; border: 1px solid #1e2340; border-radius: 6px;
-      padding: 5px 11px; cursor: pointer; letter-spacing: .04em;
-      transition: color .15s, border-color .15s, background .15s;
-      min-width: 34px; text-align: center;
+    .cat-link:hover .cat-name { opacity: .75; }
+    .cat-desc {
+      font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px;
+      color: #636d94; margin-top: .25rem; line-height: 1.55;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .page-btn:hover { color: #c8d3f5; border-color: #2d3561; }
-    .page-btn.active { color: #82aaff; background: rgba(130,170,255,.08); border-color: rgba(130,170,255,.35); }
-    .page-btn:disabled { opacity: .3; cursor: default; pointer-events: none; }
-    .page-arrow { font-size: 13px; }
+    .cat-count {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: #444b6a; flex-shrink: 0; letter-spacing: .04em;
+      min-width: 18px; text-align: right;
+    }
 
-    footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+    footer { margin-top: 5rem; border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #444b6a; letter-spacing: .08em; }
+
+    /* ── light mode ── */
+    [data-theme='light'] body { color: #1e2030; }
+    [data-theme='light'] nav { background: #ffffff; border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .logo { color: #2e6ff2; }
+    [data-theme='light'] .logo span { color: #7c3aed; }
+    [data-theme='light'] .nav-links a { color: #9599b3; }
+    [data-theme='light'] .nav-links a:hover,
+    [data-theme='light'] .nav-links a.active { color: #2e6ff2; }
+    [data-theme='light'] .page-title { color: #9599b3; }
+    [data-theme='light'] .page-headline { color: #1e2030; }
+    [data-theme='light'] .page-desc { color: #6e7491; }
+    [data-theme='light'] .group-label { color: #1e2030; }
+    [data-theme='light'] .cat-link { background: #ffffff; border-color: #dfe2ef; }
+    [data-theme='light'] .cat-link:hover { background: #f0f2f7; border-color: #bcc1d4; }
+    [data-theme='light'] .cat-desc { color: #6e7491; }
+    [data-theme='light'] .cat-count { color: #bcc1d4; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
   </style>
 </head>
 <body>
@@ -114,148 +128,43 @@ const catClass: Record<string, string> = {
   <a href="/" class="logo">hanna<span>.log</span></a>
   <div class="nav-links">
     <a href="/">home</a>
-    <a href="/blog/" class="active">blog</a>
     <a href="/about/">about</a>
+    <a href="/blog/" class="active">blog</a>
     <a href="/portfolio/">portfolio</a>
   </div>
 </nav>
 
 <main>
   <div class="page-header">
-    <h1 class="page-title">Blog</h1>
-    <p class="page-desc" id="page-desc">백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.</p>
-    <div class="tab-nav">
-      <button class="tab-btn active" data-cat="all">all</button>
-      <button class="tab-btn" data-cat="develops">develops</button>
-      <button class="tab-btn" data-cat="ai">ai · llm</button>
-      <button class="tab-btn" data-cat="troubleshooting">troubleshooting</button>
-      <button class="tab-btn" data-cat="performance">performance</button>
-      <button class="tab-btn" data-cat="architecture">architecture</button>
-    </div>
+    <p class="page-title">hanna.log</p>
+    <h1 class="page-headline">Blog</h1>
+    <p class="page-desc">백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.</p>
   </div>
 
-  <ul class="post-list">
-    {posts.map((post) => {
-      const slug = post.id.replace(/^blog\//, '');
-      const date = new Date(post.data.date);
-      const dateStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
-      const tags: string[] = (post.data.tags as string[]) ?? [];
-      const category: string = (post.data as any).category ?? 'develops';
-      const cc = catClass[category] ?? 'cat-dev';
-      return (
-        <li class="post-item" data-cat={category}>
-          <div class="post-top">
-            <a href={`/blog/${slug}/`} class="post-title">{post.data.title}</a>
-            <div class="post-meta">
-              <span class={`cat ${cc}`}>{category}</span>
-              <span class="post-date">{dateStr}</span>
-            </div>
-          </div>
-          {post.data.excerpt && <p class="post-excerpt">{post.data.excerpt as string}</p>}
-          {tags.length > 0 && (
-            <div class="post-tags">
-              {tags.map((tag) => (
-                <span class={`tag ${catColor[tag] ?? 'tb'}`}>{tag}</span>
-              ))}
-            </div>
-          )}
-        </li>
-      );
-    })}
-  </ul>
-
-  <nav class="pagination" id="pagination" aria-label="페이지 탐색">
-    <button class="page-btn page-arrow" id="pg-prev">←</button>
-    <span id="pg-numbers" style="display:flex;gap:6px;"></span>
-    <button class="page-btn page-arrow" id="pg-next">→</button>
-  </nav>
+  <div class="groups">
+    {groups.map(({ label, cats }) => (
+      <section>
+        <div class="group-label">{label}</div>
+        <ul class="cat-list">
+          {cats.map(({ id, display, desc, color }) => (
+            <li>
+              <a href={`/blog/category/${id}/`} class="cat-link">
+                <div class="cat-info">
+                  <span class="cat-name" style={`color:${color};`}>{display}</span>
+                  <span class="cat-desc">{desc}</span>
+                </div>
+                <span class="cat-count">{countByCat[id] ?? 0}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
 </main>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
-
-<script>
-  const PER_PAGE = 10;
-
-  const descMap: Record<string, string> = {
-    all:             '백엔드 개발과 생성형 AI 파이프라인 경험을 기록합니다.',
-    develops:        '프로젝트 개발 회고, 기술 선택 이유, 구현 상세를 기록합니다.',
-    ai:              'LLM·RAG·임베딩 등 생성형 AI 파이프라인 설계와 실험을 기록합니다.',
-    troubleshooting: '마주친 버그와 에러, 원인 분석과 해결 과정을 기록합니다.',
-    performance:     '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험을 기록합니다.',
-    architecture:    '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정을 기록합니다.',
-  };
-
-  const descEl      = document.getElementById('page-desc')!;
-  const pagination  = document.getElementById('pagination')!;
-  const pgNumbers   = document.getElementById('pg-numbers')!;
-  const pgPrev      = document.getElementById('pg-prev') as HTMLButtonElement;
-  const pgNext      = document.getElementById('pg-next') as HTMLButtonElement;
-  const allItems    = Array.from(document.querySelectorAll<HTMLElement>('.post-item'));
-
-  let currentCat  = 'all';
-  let currentPage = 1;
-
-  function getVisibleItems(): HTMLElement[] {
-    return currentCat === 'all'
-      ? allItems
-      : allItems.filter(item => item.dataset.cat === currentCat);
-  }
-
-  function render() {
-    const items     = getVisibleItems();
-    const totalPages = Math.ceil(items.length / PER_PAGE);
-    const start     = (currentPage - 1) * PER_PAGE;
-    const end       = start + PER_PAGE;
-
-    // 아이템 표시 여부
-    allItems.forEach(item => { item.style.display = 'none'; });
-    if (currentCat === 'all') {
-      items.slice(start, end).forEach(item => { item.style.display = ''; });
-    } else {
-      // 카테고리 탭: 페이지네이션 없이 전체 표시
-      items.forEach(item => { item.style.display = ''; });
-    }
-
-    // 페이지네이션: all 탭 + 2페이지 이상일 때만 표시
-    const showPagination = currentCat === 'all' && totalPages > 1;
-    pagination.classList.toggle('hidden', !showPagination);
-
-    if (!showPagination) return;
-
-    // 번호 버튼 렌더
-    pgNumbers.innerHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button');
-      btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
-      btn.textContent = String(i);
-      btn.addEventListener('click', () => { currentPage = i; render(); });
-      pgNumbers.appendChild(btn);
-    }
-
-    pgPrev.disabled = currentPage === 1;
-    pgNext.disabled = currentPage === totalPages;
-  }
-
-  pgPrev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(); } });
-  pgNext.addEventListener('click', () => {
-    const total = Math.ceil(getVisibleItems().length / PER_PAGE);
-    if (currentPage < total) { currentPage++; render(); }
-  });
-
-  document.querySelectorAll<HTMLElement>('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentCat  = btn.dataset.cat!;
-      currentPage = 1;
-      descEl.textContent = descMap[currentCat] ?? descMap['all'];
-      render();
-    });
-  });
-
-  // 초기 렌더
-  render();
-</script>
+<ThemeToggle />
 
 </body>
 </html>

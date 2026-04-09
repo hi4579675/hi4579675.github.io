@@ -1,4 +1,5 @@
 ---
+import ThemeToggle from '../../components/ThemeToggle.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -43,6 +44,7 @@ const cc = catClass[category] ?? 'cat-dev';
   <title>{post.data.title} — hanna.log</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
@@ -199,8 +201,8 @@ const cc = catClass[category] ?? 'cat-dev';
   <a href="/" class="logo">hanna<span>.log</span></a>
   <div class="nav-links">
     <a href="/">home</a>
-    <a href="/blog/" class="active">blog</a>
     <a href="/about/">about</a>
+    <a href="/blog/" class="active">blog</a>
     <a href="/portfolio/">portfolio</a>
   </div>
 </nav>
@@ -255,6 +257,7 @@ const cc = catClass[category] ?? 'cat-dev';
 </main>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+<ThemeToggle />
 
 <script>
   // Scroll spy

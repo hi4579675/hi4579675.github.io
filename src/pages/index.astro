@@ -1,4 +1,5 @@
 ---
+import ThemeToggle from '../components/ThemeToggle.astro';
 import { getCollection } from 'astro:content';
 
 const allDocs = await getCollection('docs', (e) => e.id.startsWith('blog/'));
@@ -37,9 +38,12 @@ for (const post of posts) {
   <title>hanna.log</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
+    html { background: #0d0f1a; }
+    html[data-theme='light'] { background: #f8f9fc; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
 
     /* NAV */
     nav { background: #090b14; border-bottom: 1px solid #1e2340; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
@@ -49,7 +53,7 @@ for (const post of posts) {
     .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .05em; transition: color .15s; }
     .nav-links a:hover, .nav-links a.active { color: #82aaff; }
 
-    main { max-width: 860px; margin: 0 auto; padding: 0 2rem 5rem; }
+    main { max-width: 860px; margin: 0 auto; padding: 0 2.5rem 5rem; }
 
     /* HERO */
     .hero { padding: 3.5rem 0 3rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; border-bottom: 1px solid #1e2340; }
@@ -95,8 +99,8 @@ for (const post of posts) {
     /* STACK */
     .stack-section { padding: 1.4rem 0; border-bottom: 1px solid #1e2340; display: flex; flex-direction: column; gap: 10px; }
     .stack-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-    .stack-label { font-size: 10px; color: #2e3455; letter-spacing: .1em; min-width: 90px; }
-    .tag { font-size: 11px; padding: 3px 10px; border-radius: 4px; letter-spacing: .03em; }
+    .stack-label { font-size: 11px; color: #444b6a; letter-spacing: .1em; min-width: 90px; }
+    .tag { font-size: 12px; padding: 3px 10px; border-radius: 4px; letter-spacing: .03em; }
     .tb { background: rgba(130,170,255,.1); color: #82aaff; border: 1px solid rgba(130,170,255,.2); }
     .tv { background: rgba(192,153,255,.1); color: #c099ff; border: 1px solid rgba(192,153,255,.2); }
     .tc { background: rgba(134,225,252,.09); color: #86e1fc; border: 1px solid rgba(134,225,252,.18); }
@@ -106,7 +110,7 @@ for (const post of posts) {
 
     /* BLOG */
     .section-head { padding: 2rem 0 1.2rem; display: flex; align-items: center; justify-content: flex-end; }
-    .section-more { font-size: 12px; color: #82aaff; text-decoration: none; letter-spacing: .04em; }
+    .section-more { font-size: 13px; color: #82aaff; text-decoration: none; letter-spacing: .04em; }
     .section-more:hover { color: #9fbaff; }
 
     .cat { font-size: 11px; padding: 3px 11px; border-radius: 4px; letter-spacing: .05em; }
@@ -130,7 +134,64 @@ for (const post of posts) {
     .cat-post-item:hover .cat-post-title { color: #c8d3f5; }
     .cat-post-date { font-size: 11px; color: #2e3455; white-space: nowrap; flex-shrink: 0; letter-spacing: .04em; }
 
+    /* CATEGORY SHORTCUTS */
+    .cat-grid-label { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; margin-bottom: .8rem; color: #c8d3f5; }
+    .cat-grid-label.lbl-project,
+    .cat-grid-label.lbl-topic,
+    .cat-grid-label.lbl-stack { color: #c8d3f5; }
+    .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-bottom: 1.2rem; }
+    .cat-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: .85rem 1.1rem; background: #0f1120; border: 1px solid #1a1f38;
+      border-radius: 8px; text-decoration: none; gap: 1.2rem;
+      transition: border-color .18s, background .18s;
+    }
+    .cat-card:hover { background: #111528; border-color: #2d3561; }
+    .cat-card:hover .cc-name { opacity: .75; }
+    .cc-body { flex: 1; min-width: 0; }
+    .cc-name { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 500; letter-spacing: .04em; transition: opacity .15s; display: block; }
+    .cc-desc { font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px; color: #636d94; margin-top: .25rem; line-height: 1.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cc-count { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; flex-shrink: 0; }
+
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+
+    /* light mode */
+    [data-theme='light'] nav { background: #ffffff; border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .logo { color: #2e6ff2; }
+    [data-theme='light'] .logo span { color: #7c3aed; }
+    [data-theme='light'] .nav-links a { color: #9599b3; }
+    [data-theme='light'] .nav-links a:hover,
+    [data-theme='light'] .nav-links a.active { color: #2e6ff2; }
+    [data-theme='light'] body { color: #1e2030; }
+    [data-theme='light'] .hero { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] h1 { color: #1e2030; }
+    [data-theme='light'] h1 em { color: #2e6ff2; }
+    [data-theme='light'] .tagline { color: #7c3aed; }
+    [data-theme='light'] .desc { color: #6e7491; }
+    [data-theme='light'] .desc em { color: #0891b2; }
+    [data-theme='light'] .typing-line { color: #0891b2; }
+    [data-theme='light'] #typed-text { color: #0891b2; }
+    [data-theme='light'] .cursor { background: #0891b2; }
+    [data-theme='light'] .typing-dot { background: #16a34a; }
+    [data-theme='light'] .btn-primary { background: #2e6ff2; color: #ffffff; }
+    [data-theme='light'] .btn-ghost-v { color: #7c3aed; border-color: rgba(124,58,237,.3); }
+    [data-theme='light'] .btn-ghost-o { color: #d97706; border-color: rgba(217,119,6,.3); }
+    [data-theme='light'] .btn-ghost-t { color: #0891b2; border-color: rgba(8,145,178,.3); }
+    [data-theme='light'] .stack-section { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .stack-label { color: #bcc1d4; }
+    [data-theme='light'] .section-more { color: #2e6ff2; }
+    [data-theme='light'] .cat-grid-label { color: #1e2030; }
+    [data-theme='light'] .cat-card { background: #ffffff; border-color: #dfe2ef; }
+    [data-theme='light'] .cat-card:hover { background: #f0f2f7; border-color: #bcc1d4; }
+    [data-theme='light'] .cat-card:hover .cc-name { color: #2e6ff2; }
+    [data-theme='light'] .cc-name { color: #1e2030; }
+    [data-theme='light'] .cc-desc { color: #6e7491; }
+    [data-theme='light'] .cc-count { color: #bcc1d4; }
+    [data-theme='light'] .blog-cat-group .cat-post-item { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .cat-post-title { color: #9599b3; }
+    [data-theme='light'] .cat-post-item:hover .cat-post-title { color: #1e2030; }
+    [data-theme='light'] .cat-post-date { color: #bcc1d4; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
 
     @media (max-width: 640px) {
       .hero { flex-direction: column; align-items: center; text-align: center; padding: 2.5rem 0 2rem; gap: 1.6rem; }
@@ -152,8 +213,8 @@ for (const post of posts) {
   <a href="/" class="logo">hanna<span>.log</span></a>
   <div class="nav-links">
     <a href="/" class="active">home</a>
-    <a href="/blog/">blog</a>
     <a href="/about/">about</a>
+    <a href="/blog/">blog</a>
     <a href="/portfolio/">portfolio</a>
   </div>
 </nav>
@@ -190,30 +251,78 @@ for (const post of posts) {
     <a href="/blog/" class="section-more">all posts →</a>
   </div>
 
-  {catOrder.filter(cat => grouped[cat]?.length > 0).map(cat => {
-    const catPosts = grouped[cat].slice(0, 3);
-    return (
-      <div class="blog-cat-group">
-        <div class="cat-group-head">
-          <span class={`cat ${catBadge[cat]}`}>{catLabel[cat]}</span>
+  <!-- category shortcuts -->
+  <div style="margin-bottom:2rem;">
+    <p class="cat-grid-label lbl-project">project</p>
+    <div class="cat-grid">
+      <a href="/blog/category/ticketing/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#ff757f;">ticketing</span>
+          <span class="cc-desc">오픈런 트래픽을 견디는 티켓팅 백엔드 시스템.</span>
         </div>
-        {catPosts.map(post => {
-          const slug = post.id.replace(/^blog\//, '');
-          const date = new Date(post.data.date);
-          const dateStr = `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,'0')}.${String(date.getDate()).padStart(2,'0')}`;
-          return (
-            <a href={`/blog/${slug}/`} class="cat-post-item">
-              <span class="cat-post-title">{post.data.title}</span>
-              <span class="cat-post-date">{dateStr}</span>
-            </a>
-          );
-        })}
-      </div>
-    );
-  })}
+        <span class="cc-count">{(grouped['ticketing'] ?? []).length}</span>
+      </a>
+      <span class="cat-card" style="opacity:.2;cursor:default;">
+        <div class="cc-body">
+          <span class="cc-name">—</span>
+        </div>
+      </span>
+    </div>
+
+    <p class="cat-grid-label lbl-topic" style="margin-top:1.2rem;">topic</p>
+    <div class="cat-grid">
+      <a href="/blog/category/develops/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#86e1fc;">dev</span>
+          <span class="cc-desc">프로젝트 회고, 기술 선택 이유, 구현 상세.</span>
+        </div>
+        <span class="cc-count">{(grouped['develops'] ?? []).length}</span>
+      </a>
+      <a href="/blog/category/architecture/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#82aaff;">architecture</span>
+          <span class="cc-desc">시스템 설계, MSA, 비동기 패턴 등.</span>
+        </div>
+        <span class="cc-count">{(grouped['architecture'] ?? []).length}</span>
+      </a>
+      <a href="/blog/category/troubleshooting/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#ffc777;">troubleshooting</span>
+          <span class="cc-desc">버그와 에러, 원인 분석과 해결 과정.</span>
+        </div>
+        <span class="cc-count">{(grouped['troubleshooting'] ?? []).length}</span>
+      </a>
+      <a href="/blog/category/performance/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#c3e88d;">performance</span>
+          <span class="cc-desc">쿼리 최적화, 캐싱, 부하 테스트 등.</span>
+        </div>
+        <span class="cc-count">{(grouped['performance'] ?? []).length}</span>
+      </a>
+    </div>
+
+    <p class="cat-grid-label lbl-stack" style="margin-top:1.2rem;">stack</p>
+    <div class="cat-grid">
+      <a href="/blog/category/redis/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#ff757f;">redis</span>
+          <span class="cc-desc">자료구조, 패턴, 실전 적용 사례.</span>
+        </div>
+        <span class="cc-count">{(grouped['redis'] ?? []).length}</span>
+      </a>
+      <a href="/blog/category/ai/" class="cat-card">
+        <div class="cc-body">
+          <span class="cc-name" style="color:#c099ff;">ai · llm</span>
+          <span class="cc-desc">RAG·임베딩 등 생성형 AI 파이프라인.</span>
+        </div>
+        <span class="cc-count">{(grouped['ai'] ?? []).length}</span>
+      </a>
+    </div>
+  </div>
 </main>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+<ThemeToggle />
 
 <script>
   const lines = ["Backend Developer", "Generative AI Engineer", "LangChain | OpenAI"];

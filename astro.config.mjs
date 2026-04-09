@@ -18,6 +18,12 @@ export default defineConfig({
       components: {
         Header: './src/components/Header.astro',
       },
+      head: [
+        {
+          tag: 'script',
+          content: `(function(){var t=localStorage.getItem('theme')||localStorage.getItem('starlight-theme');if(t){document.documentElement.setAttribute('data-theme',t)}})()`,
+        },
+      ],
     }),
   ],
 });

@@ -1,4 +1,5 @@
 ---
+import ThemeToggle from './ThemeToggle.astro';
 const path = Astro.url.pathname;
 ---
 <a href="/" class="logo">hanna<span>.log</span></a>
@@ -8,6 +9,7 @@ const path = Astro.url.pathname;
   <a href="/about/" class={path.startsWith('/about') ? 'active' : ''}>about</a>
   <a href="/portfolio/" class={path.startsWith('/portfolio') ? 'active' : ''}>portfolio</a>
 </nav>
+<ThemeToggle />
 
 <style>
   .logo {
@@ -29,4 +31,10 @@ const path = Astro.url.pathname;
     transition: color .15s;
   }
   .nav-links a:hover, .nav-links a.active { color: #82aaff; }
+
+  :global(html[data-theme="light"]) .logo { color: #2e6ff2; }
+  :global(html[data-theme="light"]) .logo span { color: #7c3aed; }
+  :global(html[data-theme="light"]) .nav-links a { color: #9599b3; }
+  :global(html[data-theme="light"]) .nav-links a:hover,
+  :global(html[data-theme="light"]) .nav-links a.active { color: #2e6ff2; }
 </style>

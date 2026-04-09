@@ -25,9 +25,9 @@
   --sl-color-hairline: #1e2340;
 }
 
-/* 기본 배경 강제 다크 */
-body { background: #0d0f1a !important; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif !important; }
-.page { background: #0d0f1a !important; }
+/* 기본 배경 */
+body { background: var(--sl-color-black, #0d0f1a) !important; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif !important; }
+.page { background: var(--sl-color-black, #0d0f1a) !important; }
 
 /* Starlight 헤더 wrapper → 커스텀 nav 스타일로 덮어쓰기 */
 header.header {
@@ -205,4 +205,98 @@ aside.right-sidebar,
 [class*="post-list"] {
   max-width: 720px !important;
   margin-inline: auto !important;
+}
+
+/* ===== Light Mode — Starlight Pages ===== */
+:root[data-theme='light'] {
+  --sl-color-accent: #2e6ff2;
+  --sl-color-accent-high: #7c3aed;
+  --sl-color-white: #1e2030;
+  --sl-color-gray-1: #3b4261;
+  --sl-color-gray-2: #6e7491;
+  --sl-color-gray-3: #9599b3;
+  --sl-color-gray-4: #bcc1d4;
+  --sl-color-gray-5: #dfe2ef;
+  --sl-color-gray-6: #f0f2f7;
+  --sl-color-black: #f8f9fc;
+  --sl-color-bg: #f8f9fc;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #ffffff;
+  --sl-color-hairline: #dfe2ef;
+}
+
+html[data-theme="light"] body {
+  background: #f8f9fc !important;
+}
+html[data-theme="light"] .page {
+  background: #f8f9fc !important;
+}
+
+html[data-theme="light"] header.header {
+  background: #ffffff !important;
+  border-bottom-color: #dfe2ef !important;
+}
+
+html[data-theme="light"] .content-panel h1 {
+  color: #1e2030 !important;
+}
+
+html[data-theme="light"] .content-panel > header,
+html[data-theme="light"] .content-panel .page-title + * {
+  border-bottom-color: #dfe2ef !important;
+}
+
+html[data-theme="light"] .content-panel header time,
+html[data-theme="light"] .content-panel header .meta,
+html[data-theme="light"] [class*="blog"][class*="meta"],
+html[data-theme="light"] [class*="meta"] time {
+  color: #9599b3 !important;
+}
+
+html[data-theme="light"] .sl-markdown-content h2 {
+  color: #1e2030 !important;
+  border-bottom-color: #dfe2ef !important;
+}
+
+html[data-theme="light"] .sl-markdown-content h3 {
+  color: #3b4261 !important;
+}
+
+html[data-theme="light"] .sl-markdown-content h4,
+html[data-theme="light"] .sl-markdown-content h5,
+html[data-theme="light"] .sl-markdown-content h6 {
+  color: #3b4261 !important;
+}
+
+html[data-theme="light"] .sl-markdown-content p,
+html[data-theme="light"] .sl-markdown-content li,
+html[data-theme="light"] .sl-markdown-content blockquote {
+  color: #3b4261 !important;
+}
+
+html[data-theme="light"] .sl-markdown-content :not(pre) > code {
+  background: #eef1f6 !important;
+  color: #0891b2 !important;
+  border-color: #dfe2ef !important;
+}
+
+html[data-theme="light"] .sl-markdown-content pre {
+  background: #f0f2f7 !important;
+  border-color: #dfe2ef !important;
+}
+
+html[data-theme="light"] .sl-markdown-content blockquote {
+  border-left-color: #bcc1d4 !important;
+  color: #6e7491 !important;
+}
+
+html[data-theme="light"] .sl-markdown-content hr {
+  border-top-color: #dfe2ef !important;
+}
+
+html[data-theme="light"] .sl-markdown-content a {
+  color: #2e6ff2 !important;
+}
+html[data-theme="light"] .sl-markdown-content a:hover {
+  color: #1d5fd6 !important;
 }
