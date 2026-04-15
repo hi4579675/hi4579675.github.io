@@ -108,8 +108,18 @@ Spring Cloud는 Spring Boot 위에서 마이크로서비스를 구축할 때 필
 
 Spring Cloud에서는 **Netflix Eureka**가 대표적인 서비스 디스커버리 서버다.
 
-- **Eureka Server** — 서비스 레지스트리 역할. `@EnableEurekaServer` 하나로 띄울 수 있다.
-- **Eureka Client** — 각 마이크로서비스에 붙으면 시작 시 자동으로 Eureka에 등록되고, 일정 주기로 하트비트를 보내 살아있음을 알린다.
+- **Eureka Server** — 서비스 레지스트리 역할. `@EnableEurekaServer` 하나로 띄울 수 있다. 서버 자체는 `register-with-eureka: false`, `fetch-registry: false`로 설정하여 자기 자신을 등록하지 않도록 한다.
+- **Eureka Client** — 각 마이크로서비스에 `spring-cloud-starter-netflix-eureka-client` 의존성을 추가하고 애플리케이션 이름만 설정하면 자동으로 Eureka에 등록된다. 일정 주기(기본 30초)로 하트비트를 보내 살아있음을 알린다.
+
+### 헬스 체크와 장애 처리
+
+- Eureka 서버는 주기적으로 `/actuator/health` 엔드포인트를 통해 인스턴스 상태를 확인한다.
+- 서비스 장애 시 해당 인스턴스를 레지스트리에서 제거하여 다른 서비스의 접근을 차단한다.
+- 리스 갱신 간격(기본 30초)과 리스 만료 기간(기본 90초)을 설정할 수 있다.
+
+### 고가용성 구성
+
+Eureka 서버를 다중 인스턴스로 구성하여 고가용성을 유지할 수 있다. 각 인스턴스는 서로를 피어로 등록하여 상호 백업한다.
 
 > 💡 **서비스 레지스트리 (Service Registry)**: 현재 동작 중인 서비스 인스턴스들의 위치 정보(IP, 포트)를 관리하는 저장소. 일종의 전화번호부다.
 
@@ -147,9 +157,18 @@ Netflix가 개발한 클라이언트 사이드 로드밸런서. FeignClient에 �
 
 ### FeignClient
 
-Spring Cloud에서 제공하는 HTTP 클라이언트로, 인터페이스와 어노테이션만으로 선언적으로 RESTful 웹 서비스를 호출할 수 있다. `@FeignClient(name = "product-service")`처럼 서비스 이름만 지정하면 Eureka에서 인스턴스 목록을 조회하고 Ribbon이 자동으로 로드밸런싱을 수행한다.
+Spring Cloud에서 제공하는 선언적 HTTP 클라이언트로, 인터페이스와 어노테이션만으로 RESTful 웹 서비스를 호출할 수 있다. `@FeignClient(name = "product-service")`처럼 서비스 이름만 지정하면 Eureka에서 인스턴스 목록을 조회하고 Ribbon이 자동으로 로드밸런싱을 수행한다.
 
-Order 서비스 1개, Product 서비스 인스턴스 3개가 있는 경우, FeignClient로 `product-service`를 호출하면 Ribbon이 Round Robin으로 3개 인스턴스에 순차적으로 요청을 분배한다.
+### FeignClient + Ribbon 동작 원리
+
+Order 서비스 1개가 Product 서비스 인스턴스 3개를 호출하는 시나리오를 생각해보자.
+
+1. **서비스 이름 참조** — `@FeignClient(name = "product-service")` 어노테이션이 Eureka에 등록된 서비스 이름을 참조한다.
+2. **인스턴스 목록 조회** — Eureka 서버에서 `product-service`로 등록된 인스턴스 목록을 가져온다.
+3. **로드밸런싱** — Ribbon이 라운드 로빈 알고리즘으로 3개 인스턴스 중 하나를 선택하여 요청을 보낸다.
+4. **요청 분배** — 요청할 때마다 순차적으로 다른 인스턴스에 분배된다.
+
+이 과정은 `@EnableFeignClients`를 메인 클래스에 붙이고, FeignClient 인터페이스를 작성하는 것만으로 동작한다. URL을 직접 관리할 필요가 없다.
 
 > 💡 **Failover**: 요청이 실패했을 때 다른 인스턴스로 자동 전환. 하나의 인스턴스가 죽어도 서비스가 계속 동작한다.
 
@@ -169,10 +188,23 @@ Order 서비스 1개, Product 서비스 인스턴스 3개가 있는 경우, Feig
 
 Spring Cloud에서는 **Resilience4j**가 표준이다. `@CircuitBreaker` 어노테이션으로 메서드 단위 적용이 가능하고, 실패 시 fallback 메서드를 지정해서 대체 응답을 줄 수 있다.
 
-주요 설정 값:
-- `slidingWindowSize: 5` — 최근 5번의 호출 결과로 판단
-- `failureRateThreshold: 50` — 실패율 50% 초과 시 Open
-- `waitDurationInOpenState: 20s` — Open 상태 유지 시간
+### Resilience4j 주요 설정
+
+| 설정 항목 | 설명 | 예시 값 |
+|---------|------|--------|
+| `slidingWindowType` | 슬라이딩 윈도우 타입 | COUNT_BASED 또는 TIME_BASED |
+| `slidingWindowSize` | 최근 N번의 호출 결과로 판단 | 5 |
+| `minimumNumberOfCalls` | 서킷브레이커 동작을 위한 최소 호출 수 | 5 |
+| `failureRateThreshold` | 실패율 임계값 (%) — 초과 시 Open | 50 |
+| `waitDurationInOpenState` | Open → Half-Open 전환 대기 시간 | 20s |
+| `permittedNumberOfCallsInHalfOpenState` | Half-Open에서 허용하는 최대 호출 수 | 3 |
+| `slowCallDurationThreshold` | 느린 호출로 간주하는 기준 시간 | 60000ms |
+
+### Fallback과 모니터링
+
+Fallback 메서드는 `@CircuitBreaker(name = "myService", fallbackMethod = "fallbackMethod")`로 지정한다. 장애가 발생해도 사용자에게 일정한 응답을 제공할 수 있고, 장애가 다른 서비스로 전파되는 것을 방지한다.
+
+Resilience4j는 이벤트 리스너를 통해 상태 전환, 실패율 초과, 호출 차단 등의 이벤트를 로그로 기록할 수 있다. Prometheus + Grafana와 연동하면 `/actuator/prometheus` 엔드포인트에서 서킷브레이커 메트릭을 실시간으로 모니터링할 수 있다.
 
 > 💡 **Fallback**: 원래 호출이 실패했을 때 대신 실행되는 대체 로직. "B가 안 되면 이거라도 보여줘"라는 개념이다.
 
@@ -190,9 +222,31 @@ Spring Cloud에서는 **Resilience4j**가 표준이다. `@CircuitBreaker` 어노
 - **Rate Limiting** — 특정 클라이언트의 과도한 요청 제한.
 - **로깅·모니터링** — 모든 트래픽이 한 곳을 지나므로 지표 수집이 편하다.
 
-**Spring Cloud Gateway**는 **Predicate(조건)**와 **Filter(처리)** 조합으로 라우팅 규칙을 정의한다. Pre 필터에서 JWT 검증을, Post 필터에서 응답 가공을 처리하는 구조다. Eureka와 연동하면 `lb://service-name` 형태로 서비스 이름 기반 라우팅과 로드밸런싱이 자동으로 동작한다.
+**Spring Cloud Gateway**는 **Predicate(조건)**와 **Filter(처리)** 조합으로 라우팅 규칙을 정의한다. Eureka와 연동하면 `lb://service-name` 형태로 서비스 이름 기반 라우팅과 로드밸런싱이 자동으로 동작한다.
 
-> 💡 Netty 기반 비동기·논블로킹으로 동작하여 높은 처리량을 제공한다. 이전의 Netflix Zuul을 대체한다.
+### 필터 구조
+
+Gateway의 필터는 두 종류로 나뉜다.
+
+- **Global Filter** — 모든 요청에 대해 작동하는 필터.
+- **Gateway Filter** — 특정 라우트에만 적용되는 필터.
+
+필터를 구현하려면 `GlobalFilter` 인터페이스를 구현하고 `filter` 메서드를 오버라이드한다. 핵심 객체는 다음과 같다.
+
+- **ServerWebExchange** — HTTP 요청과 응답을 캡슐화한 객체.
+- **GatewayFilterChain** — 여러 필터를 체인처럼 연결하여 다음 필터로 요청을 전달한다.
+- **Mono\<Void\>** — 리액티브 프로그래밍에서 비동기 처리 결과를 나타낸다.
+
+### Pre 필터 vs Post 필터
+
+- **Pre 필터** — 요청이 처리되기 **전에** 실행된다. 요청 로깅, 인증 등을 처리한 뒤 `chain.filter(exchange)`로 다음 필터에 전달한다.
+- **Post 필터** — 요청이 처리된 **후**, 응답 반환 전에 실행된다. `chain.filter(exchange).then(...)` 패턴으로 응답 로깅, 헤더 추가 등을 처리한다.
+
+### Zuul (Spring Boot 2 레거시)
+
+이전 세대의 API Gateway로 `@EnableZuulProxy`와 `ZuulFilter`를 사용한다. 현재는 대부분 Spring Cloud Gateway로 대체되었지만, 기존 시스템에서는 여전히 사용되고 있으므로 개념을 알아두면 좋다.
+
+> 💡 Spring Cloud Gateway는 Netty 기반 비동기·논블로킹으로 동작하여 높은 처리량을 제공한다.
 
 ---
 
@@ -204,8 +258,12 @@ MSA에서는 각 서비스가 독립적으로 배포되기 때문에 보안이 �
 
 OAuth2는 **토큰 기반**의 인증 및 권한 부여 프로토콜이다. 네 가지 역할을 정의한다: 리소스 소유자, 클라이언트, 리소스 서버, 인증 서버.
 
+OAuth2는 네 가지 역할을 정의한다: 리소스 소유자, 클라이언트, 리소스 서버, 인증 서버.
+
 주요 Grant 방식:
 - **Authorization Code Grant** — 인증 코드를 사용하여 액세스 토큰을 얻는 방식
+- **Implicit Grant** — 클라이언트 애플리케이션에서 직접 액세스 토큰을 얻는 방식
+- **Resource Owner Password Credentials Grant** — 사용자 이름과 비밀번호로 액세스 토큰을 얻는 방식
 - **Client Credentials Grant** — 클라이언트 자격 증명을 사용하여 서비스 간 통신에 활용
 
 ### JWT
@@ -218,7 +276,16 @@ JWT(JSON Web Token)는 사용자 정보를 담아 서명한 토큰이다. **헤�
 
 ### MSA에서의 보안 흐름
 
-별도의 **Auth Service**가 JWT를 발급하고, Gateway의 Pre 필터에서 토큰을 검증하는 패턴이 일반적이다. 사용자가 로그인하면 JWT를 발급받고, 이후 모든 요청에 JWT를 포함하여 Gateway에 전달한다. Gateway는 Pre 필터에서 토큰을 검증하고, 통과한 요청만 내부 서비스로 라우팅하며 실패 시 401을 반환한다. Spring Security를 STATELESS 세션 정책으로 설정하여 서버가 세션을 유지하지 않도록 한다.
+별도의 **Auth Service**가 JWT를 발급하고, Gateway의 Pre 필터에서 토큰을 검증하는 패턴이 일반적이다.
+
+1. 사용자가 Auth Service의 `/auth/signIn` 엔드포인트로 로그인하면 JWT를 발급받는다.
+2. 이후 모든 요청에 `Authorization: Bearer {토큰}` 헤더를 포함하여 Gateway에 전달한다.
+3. Gateway의 JWT 인증 필터(GlobalFilter)가 토큰을 검증한다. `/auth/signIn` 경로는 필터를 통과시키고, 나머지 요청은 토큰이 없거나 유효하지 않으면 401을 반환한다.
+4. 토큰 검증에 통과한 요청만 내부 서비스로 라우팅된다.
+
+Auth Service에서는 Spring Security를 `SessionCreationPolicy.STATELESS`로 설정하여 서버가 세션을 유지하지 않도록 한다. JWT 자체가 인증 정보를 담고 있으므로 별도의 세션 저장이 필요 없다.
+
+> 💡 **Bearer 토큰**: OAuth 2.0에서 사용하는 인증 토큰 유형. 클라이언트는 서버에서 받은 Bearer 토큰을 HTTP 요청 헤더에 포함시키기만 하면 된다. 반드시 HTTPS를 통해 전달되어야 토큰 도난을 방지할 수 있다.
 
 ---
 
@@ -232,13 +299,22 @@ JWT(JSON Web Token)는 사용자 정보를 담아 서명한 토큰이다. **헤�
 - **환경별 구성** — 개발(dev), 스테이징, 운영(prod) 환경별로 설정 분리. `application-dev.yml`, `application-prod.yml` 형태로 관리.
 - **실시간 구성 변경** — 설정 변경 시 애플리케이션을 재시작하지 않고 반영 가능.
 
-Config 서버는 Git 저장소에서 설정 파일을 읽어와 HTTP API로 제공한다. 각 마이크로서비스는 시작 시 Config Server에서 자신의 설정을 가져온다. `@EnableConfigServer` 어노테이션 하나로 Config 서버를 활성화할 수 있다.
+Config 서버는 Git 저장소나 로컬 파일 시스템에서 설정 파일을 읽어와 HTTP API로 제공한다. 각 마이크로서비스는 시작 시 Config Server에서 자신의 설정을 가져온다. `@EnableConfigServer` 어노테이션 하나로 Config 서버를 활성화할 수 있다. Git, 파일 시스템, JDBC 등 다양한 저장소를 지원한다.
+
+### 설정 우선순위와 프로필
+
+Config 서버는 환경별로 다른 설정 파일을 제공할 수 있다. 예를 들어 `product-service.yml`은 기본 설정, `product-service-local.yml`은 로컬 환경 설정이 된다. 프로필이 지정된 설정 파일이 기본 설정을 덮어쓴다.
+
+클라이언트에서는 `spring.config.import: "configserver:"`와 `spring.cloud.config.discovery.enabled: true`를 설정하면 Eureka를 통해 Config 서버를 자동으로 찾아서 설정을 가져온다.
 
 ### 실시간 구성 변경 방법
 
 - **Spring Cloud Bus** — Kafka나 RabbitMQ를 통해 변경 사항을 모든 클라이언트에 자동 전파.
-- **`/actuator/refresh`** — 클라이언트의 해당 엔드포인트를 POST 호출하면 수동으로 갱신.
+- **`/actuator/refresh`** — 클라이언트의 해당 엔드포인트를 POST 호출하면 수동으로 갱신. 이때 컨트롤러에 `@RefreshScope`를 붙여야 변경된 설정이 빈에 반영된다.
+- **Spring Boot DevTools** — 개발 환경에서 파일 변경을 자동 감지하여 애플리케이션을 재시작한다.
 - **Git 저장소 연동** — 설정 파일의 버전 관리와 변경 이력 추적.
+
+> 💡 현업에서는 직접 Config 서버를 구현하기보다는 이미 구축된 Config 서버를 연동하여 사용하는 경우가 일반적이다.
 
 ---
 
@@ -252,11 +328,19 @@ Config 서버는 Git 저장소에서 설정 파일을 읽어와 HTTP API로 제�
 - **Span** — Trace 안에서 각 서비스가 수행한 개별 작업 단위. 부모-자식 관계로 호출 계층 구조를 표현한다.
 - **Context** — 서비스 간에 전파되는 Trace ID, Span ID 등의 정보.
 
-**Micrometer Tracing**이 자동으로 Trace ID와 Span ID를 생성·전파한다. 서비스 간 호출 시 HTTP 헤더에 실어 보내기 때문에 전체 흐름이 연결된다.
+### Micrometer Tracing
 
-**Zipkin**은 트레이스 데이터를 수집하고 시각화하는 도구다. 서비스 간 호출 관계와 각 스팬의 소요 시간을 타임라인으로 볼 수 있어, 성능 병목이 발생하는 부분을 바로 식별할 수 있다.
+Micrometer는 Spring 기반 애플리케이션에서 메트릭을 수집하고 모니터링하기 위한 라이브러리다. 분산 추적 기능도 제공하여 서비스 간의 호출 흐름을 추적할 수 있다. 자동으로 Trace ID와 Span ID를 생성·전파하며, 서비스 간 호출 시 HTTP 헤더에 실어 보내기 때문에 전체 흐름이 연결된다.
 
-> 💡 **샘플링(Sampling)**: 모든 요청을 추적하면 성능에 영향을 준다. 개발 환경에서는 100%, 운영에서는 비율을 낮춰 적용한다.
+### Zipkin
+
+Zipkin은 트레이스 데이터를 수집하고 시각화하는 분산 추적 시스템이다. Docker로 간단히 실행할 수 있다: `docker run -d -p 9411:9411 openzipkin/zipkin`
+
+`http://localhost:9411`에 접속하면 Zipkin 대시보드에서 서비스 간 호출 관계와 각 스팬의 소요 시간을 타임라인으로 볼 수 있다. 성능 병목이 발생하는 부분을 바로 식별할 수 있다.
+
+각 마이크로서비스에서는 `micrometer-tracing-bridge-brave`와 `zipkin-reporter-brave` 의존성을 추가하고, `management.zipkin.tracing.endpoint`로 Zipkin 서버 주소를 지정한다.
+
+> 💡 **샘플링(Sampling)**: 모든 요청을 추적하면 성능에 영향을 준다. `management.tracing.sampling.probability`로 비율을 설정한다. 개발 환경에서는 `1.0`(100%), 운영에서는 비율을 낮춰 적용한다.
 
 ---
 
@@ -288,7 +372,11 @@ MSA에서 서비스 간 통신은 크게 두 가지다. **동기(HTTP 호출)**�
 
 주문 서비스가 '주문 생성' 이벤트를 발행하면, Kafka나 RabbitMQ가 이 이벤트를 구독 중인 서비스들에 전달한다. 재고 서비스는 재고를 확인·차감하고, 배송 서비스는 배송 준비를 시작한다. 이 모든 과정이 병렬로 처리된다.
 
-**Spring Cloud Stream**은 Kafka, RabbitMQ 등의 메시지 브로커와 통합하여 이벤트 드리븐 마이크로서비스를 구축하기 위한 프레임워크다. 바인더 추상화를 통해 브로커가 바뀌어도 애플리케이션 코드 변경을 최소화할 수 있다.
+**Spring Cloud Stream**은 Kafka, RabbitMQ 등의 메시지 브로커와 통합하여 이벤트 드리븐 마이크로서비스를 구축하기 위한 프레임워크다.
+
+- **바인더 추상화** — 메시지 브로커와의 통합을 위한 추상화 레이어를 제공한다. 브로커가 바뀌어도 애플리케이션 코드 변경을 최소화할 수 있다.
+- **프로듀서/컨슈머 모델** — 이벤트를 생성하고 처리하는 프로듀서와 컨슈머 모델을 지원한다.
+- **유연한 설정** — 다양한 설정 옵션을 통해 손쉽게 커스터마이징할 수 있다.
 
 ---
 
@@ -298,7 +386,7 @@ MSA를 도입하기 위해서는 서비스 디스커버리, 로드밸런싱, 서
 
 빠르게 프로토타입을 만들어야 한다면 **모놀리식으로 시작하고, 필요한 시점에 부분 전환**하는 것도 충분히 유효한 전략이다.
 
-Spring Cloud가 아닌 다른 프레임워크로 MSA를 개발하더라도, 위에서 다룬 기능들의 역할은 동일하게 필요하다. 도구가 달라도 개념은 같다.
+Spring Cloud가 아닌 다른 프레임워크로 MSA를 개발하더라도, 위에서 다룬 기능들의 역할은 동일하게 필요하다. 도구가 달라도 개념은 같다. 개발에 정답은 없으며, 개발팀이 추구하는 방향에 따라 개발의 크기, 기능의 구성 등 다양한 사항들이 결정된다. 기존 레거시의 구조, 신규 프로젝트에서의 합의된 구조를 잘 파악하고 따라 가는 것이 중요하다.
 
 ### Spring Cloud vs Kubernetes
 
@@ -311,7 +399,9 @@ MSA 인프라 관점에서 자주 비교되는 도구가 쿠버네티스(Kuberne
 | 설정 관리 | Spring Cloud Config | ConfigMap, Secret |
 | 로드밸런싱 | Spring Cloud LoadBalancer | kube-proxy, Ingress |
 
-둘은 상호 보완적인 관계다. **Spring Cloud Kubernetes**를 사용하면 두 세계를 통합하여 사용할 수도 있다. Netflix, Google, Airbnb 등이 쿠버네티스 기반의 대규모 MSA를 운영하고 있다.
+둘은 상호 보완적인 관계다. **Spring Cloud Kubernetes**를 사용하면 두 세계를 통합하여 사용할 수도 있다. Kubernetes API를 통해 서비스 인스턴스를 동적으로 검색하고, ConfigMap과 Secrets를 사용하여 애플리케이션 설정을 중앙에서 관리하며, CI/CD 파이프라인과 통합하여 자동 배포를 지원한다.
+
+Netflix, Google, Airbnb 등이 쿠버네티스 기반의 대규모 MSA를 운영하고 있다. 다만 초기 설정의 복잡성, 클러스터 운영 비용, 분산 환경에서의 디버깅 어려움 등은 도입 시 고려해야 할 점이다.
 
 ---
 
