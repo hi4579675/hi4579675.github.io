@@ -131,12 +131,17 @@ import Header from '../components/Header.astro';
     .modal-title { font-size: 18px; font-weight: 700; color: #c8d3f5; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; line-height: 1.3; }
     .modal-subtitle { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; font-size: 11px; color: #444b6a; letter-spacing: .08em; }
     .modal-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: .2rem; }
-    .modal-github-btn {
+    .modal-link-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; }
+    .modal-github-btn,
+    .modal-blog-btn {
       display: inline-flex; align-items: center; gap: .4rem;
-      font-size: 12px; font-weight: 600; color: #82aaff;
-      text-decoration: none; margin-top: .4rem; transition: opacity .15s;
+      font-size: 12px; font-weight: 600;
+      text-decoration: none; transition: opacity .15s;
     }
-    .modal-github-btn:hover { opacity: .75; }
+    .modal-github-btn { color: #82aaff; }
+    .modal-blog-btn { color: #c3e88d; }
+    .modal-github-btn:hover,
+    .modal-blog-btn:hover { opacity: .75; }
 
     .modal-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
 
@@ -295,10 +300,21 @@ import Header from '../components/Header.astro';
         <h2 class="modal-title" id="modal-title"></h2>
         <p class="modal-subtitle" id="modal-subtitle"></p>
         <div class="modal-tags" id="modal-tags"></div>
-        <a class="modal-github-btn" id="modal-github" href="" target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-          GitHub
-        </a>
+        <div class="modal-link-row">
+          <a class="modal-github-btn" id="modal-github" href="" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+            GitHub
+          </a>
+          <a class="modal-blog-btn" id="modal-blog" href="" style="display:none">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="14" y2="17"/>
+            </svg>
+            Blog
+          </a>
+        </div>
       </div>
     </div>
     <div class="modal-body">
@@ -398,6 +414,7 @@ import Header from '../components/Header.astro';
       challenge: '1. TourAPI 일일 quota 1,000콜 vs 적재량 28,000콜: 부산 7,000 스팟 × 4 endpoint = 28,000콜. 단순 부트스트랩이 ~28일 걸리는 구조. 한 번 quota 다 태우면 그날 잡 즉시 중단. 순차 처리 시 contentTypeId=12에만 quota 다 쓰면 14·39는 영원히 못 들어가는 starvation 발생.\n\n2. 워터마크 최적화가 부트스트랩을 막음: arrange=C(수정일 역순) + 페이지 전부 unchanged면 break 로직을 넣었는데, 14번째 cron 실행에서 records_fetched=0. page 1의 5건이 모두 어제 sync된 거라 break 떨어지고, page 2 이후는 한 번도 본 적 없는 데이터인데 평생 누락.\n\n3. REPLACE 패턴의 분리 트랜잭션 노출 가능성 + PK 충돌: 갤러리 통째 교체(SPOT_IMAGES)에서 DELETE/INSERT를 분리 트랜잭션으로 두면 그 사이 SELECT가 빈 결과를 받을 수 있음. 또 ERD가 SPOT_TAGS PK를 (content_id, tag_id)로 정의했는데 정책은 LLM 재추출 시 source=\'llm\'만 교체해야 함 — 같은 (content_id, tag_id)에 manual·llm 공존 시 PK 충돌.',
       solution: '1. 4단계 quota 방어 설계.\n   - Layer 1 (변경분 필터): list 응답의 modifiedtime을 DB의 source_modified_time과 비교해 같으면 detail 4콜 호출 자체 skip\n   - Layer 2 (워터마크 break): bootstrap_complete=True일 때만 활성화 (해결 방법 2)\n   - Layer 3 (예산 하드가드): 900콜 도달 시 즉시 종료 + cursor 저장으로 다음 실행 재개\n   - Layer 4 (타입별 예산 분할): {"12": 0.5, "14": 0.25, "39": 0.25} 비율 + 타입별 cursor 분리 저장 → 한 타입의 quota 고갈이 다른 타입을 굶기지 않음\n\n2. bootstrap_complete 플래그 게이팅. 워터마크 break는 부트스트랩이 진짜로 끝났을 때만 안전. 모든 type의 cursor가 마지막 페이지에 도달한 시점에만 bootstrap_complete=true로 전환하고, 그 전엔 unchanged 페이지를 만나도 다음 페이지로 진행.\n   전: if page_unchanged_count == len(items): break\n   후: if not bootstrap_mode and page_unchanged_count == len(items): break\n\n3. 단일 트랜잭션 강제 + PK에 source 컬럼 추가.\n   - SPOT_IMAGES: async with conn.transaction() 블록 안에서 DELETE + INSERT executemany를 묶음. COMMIT 시점에만 외부 노출.\n   - SPOT_TAGS: PK를 (content_id, tag_id, source) 3컬럼으로 확장 → 같은 (content_id, tag_id)에 manual·llm 공존 가능. DELETE WHERE source=\'llm\'만 돌려도 manual 행은 자연 보존.',
       github: 'https://github.com/nolleo-onna/nolleo-onna-pipeline',
+      blog: '/blog/category/nolleo-onna/',
     },
     langchain: {
       img: '/langchain-demo.png',
@@ -431,6 +448,13 @@ import Header from '../components/Header.astro';
     document.getElementById('modal-tags').innerHTML = m.tags;
     const ghBtn = document.getElementById('modal-github');
     ghBtn.href = m.github;
+    const blogBtn = document.getElementById('modal-blog');
+    if (m.blog) {
+      blogBtn.href = m.blog;
+      blogBtn.style.display = '';
+    } else {
+      blogBtn.style.display = 'none';
+    }
     document.getElementById('modal-overview').textContent = m.overview || '';
     const roleEl = document.getElementById('modal-role');
     roleEl.innerHTML = (m.role || []).map(r => {
