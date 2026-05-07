@@ -37,14 +37,14 @@ category: nolleo-onna
 
 ```mermaid
 flowchart TB
-    subgraph SpringRW["🟦 Spring SoT (Spring이 쓰고 Python은 읽기)"]
+    subgraph SpringRW["Spring SoT (Spring이 쓰고 Python은 읽기)"]
         U[USERS · USER_EMBEDDINGS]
         B[BOOKMARKS · BOOKMARK_COLLECTIONS]
         C[GENERATED_COURSES · COURSE_ITEMS · COURSE_DECISIONS]
         R[USER_REVIEWS · VISIT_HISTORY · NOTIFICATIONS]
     end
 
-    subgraph PythonRW["🟩 Python SoT (Python이 쓰고 Spring은 읽기)"]
+    subgraph PythonRW["Python SoT (Python이 쓰고 Spring은 읽기)"]
         S[SPOTS_CORE · SPOT_DETAILS · SPOT_EMBEDDINGS · SPOT_IMAGES · SPOT_TAGS · SPOT_CONGESTION_FORECAST · SPOTS_RAW_SNAPSHOTS]
         E[EVENTS_CORE · EVENT_DETAILS · EVENT_EMBEDDINGS · EVENT_IMAGES · EVENTS_RAW_SNAPSHOTS]
         T[TRAVEL_COURSES · TRAVEL_COURSE_EMBEDDINGS · COURSE_ITEMS · COURSES_RAW_SNAPSHOTS]
@@ -52,14 +52,14 @@ flowchart TB
         TG[TAGS · WEATHER_CACHE]
     end
 
-    subgraph BothRW["🟨 양쪽 RW (상태 전이 규칙 §6 참조)"]
+    subgraph BothRW["양쪽 RW (상태 전이 규칙 §6 참조)"]
         H[HANKKUT · HANKKUT_SPOTS · HANKKUT_TAGS · HANKKUT_EVENTS]
         Q[BUSINESS_HOURS_REVIEW_QUEUE]
         M[GOOD_PRICE_MATCH_QUEUE · GOOD_PRICE_PRICE_OBSERVATIONS]
         L[SYNC_LOGS]
     end
 
-    subgraph Master["⬜ 코드 마스터 (양쪽 읽기)"]
+    subgraph Master["코드 마스터 (양쪽 읽기)"]
         LD[LDONG_CODES · LCLS_SYSTM_CODES · WEATHER_GRIDS · GOOD_PRICE_LOCALE_CODES]
     end
 
