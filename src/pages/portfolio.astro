@@ -194,32 +194,32 @@ import Header from '../components/Header.astro';
   <div class="tab-panel active" id="tab-java">
     <div class="project-grid">
 
+      <div class="project-card" data-modal="picketing">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&q=80" alt="피켓팅" loading="lazy" />
+          <a href="https://github.com/hi4579675" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">피켓팅 — KBO 티켓팅 백엔드</div>
+          <div class="card-desc">오픈런 트래픽을 견디는 단일 구단 KBO 야구 티켓팅 백엔드. Redis 대기열·Lua 스크립트 좌석 점유, Transactional Outbox + Kafka로 결제-좌석 정합성을 보장합니다.</div>
+          <div class="card-tags">
+            <span class="tag tb">Spring Boot</span><span class="tag tp">Redis</span><span class="tag tv">Kafka</span><span class="tag tb">MySQL</span><span class="tag tp">동시성</span>
+          </div>
+          <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
+
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <!-- FastAPI / LangChain -->
   <div class="tab-panel" id="tab-fastapi">
     <div class="project-grid">
-
-      <div class="project-card" data-modal="jikimi">
-        <div class="card-thumb">
-          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80" alt="계약지킴이" loading="lazy" />
-          <a href="https://github.com/hi4579675/jikimi" target="_blank" class="card-gh" onclick="event.stopPropagation()">
-            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-          </a>
-        </div>
-        <div class="card-body">
-          <div class="card-title">계약지킴이 (Jikimi)</div>
-          <div class="card-desc">임차인을 위한 임대차 계약 AI 분석 서비스. 계약서(PDF/이미지)를 업로드하면 OCR → 법령 대조 → 독소 조항 리포트를 즉시 생성합니다.</div>
-          <div class="card-tags">
-            <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag tc">RAG</span><span class="tag tv">LLM</span><span class="tag to">OCR</span>
-          </div>
-          <div class="card-footer">
-            <span class="card-detail-link">자세히 보기 →</span>
-            
-          </div>
-        </div>
-      </div>
 
       <div class="project-card" data-modal="nolleo-onna">
         <div class="card-thumb">
@@ -256,7 +256,27 @@ import Header from '../components/Header.astro';
           </div>
           <div class="card-footer">
             <span class="card-detail-link">자세히 보기 →</span>
-            
+
+          </div>
+        </div>
+      </div>
+
+      <div class="project-card" data-modal="jikimi">
+        <div class="card-thumb">
+          <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80" alt="계약지킴이" loading="lazy" />
+          <a href="https://github.com/hi4579675/jikimi" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-title">계약지킴이 (Jikimi)</div>
+          <div class="card-desc">임차인을 위한 임대차 계약 AI 분석 서비스. 계약서(PDF/이미지)를 업로드하면 OCR → 법령 대조 → 독소 조항 리포트를 즉시 생성합니다.</div>
+          <div class="card-tags">
+            <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag tc">RAG</span><span class="tag tv">LLM</span><span class="tag to">OCR</span>
+          </div>
+          <div class="card-footer">
+            <span class="card-detail-link">자세히 보기 →</span>
+
           </div>
         </div>
       </div>
@@ -306,6 +326,36 @@ import Header from '../components/Header.astro';
 
 <script>
   const modals = {
+    picketing: {
+      img: 'https://images.unsplash.com/photo-1508344928928-7165b67de128?w=800&q=80',
+      title: '피켓팅 — KBO 티켓팅 백엔드',
+      subtitle: 'PICKETING',
+      tags: `<span class="tag tb">Spring Boot</span><span class="tag tp">Redis</span><span class="tag tv">Kafka</span><span class="tag tb">MySQL</span><span class="tag tp">동시성</span>`,
+      overview: '오픈런 트래픽을 견디는 단일 구단 야구 티켓 예매 백엔드 시스템. KBO 리그 인기 카드(한국시리즈, 개막전) 티켓 오픈 직후 수만 명 동시 접속 시 발생하는 대기열 폭주, 좌석 중복 점유, 결제-좌석 정합성 깨짐 문제를 분산 시스템 패턴(분산락, Transactional Outbox, CQRS, 비동기 메시징)으로 해결하는 것을 목표로 한다.',
+      role: [
+        '1인 프로젝트. 기획·설계·구현·인프라·문서 전체 단독 수행.',
+        '**기술 스택**',
+        'Java 21 · Spring Boot 3.5 · Spring Security + JWT · Spring Data JPA · MySQL 8 (RDS) · Redis 7 · Kafka 3.9 · Docker Compose · AWS EC2 ×2 + ALB · GitHub Actions · k6',
+        '**아키텍처**',
+        '모듈러 모놀리스. 단일 Spring Boot 앱이지만 8개 도메인 모듈(auth, game, waiting, seat, reservation, payment, outbox, notification)을 패키지 단위로 분리하고, 모듈 간 통신은 공개 인터페이스(api 패키지) 또는 이벤트(ApplicationEvent/Kafka)로만 허용. ArchUnit으로 순환 의존 빌드 타임 검증.',
+        'MSA를 채택하지 않은 이유: 1인 프로젝트에서 조직 확장성(콘웨이 법칙)의 이점을 활용할 수 없고, 운영 비용만 100% 부담하기 때문.',
+        '**구현 완료**',
+        '공통 인프라(shared): BaseEntity(JPA Auditing), SecurityConfig(JWT Stateless), RedisConfig, KafkaProducerConfig/ConsumerConfig/TopicConfig, ApiResponse(record), BaseException + GlobalExceptionHandler',
+        '인증(auth): Member 엔티티, BCrypt 해싱, JWT Access Token 발급·검증(jjwt 0.12.6), JwtAuthenticationFilter(OncePerRequestFilter), 회원가입·로그인 API',
+        '경기·구장 도메인(game): Stadium, Section, Seat, Game, GameSeat 엔티티 5종, SeatGrade·GameSeatStatus enum, 경기 목록·좌석 배치도 조회 API, 관리자 경기·구역·좌석 등록 API',
+        '인프라: Docker Compose(MySQL 8 + Redis 7-alpine + Kafka 3.9.2 KRaft 모드), SQL 스키마 수동 관리(ddl-auto: validate)',
+        'ADR 6건: 모듈러 모놀리스 채택, Shared Layer 컨벤션, 엔티티 ID 전략, 예외 처리 모듈 독립성, 인증 방식',
+        '**설계 완료, 구현은 후속 작업**',
+        '대기열 시스템(waiting): Redis Sorted Set(ZADD NX) 기반 FIFO 대기열, cursor 기반 Admission Worker, 진입 토큰(UUID + TTL 15분), 8개 공격 시나리오 대응',
+        '좌석 점유(seat): Redis Lua 스크립트로 EXISTS + SCARD + HSET 원자 연산, 3층 방어(Redis Lua → MySQL CONFIRMED 사전 검증 → MySQL unique 제약), TTL 7분 자동 해제, 결제 시 TTL 10분 연장',
+        '결제(payment): PG 시뮬레이터 4모드(NORMAL/CHAOS/ALWAYS_FAIL/ALWAYS_SUCCESS), 멱등 키, HMAC-SHA256 콜백 서명(timing-safe 비교), 자동 환불(Saga 최소 형태), 보강 워커',
+        'Outbox 패턴: Transactional Outbox + SELECT FOR UPDATE SKIP LOCKED 폴링 워커, at-least-once 보장, 컨슈머 멱등성, PUBLISHED 행 배치 정리',
+        '비기능 목표: 좌석 조회 3,000 req/s · 좌석 점유 500 req/s · p99 조회 200ms 이하 · 동일 좌석 중복 점유 0건',
+      ],
+      challenge: '1. 동일 좌석에 수십~수백 건의 동시 점유 요청이 들어올 때 정확히 한 명에게만 점유를 허용해야 함.\nDB 비관적 락(SELECT FOR UPDATE)은 단순하지만 락 경합 시 처리량이 급락한다. 낙관적 락(version 컬럼)은 인기 좌석에서 충돌률이 90% 이상이라 재시도 비용이 폭발한다. Redis 분산락(Redisson)은 락 해제 누락·노드 장애 시 복구가 복잡하다.\n\n2. 결제 성공 = 좌석 확정이 100% 보장되어야 하는데, PG 콜백은 늦거나 중복되거나 누락될 수 있음.\n결제 성공 트랜잭션 안에서 Kafka에 직접 발행하면, DB는 커밋됐는데 Kafka 발행이 실패한 케이스에서 데이터가 영원히 어긋난다(Dual Write Problem).\n\n3. 대기열에서 새로고침 시 순번이 뒤로 밀리는 공정성 문제.\n일반적인 큐(LPUSH/RPOP)는 연결이 끊기면 순번을 잃는다. 웹 환경에서 새로고침·네트워크 끊김은 일상적이므로, 순번이 유지되면서도 상태 조회가 가능한 구조가 필요했다.\n\n4. 좌석 조회는 초당 수천이고 점유는 초당 수백인 읽기/쓰기 비대칭.\n같은 MySQL 모델로 처리하면 조회 트래픽이 점유 쓰기를 압박한다.',
+      solution: '1. Redis 단일 명령 원자성(SET NX 방식) + Lua 스크립트.\n락이 아닌 상태 자체를 Redis에 두고, EXISTS + SCARD + HSET을 하나의 Lua 스크립트로 묶어 원자적으로 실행. 12명이 동시에 같은 좌석을 요청해도 Redis 단일 스레드 특성상 정확히 1명만 성공한다. MySQL unique 제약을 최종 방어선으로 두어, Redis-MySQL 불일치 시에도 중복 확정이 불가능하도록 3층 방어를 구성.\n\n2. Transactional Outbox 패턴.\n결제 성공 트랜잭션 안에서 (a) Payment 상태 변경, (b) Reservation 확정, (c) OutboxEvent INSERT를 하나의 MySQL 트랜잭션으로 묶는다. 별도 폴링 워커가 OutboxEvent를 읽어 Kafka로 발행. DB 커밋 = 이벤트 기록이 보장되므로 Dual Write가 원천 차단된다. EC2 2대 환경에서 워커 중복 실행은 SELECT FOR UPDATE SKIP LOCKED로 해결.\n\n3. Redis Sorted Set + ZADD NX + cursor 패턴.\nscore = 진입 timestamp, member = userId로 Sorted Set에 저장. NX 옵션으로 이미 존재하는 멤버의 score 덮어쓰기를 방지하여 새로고침해도 순번이 보존된다. Admission Worker가 cursor 기반으로 상위 N명을 읽어(팝하지 않음) 진입 토큰을 발급하고, 토큰 발급 성공 후 cursor를 INCRBY로 원자적 전진. 실패 시 cursor가 안 움직여 다음 주기에 자연 재시도.\n\n4. Write Model(MySQL) + Read Model(Redis Hash) 분리.\n좌석 상태 조회는 Redis Hash에서 서빙하고, 점유·확정 쓰기는 MySQL에 기록한 뒤 Redis를 갱신. 최종적 일관성으로 합의하되, 동일 좌석 배치도에 대한 동시 조회는 Request Collapsing으로 묶어 Redis 부하를 제어.',
+      github: 'https://github.com/hi4579675',
+    },
     jikimi: {
       img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&q=80',
       title: '계약지킴이 (Jikimi)',
