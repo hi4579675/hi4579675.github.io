@@ -299,3 +299,25 @@ html[data-theme="light"] .sl-markdown-content a {
 html[data-theme="light"] .sl-markdown-content a:hover {
   color: #1d5fd6 !important;
 }
+
+/* ===== Mermaid diagrams ===== */
+.sl-markdown-content div.mermaid {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  font-family: 'JetBrains Mono', 'Noto Sans KR', monospace !important;
+  font-size: 0.82rem !important;
+  /* 렌더 전 raw mermaid 코드 노출 방지 */
+  min-height: 1px;
+}
+.sl-markdown-content div.mermaid:not([data-processed]) {
+  color: transparent;
+  user-select: none;
+}
+.sl-markdown-content div.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}

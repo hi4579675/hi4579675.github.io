@@ -174,6 +174,20 @@ const cc = catClass[category] ?? 'cat-dev';
     .prose :global(table) { width: 100%; border-collapse: collapse; margin-bottom: 1.3rem; font-size: 13px; }
     .prose :global(th) { background: #0f1120; color: #82aaff; padding: .6rem 1rem; border: 1px solid #1e2340; text-align: left; font-family: 'JetBrains Mono', monospace; }
     .prose :global(td) { padding: .5rem 1rem; border: 1px solid #1e2340; color: #a9b1d6; font-family: 'Noto Sans KR', sans-serif; }
+    /* Mermaid 다이어그램 */
+    .prose :global(div.mermaid) {
+      display: flex; justify-content: center;
+      margin: 1.5rem 0;
+      background: transparent !important; border: none !important; padding: 0 !important;
+      font-family: 'JetBrains Mono', 'Noto Sans KR', monospace;
+      font-size: 13px;
+      min-height: 1px;
+    }
+    /* 렌더 전 raw 코드 노출 방지 */
+    .prose :global(div.mermaid:not([data-processed])) {
+      color: transparent; user-select: none;
+    }
+    .prose :global(div.mermaid svg) { max-width: 100%; height: auto; }
 
     /* BACK LINK */
     .post-footer { padding-top: 2rem; border-top: 1px solid #1e2340; }
@@ -305,6 +319,61 @@ const cc = catClass[category] ?? 'cat-dev';
 
     headingEls.forEach(el => observer.observe(el));
   }
+</script>
+
+<!-- Mermaid: lazy load + theme-aware re-render -->
+<script is:inline>
+  (function(){
+    let mermaidPromise;
+    async function loadMermaid() {
+      if (!mermaidPromise) {
+        mermaidPromise = import('https://esm.sh/mermaid@11').then(function(m){ return m.default; });
+      }
+      return mermaidPromise;
+    }
+    async function renderAll(force) {
+      const all = document.querySelectorAll('div.mermaid');
+      if (all.length === 0) return;
+      const targets = [];
+      all.forEach(function(el){
+        if (!el.hasAttribute('data-source')) {
+          el.setAttribute('data-source', el.textContent.trim());
+        }
+        if (force || !el.hasAttribute('data-processed')) {
+          if (force) {
+            el.innerHTML = el.getAttribute('data-source');
+            el.removeAttribute('data-processed');
+          }
+          targets.push(el);
+        }
+      });
+      if (targets.length === 0) return;
+      const mermaid = await loadMermaid();
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: isDark ? 'dark' : 'default',
+        securityLevel: 'loose',
+        fontFamily: 'JetBrains Mono, Noto Sans KR, monospace',
+      });
+      try {
+        await mermaid.run({ nodes: targets });
+        targets.forEach(function(el){ el.setAttribute('data-processed', '1'); });
+      } catch(e) { console.error('mermaid render error', e); }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function(){ renderAll(false); });
+    } else { renderAll(false); }
+    const obs = new MutationObserver(function(muts){
+      for (const m of muts) {
+        if (m.type === 'attributes' && m.attributeName === 'data-theme') {
+          renderAll(true);
+          break;
+        }
+      }
+    });
+    obs.observe(document.documentElement, { attributes: true });
+  })();
 </script>
 
 </body>

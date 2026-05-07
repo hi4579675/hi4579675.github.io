@@ -1,6 +1,6 @@
 ---
 title: "Python 파이프라인과 Spring 백엔드가 같은 DB를 쓸 때, 마이그레이션은 어디서 관리하나"
-date: 2026-05-07
+date: 2026-04-20
 tags:
   - 시스템 설계
   - PostgreSQL
