@@ -153,6 +153,13 @@ import Header from '../components/Header.astro';
       font-family: 'Noto Sans KR', sans-serif;
     }
     .modal-list li::before { content: '·'; position: absolute; left: 0; color: #82aaff; }
+    .modal-list li.role-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: #82aaff; padding-left: 0; margin-top: .9rem;
+    }
+    .modal-list li.role-header:first-child { margin-top: 0; }
+    .modal-list li.role-header::before { content: ''; }
 
     @media (max-width: 860px) {
       .modal { max-width: 100%; height: 95vh; max-height: 95vh; }
@@ -187,46 +194,6 @@ import Header from '../components/Header.astro';
   <div class="tab-panel active" id="tab-java">
     <div class="project-grid">
 
-      <div class="project-card" data-modal="onul">
-        <div class="card-thumb">
-          <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80" alt="오늘뭐해" loading="lazy" />
-          <a href="https://github.com/hi4579675/onul-mwhe" target="_blank" class="card-gh" onclick="event.stopPropagation()">
-            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-          </a>
-        </div>
-        <div class="card-body">
-          <div class="card-title">오늘 뭐해?</div>
-          <div class="card-desc">하루 동선 추천 앱. 지역·기분·예산을 입력하면 AI가 점심/카페/놀거리까지 영업시간·이동시간을 고려한 하루 코스를 통째로 만들어줍니다.</div>
-          <div class="card-tags">
-            <span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag to">Kakao API</span><span class="tag tc">LLM</span>
-          </div>
-          <div class="card-footer">
-            <span class="card-detail-link">자세히 보기 →</span>
-             
-          </div>
-        </div>
-      </div>
-
-      <div class="project-card" data-modal="fridge">
-        <div class="card-thumb">
-          <img src="https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=800&q=80" alt="냉비서" loading="lazy" />
-          <a href="https://github.com/fridge2fork-project/fridge2fork" target="_blank" class="card-gh" onclick="event.stopPropagation()">
-            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
-          </a>
-        </div>
-        <div class="card-body">
-          <div class="card-title">냉비서 부탁해!</div>
-          <div class="card-desc">1인 가구를 위한 냉장고 재료 기반 레시피 추천 서비스. 재료를 등록하면 매칭률 순으로 레시피를 추천하고, 유통기한 임박 재료 활용 챌린지로 식재료 낭비를 줄입니다.</div>
-          <div class="card-tags">
-            <span class="tag tb">Spring Boot</span><span class="tag tg">Python</span><span class="tag to">PostgreSQL</span>
-          </div>
-          <div class="card-footer">
-            <span class="card-detail-link">자세히 보기 →</span>
-             
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
@@ -254,22 +221,22 @@ import Header from '../components/Header.astro';
         </div>
       </div>
 
-      <div class="project-card" data-modal="review">
+      <div class="project-card" data-modal="nolleo-onna">
         <div class="card-thumb">
-          <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80" alt="ReView" loading="lazy" />
-          <a href="https://github.com/hi4579675/ReView" target="_blank" class="card-gh" onclick="event.stopPropagation()">
+          <img src="/nolleo-onna-demo.png" alt="놀러온나" loading="lazy" />
+          <a href="https://github.com/nolleo-onna/nolleo-onna-pipeline" target="_blank" class="card-gh" onclick="event.stopPropagation()">
             <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.09-.745.083-.73.083-.73 1.205.085 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
           </a>
         </div>
         <div class="card-body">
-          <div class="card-title">ReView</div>
-          <div class="card-desc">diff만 보는 리뷰어는 그만. 레포 전체를 RAG로 인덱싱해 변경 코드가 다른 파일에 미치는 영향까지 이해하는 AI 코드 리뷰어.</div>
+          <div class="card-title">놀러온나 — TourAPI 데이터 파이프라인</div>
+          <div class="card-desc">TourAPI 부산 업소 데이터와 행안부 착한가격업소를 상호명·주소·좌표 3중 매칭으로 정제·결합해 ‘정부 인증 가성비 업소’ 신규 데이터셋을 생성하는 파이프라인.</div>
           <div class="card-tags">
-            <span class="tag tv">FastAPI</span><span class="tag tc">RAG</span><span class="tag tg">Python</span><span class="tag tb">GitHub Actions</span><span class="tag to">SQS</span>
+            <span class="tag tg">Python</span><span class="tag to">TourAPI</span><span class="tag tb">PostgreSQL</span><span class="tag tc">ETL</span>
           </div>
           <div class="card-footer">
             <span class="card-detail-link">자세히 보기 →</span>
-             
+
           </div>
         </div>
       </div>
@@ -357,38 +324,30 @@ import Header from '../components/Header.astro';
       solution: '1. 줄 시작(^) + 괄호 제목이 바로 뒤따르는 패턴만 실제 조항으로 인식하도록 정규식 변경. 본문 중간의 법령 참조문은 줄 시작에 위치하지 않으므로 자연스럽게 필터링됨.\n   전: pattern = r\'(제\\d+조(?:의\\d+)?)\'\n   후: pattern = r\'(?m)^[ \\t]*(제\\d+조(?:의\\d+)?)\\s*[（(]\'\n2. 페이지 번호 앞뒤 줄바꿈까지 함께 제거하는 정규식으로 해결. 단순 패턴 제거가 아니라 앞뒤 \\n*를 묶어서 내용 사이 빈 줄이 남지 않도록 처리.\n3. 동기 블로킹 로직을 _embed, _query_db로 분리하고 asyncio.to_thread()로 위임. asyncpg 교체도 검토했으나 PoC 단계에서 드라이버 교체는 오버엔지니어링이라 판단하고 to_thread로 블로킹만 해소.',
       github: 'https://github.com/hi4579675/jikimi',
     },
-    onul: {
-      img: 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800&q=80',
-      title: '오늘 뭐해?',
-      subtitle: 'ONUL',
-      tags: `<span class="tag tv">FastAPI</span><span class="tag tb">Spring Boot</span><span class="tag to">Kakao API</span><span class="tag tc">LLM</span>`,
-      overview: '지역·기분·예산을 입력하면 AI가 하루 동선 코스를 통째로 만들어주는 추천 앱입니다.',
-      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
-      challenge: '여기에 어려웠던 점을 적어주세요.',
-      solution: '여기에 해결 방법을 적어주세요.',
-      github: 'https://github.com/hi4579675/onul-mwhe',
-    },
-    fridge: {
-      img: 'https://images.unsplash.com/photo-1533743983669-94fa5c4338ec?w=800&q=80',
-      title: '냉비서 부탁해!',
-      subtitle: 'FRIDGE2FORK',
-      tags: `<span class="tag tb">Spring Boot</span><span class="tag tg">Python</span><span class="tag to">MySQL</span>`,
-      overview: '1인 가구를 위한 냉장고 재료 기반 레시피 추천 서비스입니다. 식재료 낭비를 줄이는 것을 목표로 합니다.',
-      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
-      challenge: '여기에 어려웠던 점을 적어주세요.',
-      solution: '여기에 해결 방법을 적어주세요.',
-      github: 'https://github.com/fridge2fork-project/fridge2fork',
-    },
-    review: {
-      img: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80',
-      title: 'ReView',
-      subtitle: 'REVIEW',
-      tags: `<span class="tag tv">FastAPI</span><span class="tag tc">RAG</span><span class="tag tg">Python</span><span class="tag tb">GitHub Actions</span><span class="tag to">SQS</span>`,
-      overview: 'diff만 보는 리뷰어는 그만. 레포 전체를 RAG로 인덱싱해 변경 코드가 다른 파일에 미치는 영향까지 이해하는 AI 코드 리뷰어입니다.',
-      role: ['여기에 본인이 담당한 역할을 적어주세요.'],
-      challenge: '여기에 어려웠던 점을 적어주세요.',
-      solution: '여기에 해결 방법을 적어주세요.',
-      github: 'https://github.com/hi4579675/ReView',
+    'nolleo-onna': {
+      img: '/nolleo-onna-demo.png',
+      title: '외부 공공 API를 서비스 데이터로 바꾸는 부산 여행 파이프라인 (놀러온나)',
+      subtitle: 'NOLLEO-ONNA',
+      tags: `<span class="tag tg">Python</span><span class="tag to">TourAPI</span><span class="tag tb">PostgreSQL</span><span class="tag tc">ETL</span>`,
+      overview: '한국관광공사 TourAPI 등 외부 공공 데이터를 부산 여행 서비스에 적재하기 위한 데이터 파이프라인. 외부 API 의존을 사용자 응답 경로에서 분리하기 위해 수집·정제·LLM 가공·임베딩 적재를 별도 Python 파이프라인으로 두고, 서비스(Spring Boot)는 PostgreSQL 마스터 데이터만 읽음.',
+      role: [
+        '데이터 파이프라인, 데이터베이스 모델링, 운영 안전장치 설계까지 데이터 레이어를 단독 작업.',
+        '**구현 완료**',
+        '공용 인프라: psycopg 3.x 비동기 풀, httpx + tenacity 재시도, KST/UTC 시간 유틸, SHA-256 해시, async with sync_log_run() 컨텍스트 매니저',
+        'TourAPI 관광지 sync 파이프라인: 4 endpoint(detailCommon2/Intro2/Info2/Image2) asyncio.gather 병렬 수집, Pydantic 정규화, UPSERT/REPLACE 단일 트랜잭션 적재',
+        '비용 통제 4단계: 변경분 필터 / 워터마크 break + bootstrap 게이팅 / 일일 예산 하드가드 / 타입별 예산 분할 + 타입별 cursor',
+        'Alembic 마이그레이션 6개: 스팟 도메인 7테이블 + 성능 인덱스 + updated_at 트리거 + SYNC_LOGS (외부 FK는 master 테이블 의존성으로 별도 보관)',
+        'Docker Compose 로컬 환경 + AWS RDS ap-northeast-2 (PostgreSQL 16 + PostGIS + pgvector + pg_trgm)',
+        '**설계 완료, 구현은 후속 작업**',
+        '30+ 테이블 ERD: 스팟 외 행사·공식 코스·착한가격·한끗·태그·날씨 등 12개 도메인',
+        'ADR 0001 — LLM 매칭 전략: 룰 점수(전화 0.5 / 이름 Jaro-Winkler 0.3 / 주소 0.15 / 거리 0.05) 자동 처리 + 회색지대(0.65~0.85)만 GPT-4o-mini로 위임',
+        'ADR 0003 — 비활성 처리 4중 안전 가드',
+        '신뢰도 큐 패턴 (BUSINESS_HOURS_REVIEW_QUEUE) — LLM 영업시간 정규화 도입 시',
+        '2트랙 테스트 (mock 단위 + testcontainers 통합)',
+      ],
+      challenge: '1. TourAPI 일일 quota 1,000콜 vs 적재량 28,000콜: 부산 7,000 스팟 × 4 endpoint = 28,000콜. 단순 부트스트랩이 ~28일 걸리는 구조. 한 번 quota 다 태우면 그날 잡 즉시 중단. 순차 처리 시 contentTypeId=12에만 quota 다 쓰면 14·39는 영원히 못 들어가는 starvation 발생.\n\n2. 워터마크 최적화가 부트스트랩을 막음: arrange=C(수정일 역순) + 페이지 전부 unchanged면 break 로직을 넣었는데, 14번째 cron 실행에서 records_fetched=0. page 1의 5건이 모두 어제 sync된 거라 break 떨어지고, page 2 이후는 한 번도 본 적 없는 데이터인데 평생 누락.\n\n3. REPLACE 패턴의 분리 트랜잭션 노출 가능성 + PK 충돌: 갤러리 통째 교체(SPOT_IMAGES)에서 DELETE/INSERT를 분리 트랜잭션으로 두면 그 사이 SELECT가 빈 결과를 받을 수 있음. 또 ERD가 SPOT_TAGS PK를 (content_id, tag_id)로 정의했는데 정책은 LLM 재추출 시 source=\'llm\'만 교체해야 함 — 같은 (content_id, tag_id)에 manual·llm 공존 시 PK 충돌.',
+      solution: '1. 4단계 quota 방어 설계.\n   - Layer 1 (변경분 필터): list 응답의 modifiedtime을 DB의 source_modified_time과 비교해 같으면 detail 4콜 호출 자체 skip\n   - Layer 2 (워터마크 break): bootstrap_complete=True일 때만 활성화 (해결 방법 2)\n   - Layer 3 (예산 하드가드): 900콜 도달 시 즉시 종료 + cursor 저장으로 다음 실행 재개\n   - Layer 4 (타입별 예산 분할): {"12": 0.5, "14": 0.25, "39": 0.25} 비율 + 타입별 cursor 분리 저장 → 한 타입의 quota 고갈이 다른 타입을 굶기지 않음\n\n2. bootstrap_complete 플래그 게이팅. 워터마크 break는 부트스트랩이 진짜로 끝났을 때만 안전. 모든 type의 cursor가 마지막 페이지에 도달한 시점에만 bootstrap_complete=true로 전환하고, 그 전엔 unchanged 페이지를 만나도 다음 페이지로 진행.\n   전: if page_unchanged_count == len(items): break\n   후: if not bootstrap_mode and page_unchanged_count == len(items): break\n\n3. 단일 트랜잭션 강제 + PK에 source 컬럼 추가.\n   - SPOT_IMAGES: async with conn.transaction() 블록 안에서 DELETE + INSERT executemany를 묶음. COMMIT 시점에만 외부 노출.\n   - SPOT_TAGS: PK를 (content_id, tag_id, source) 3컬럼으로 확장 → 같은 (content_id, tag_id)에 manual·llm 공존 가능. DELETE WHERE source=\'llm\'만 돌려도 manual 행은 자연 보존.',
+      github: 'https://github.com/nolleo-onna/nolleo-onna-pipeline',
     },
     langchain: {
       img: '/langchain-demo.png',
@@ -424,7 +383,12 @@ import Header from '../components/Header.astro';
     ghBtn.href = m.github;
     document.getElementById('modal-overview').textContent = m.overview || '';
     const roleEl = document.getElementById('modal-role');
-    roleEl.innerHTML = (m.role || []).map(r => `<li>${r}</li>`).join('');
+    roleEl.innerHTML = (m.role || []).map(r => {
+      if (r.startsWith('**') && r.endsWith('**')) {
+        return `<li class="role-header">${r.slice(2, -2)}</li>`;
+      }
+      return `<li>${r}</li>`;
+    }).join('');
     document.getElementById('modal-challenge').textContent = m.challenge || '';
     document.getElementById('modal-solution').textContent = m.solution || '';
     overlay.classList.add('open');

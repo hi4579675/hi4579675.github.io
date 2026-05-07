@@ -3,7 +3,7 @@ import Header from '../../../components/Header.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const cats = ['ticketing', 'develops', 'troubleshooting', 'performance', 'architecture', 'redis', 'ai'];
+  const cats = ['ticketing', 'nolleo-onna', 'develops', 'troubleshooting', 'performance', 'architecture', 'redis', 'ai'];
   return cats.map((cat) => ({ params: { cat } }));
 }
 
@@ -23,8 +23,9 @@ const catColor: Record<string, string> = {
 };
 
 const catMeta: Record<string, { display: string; desc: string; color: string }> = {
-  ticketing:       { display: 'ticketing',       desc: '오픈런 트래픽을 견디는 단일 구단 티켓팅 백엔드 시스템.', color: '#ff757f' },
-  develops:        { display: 'dev',             desc: '프로젝트 회고, 기술 선택 이유, 구현 상세.',              color: '#86e1fc' },
+  ticketing:       { display: 'ticketing',       desc: '오픈런 트래픽을 견디는 단일 구단 티켓팅 백엔드 시스템.',                          color: '#ff757f' },
+  'nolleo-onna':   { display: 'nolleo-onna',     desc: 'TourAPI × 착한가격업소 매칭으로 부산 가성비 코스를 큐레이션하는 AI 여행 서비스.', color: '#c3e88d' },
+  develops:        { display: 'dev',             desc: '프로젝트 회고, 기술 선택 이유, 구현 상세.',                                       color: '#86e1fc' },
   troubleshooting: { display: 'troubleshooting', desc: '마주친 버그와 에러, 원인 분석과 해결 과정.',             color: '#ffc777' },
   performance:     { display: 'performance',     desc: '쿼리 최적화, 캐싱, 부하 테스트 등 성능 개선 경험.',      color: '#c3e88d' },
   architecture:    { display: 'architecture',    desc: '시스템 설계, MSA, 비동기 패턴 등 아키텍처 결정.',        color: '#82aaff' },
