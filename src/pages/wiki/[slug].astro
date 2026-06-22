@@ -1,0 +1,296 @@
+---
+import Header from '../../components/Header.astro';
+import { getCollection, render } from 'astro:content';
+import { wikiGroups, wikiTopicMap } from '../../data/wikiTopics';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('docs', (e) => e.id.startsWith('wiki/'));
+  return notes.map((note) => ({
+    params: { slug: note.id.replace(/^wiki\//, '') },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content, headings } = await render(note);
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+
+const currentSlug = note.id.replace(/^wiki\//, '');
+const currentTopic = (note.data as any).category ?? 'etc';
+
+// 좌측 전체 위키 트리
+const allNotes = await getCollection('docs', (e) => e.id.startsWith('wiki/'));
+const notesByTopic: Record<string, typeof allNotes> = {};
+for (const n of allNotes) {
+  const t = (n.data as any).category ?? 'etc';
+  (notesByTopic[t] ??= []).push(n);
+}
+for (const t of Object.keys(notesByTopic)) {
+  notesByTopic[t].sort((a, b) => a.data.title.localeCompare(b.data.title, 'ko'));
+}
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{note.data.title} — hanna.log wiki</title>
+  {note.data.description && <meta name="description" content={note.data.description} />}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','light')}})()</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #0d0f1a; scroll-behavior: smooth; }
+    html[data-theme='light'] { background: #f8f9fc; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+    .doc-layout { display: grid; grid-template-columns: 210px minmax(0,1fr) 190px; gap: 40px; align-items: start; padding-top: 3rem; }
+
+    /* LEFT: wiki nav tree */
+    .wiki-nav { position: sticky; top: 72px; max-height: calc(100vh - 90px); overflow-y: auto; scrollbar-width: none; }
+    .wiki-nav::-webkit-scrollbar { display: none; }
+    .nav-home { display: inline-flex; align-items: center; gap: .4rem; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #444b6a; text-decoration: none; letter-spacing: .05em; margin-bottom: 1.3rem; transition: color .15s; }
+    .nav-home:hover { color: #82aaff; }
+    .nav-group { margin-bottom: 1.3rem; }
+    .nav-label { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #444b6a; margin-bottom: .5rem; padding-left: .15rem; }
+
+    /* 접고 펼치는 주제 */
+    .nav-topic { margin: .1rem 0; }
+    .nav-topic-head { display: flex; align-items: center; gap: .4rem; cursor: pointer; list-style: none; padding: .35rem .5rem; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8a93b8; transition: background .15s, color .15s; }
+    .nav-topic-head::-webkit-details-marker { display: none; }
+    .nav-topic-head:hover { background: #111528; color: #c8d3f5; }
+    .nav-chevron { color: #444b6a; transition: transform .18s ease; flex-shrink: 0; }
+    .nav-topic[open] > .nav-topic-head .nav-chevron { transform: rotate(90deg); }
+    .nav-topic-name { flex: 1; }
+    .nav-topic-count { font-size: 10px; color: #444b6a; }
+    .nav-topic-body { padding: .1rem 0 .35rem; margin: .1rem 0 .2rem .9rem; border-left: 1px solid #1a1f38; }
+
+    .nav-link { display: block; font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px; color: #8a93b8; text-decoration: none; padding: .3rem .55rem; border-radius: 6px; border-left: 2px solid transparent; margin-left: -1px; line-height: 1.4; transition: background .15s, color .15s, border-color .15s; }
+    .nav-link:hover { background: #111528; color: #c8d3f5; }
+    .nav-link.active { background: #141830; border-left-color: #82aaff; color: #c8d3f5; font-weight: 500; }
+
+    /* CENTER: content */
+    .doc-content { min-width: 0; }
+    .doc-header { padding-bottom: 1.8rem; border-bottom: 1px solid #1e2340; }
+    .doc-topic { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #82aaff; letter-spacing: .05em; text-decoration: none; }
+    .doc-topic:hover { text-decoration: underline; }
+    .doc-title { font-size: 30px; font-weight: 500; color: #c8d3f5; line-height: 1.3; font-family: 'Noto Sans KR', sans-serif; margin: .7rem 0 .6rem; }
+    .doc-lead { font-size: 14px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; }
+
+    /* RIGHT: TOC */
+    .toc { position: sticky; top: 72px; max-height: calc(100vh - 90px); overflow-y: auto; scrollbar-width: none; }
+    .toc::-webkit-scrollbar { display: none; }
+    .toc-label { font-size: 11px; font-weight: 500; color: #c8d3f5; font-family: 'Noto Sans KR', sans-serif; margin-bottom: .8rem; display: block; }
+    .toc-list { list-style: none; }
+    .toc-item a { display: block; font-size: 12.5px; color: #636d94; text-decoration: none; padding: 4px 0; line-height: 1.5; font-family: 'Noto Sans KR', sans-serif; transition: color .15s; }
+    .toc-item a:hover { color: #a9b1d6; }
+    .toc-item a.active { color: #c8d3f5; }
+    .toc-item.toc-h3 a { padding-left: 12px; font-size: 12px; color: #444b6a; }
+
+    /* PROSE (blog 글과 동일 스타일) */
+    .prose { padding: 2.2rem 0; }
+    .prose :global(.sl-anchor-link) { display: none; }
+    .prose :global(p) { font-family: 'Noto Sans KR', sans-serif; font-size: 15px; color: #a9b1d6; margin-bottom: 1.3rem; line-height: 1.9; }
+    .prose :global(h2) { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; font-size: 19px; font-weight: 500; color: #c8d3f5; margin: 2.2rem 0 .9rem; padding-bottom: .5rem; border-bottom: 1px solid #1e2340; line-height: 1.3; }
+    .prose :global(h3) { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 500; color: #82aaff; margin: 1.7rem 0 .7rem; line-height: 1.4; }
+    .prose :global(ul), .prose :global(ol) { font-family: 'Noto Sans KR', sans-serif; padding-left: 1.5rem; margin-bottom: 1.3rem; color: #a9b1d6; font-size: 15px; }
+    .prose :global(li) { margin-bottom: .45rem; line-height: 1.8; }
+    .prose :global(code) { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #1a1d2e; color: #c3e88d; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    .prose :global(pre) { background: #0f1120; border: 1px solid #1e2340; border-radius: 8px; padding: 1.2rem 1.4rem; overflow-x: auto; margin-bottom: 1.3rem; }
+    .prose :global(pre code) { background: none; padding: 0; font-size: 13px; line-height: 1.7; }
+    .prose :global(blockquote) { border-left: 3px solid #82aaff; padding: .6rem 1rem; margin: 1.2rem 0; background: #0f1120; border-radius: 0 6px 6px 0; font-family: 'Noto Sans KR', sans-serif; color: #636d94; font-size: 14px; }
+    .prose :global(a) { color: #82aaff; text-decoration: none; }
+    .prose :global(a:hover) { text-decoration: underline; }
+    .prose :global(strong) { color: #c8d3f5; font-weight: 500; }
+    .prose :global(em) { color: #86e1fc; font-style: normal; }
+    .prose :global(hr) { border: none; border-top: 1px solid #1e2340; margin: 2rem 0; }
+    .prose :global(table) { width: 100%; border-collapse: collapse; margin-bottom: 1.3rem; font-size: 13px; }
+    .prose :global(th) { background: #0f1120; color: #82aaff; padding: .6rem 1rem; border: 1px solid #1e2340; text-align: left; font-family: 'JetBrains Mono', monospace; }
+    .prose :global(td) { padding: .5rem 1rem; border: 1px solid #1e2340; color: #a9b1d6; font-family: 'Noto Sans KR', sans-serif; }
+    .prose :global(div.mermaid) { display: flex; justify-content: center; margin: 1.5rem 0; background: transparent !important; border: none !important; padding: 0 !important; min-height: 1px; }
+    .prose :global(div.mermaid:not([data-processed])) { color: transparent; user-select: none; }
+    .prose :global(div.mermaid svg) { max-width: 100%; height: auto; }
+
+    .doc-footer { padding-top: 1.6rem; border-top: 1px solid #1e2340; }
+    .back-link { font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .04em; transition: color .15s; }
+    .back-link:hover { color: #82aaff; }
+
+    footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+
+    @media (max-width: 1080px) {
+      .doc-layout { grid-template-columns: 200px minmax(0,1fr); }
+      .toc { display: none; }
+    }
+    @media (max-width: 760px) {
+      .doc-layout { grid-template-columns: 1fr; gap: 1.5rem; padding-top: 2rem; }
+      .wiki-nav { position: static; max-height: none; }
+      .doc-title { font-size: 24px; }
+    }
+
+    /* light mode */
+    [data-theme='light'] body { color: #1e2030; }
+    [data-theme='light'] .nav-home { color: #9599b3; }
+    [data-theme='light'] .nav-home:hover { color: #2e6ff2; }
+    [data-theme='light'] .nav-label { color: #bcc1d4; }
+    [data-theme='light'] .nav-topic-head { color: #6e7491; }
+    [data-theme='light'] .nav-topic-head:hover { background: #f0f2f7; color: #1e2030; }
+    [data-theme='light'] .nav-chevron { color: #bcc1d4; }
+    [data-theme='light'] .nav-topic-count { color: #bcc1d4; }
+    [data-theme='light'] .nav-topic-body { border-left-color: #e7e9f2; }
+    [data-theme='light'] .nav-link { color: #6e7491; }
+    [data-theme='light'] .nav-link:hover { background: #f0f2f7; color: #1e2030; }
+    [data-theme='light'] .nav-link.active { background: #eef1fb; border-left-color: #2e6ff2; color: #1e2030; }
+    [data-theme='light'] .doc-header { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .doc-topic { color: #2e6ff2; }
+    [data-theme='light'] .doc-title { color: #1e2030; }
+    [data-theme='light'] .doc-lead { color: #6e7491; }
+    [data-theme='light'] .toc-label { color: #1e2030; }
+    [data-theme='light'] .toc-item a { color: #9599b3; }
+    [data-theme='light'] .toc-item a:hover { color: #1e2030; }
+    [data-theme='light'] .toc-item a.active { color: #2e6ff2; }
+    [data-theme='light'] .toc-item.toc-h3 a { color: #bcc1d4; }
+    [data-theme='light'] .prose :global(p) { color: #3b3f5c; }
+    [data-theme='light'] .prose :global(h2) { color: #1e2030; border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .prose :global(h3) { color: #2e6ff2; }
+    [data-theme='light'] .prose :global(ul), [data-theme='light'] .prose :global(ol) { color: #3b3f5c; }
+    [data-theme='light'] .prose :global(code) { background: #e8eaf2; color: #16a34a; }
+    [data-theme='light'] .prose :global(pre) { background: #f0f2f7; border-color: #dfe2ef; }
+    [data-theme='light'] .prose :global(pre code) { color: #3b3f5c; }
+    [data-theme='light'] .prose :global(blockquote) { border-left-color: #2e6ff2; background: #f0f2f7; color: #6e7491; }
+    [data-theme='light'] .prose :global(a) { color: #2e6ff2; }
+    [data-theme='light'] .prose :global(strong) { color: #1e2030; }
+    [data-theme='light'] .prose :global(em) { color: #0891b2; }
+    [data-theme='light'] .prose :global(hr) { border-top-color: #dfe2ef; }
+    [data-theme='light'] .prose :global(th) { background: #f0f2f7; color: #2e6ff2; border-color: #dfe2ef; }
+    [data-theme='light'] .prose :global(td) { border-color: #dfe2ef; color: #3b3f5c; }
+    [data-theme='light'] .doc-footer { border-top-color: #dfe2ef; }
+    [data-theme='light'] .back-link { color: #9599b3; }
+    [data-theme='light'] .back-link:hover { color: #2e6ff2; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
+  </style>
+</head>
+<body>
+
+<Header />
+
+<main>
+  <div class="doc-layout">
+
+    <!-- LEFT: wiki tree -->
+    <aside class="wiki-nav">
+      <a href="/wiki/" class="nav-home">← wiki 홈</a>
+      {wikiGroups.map(({ label, topics }) => {
+        const visible = topics.filter((t) => (notesByTopic[t.id]?.length ?? 0) > 0);
+        return visible.length === 0 ? null : (
+          <div class="nav-group">
+            <div class="nav-label">{label}</div>
+            {visible.map(({ id, display }) => {
+              const topicNotes = notesByTopic[id] ?? [];
+              const hasCurrent = topicNotes.some((n) => n.id.replace(/^wiki\//, '') === currentSlug);
+              return (
+                <details class="nav-topic" open={hasCurrent}>
+                  <summary class="nav-topic-head">
+                    <svg class="nav-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                    <span class="nav-topic-name">{display}</span>
+                    <span class="nav-topic-count">{topicNotes.length}</span>
+                  </summary>
+                  <div class="nav-topic-body">
+                    {topicNotes.map((n) => {
+                      const s = n.id.replace(/^wiki\//, '');
+                      return (
+                        <a href={`/wiki/${s}/`} class={`nav-link ${s === currentSlug ? 'active' : ''}`}>{n.data.title}</a>
+                      );
+                    })}
+                  </div>
+                </details>
+              );
+            })}
+          </div>
+        );
+      })}
+    </aside>
+
+    <!-- CENTER: content -->
+    <div class="doc-content">
+      <div class="doc-header">
+        <a href={`/wiki/#topic-${currentTopic}`} class="doc-topic">{wikiTopicMap[currentTopic]?.display ?? currentTopic}</a>
+        <h1 class="doc-title">{note.data.title}</h1>
+        {note.data.description && <p class="doc-lead">{note.data.description}</p>}
+      </div>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <div class="doc-footer">
+        <a href="/wiki/" class="back-link">← 전체 위키</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: TOC -->
+    <aside class="toc">
+      {tocHeadings.length > 0 && (
+        <>
+          <span class="toc-label">목차</span>
+          <ul class="toc-list">
+            {tocHeadings.map((h) => (
+              <li class={`toc-item toc-h${h.depth}`}>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </aside>
+
+  </div>
+</main>
+
+<footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+
+<script>
+  const links = document.querySelectorAll('.toc-item a');
+  if (links.length > 0) {
+    const ids = Array.from(links).map((l) => l.getAttribute('href').slice(1));
+    const els = ids.map((id) => document.getElementById(id)).filter(Boolean);
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          links.forEach((l) => l.classList.remove('active'));
+          const a = document.querySelector('.toc-item a[href="#' + e.target.getAttribute('id') + '"]');
+          if (a) a.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-10% 0px -80% 0px' });
+    els.forEach((el) => obs.observe(el));
+  }
+</script>
+
+<script is:inline>
+  (function(){
+    let mermaidPromise;
+    async function loadMermaid(){ if(!mermaidPromise){ mermaidPromise = import('https://esm.sh/mermaid@11').then(function(m){return m.default;}); } return mermaidPromise; }
+    async function renderAll(force){
+      const all = document.querySelectorAll('div.mermaid');
+      if(all.length===0) return;
+      const targets=[];
+      all.forEach(function(el){
+        if(!el.hasAttribute('data-source')) el.setAttribute('data-source', el.textContent.trim());
+        if(force || !el.hasAttribute('data-processed')){ if(force){ el.innerHTML=el.getAttribute('data-source'); el.removeAttribute('data-processed'); } targets.push(el); }
+      });
+      if(targets.length===0) return;
+      const mermaid = await loadMermaid();
+      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+      mermaid.initialize({ startOnLoad:false, theme: isDark?'dark':'default', securityLevel:'loose', fontFamily:'JetBrains Mono, Noto Sans KR, monospace' });
+      try { await mermaid.run({ nodes: targets }); targets.forEach(function(el){ el.setAttribute('data-processed','1'); }); } catch(e){ console.error(e); }
+    }
+    if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', function(){ renderAll(false); }); } else { renderAll(false); }
+    new MutationObserver(function(muts){ for(const m of muts){ if(m.attributeName==='data-theme'){ renderAll(true); break; } } }).observe(document.documentElement, { attributes:true });
+  })();
+</script>
+
+</body>
+</html>

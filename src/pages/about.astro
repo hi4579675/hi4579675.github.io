@@ -9,7 +9,7 @@ import Header from '../components/Header.astro';
   <title>about — hanna.log</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
-  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})()</script>
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','light')}})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: #0d0f1a; color: #c8d3f5; min-height: 100vh; }
@@ -88,6 +88,8 @@ import Header from '../components/Header.astro';
     .intro-card-title { font-size: 13px; font-weight: 500; color: #c8d3f5; letter-spacing: .02em; }
     .intro-card-body { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.85; }
     .intro-card-body em { color: #86e1fc; font-style: normal; }
+    .intro-card-body a { color: #82aaff; text-decoration: none; border-bottom: 1px solid rgba(130,170,255,.3); transition: border-color .15s; }
+    .intro-card-body a:hover { border-bottom-color: #82aaff; }
 
     .links-section { padding-bottom: 2rem; }
     .links-list { display: flex; flex-direction: column; gap: 10px; }
@@ -97,6 +99,34 @@ import Header from '../components/Header.astro';
     .link-item .link-label { color: #2e3455; font-size: 11px; letter-spacing: .06em; }
 
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
+
+    /* ── light mode ── */
+    [data-theme='light'] body { background: #f8f9fc; color: #1e2030; }
+    [data-theme='light'] .hero { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .typing-line, [data-theme='light'] #typed-text { color: #2e6ff2; }
+    [data-theme='light'] .cursor { background: #2e6ff2; }
+    [data-theme='light'] h1 { color: #1e2030; }
+    [data-theme='light'] h1 em { color: #2e6ff2; }
+    [data-theme='light'] .tagline { color: #7c3aed; }
+    [data-theme='light'] .desc { color: #6e7491; }
+    [data-theme='light'] .desc em { color: #2e6ff2; }
+    [data-theme='light'] .ring1 { border-color: rgba(46,111,242,.22); }
+    [data-theme='light'] .section-heading { color: #1e2030; }
+    [data-theme='light'] .tab-nav { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .tab-btn { color: #9599b3; }
+    [data-theme='light'] .tab-btn:hover { color: #1e2030; }
+    [data-theme='light'] .tab-btn.active { color: #2e6ff2; border-bottom-color: #2e6ff2; }
+    [data-theme='light'] .intro-card { background: #ffffff; border-color: #dfe2ef; }
+    [data-theme='light'] .intro-card-icon { color: #2e6ff2; }
+    [data-theme='light'] .intro-card-title { color: #1e2030; }
+    [data-theme='light'] .intro-card-body { color: #6e7491; }
+    [data-theme='light'] .intro-card-body em { color: #2e6ff2; }
+    [data-theme='light'] .intro-card-body a { color: #2e6ff2; border-bottom-color: rgba(46,111,242,.3); }
+    [data-theme='light'] .intro-card-body a:hover { border-bottom-color: #2e6ff2; }
+    [data-theme='light'] .link-item { color: #6e7491; }
+    [data-theme='light'] .link-item:hover { color: #2e6ff2; }
+    [data-theme='light'] .link-item .link-label { color: #bcc1d4; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
   </style>
 </head>
 <body>
@@ -114,10 +144,8 @@ import Header from '../components/Header.astro';
     
 
       <p class="desc">
-       
-        <em>안정적인 서버</em> 아키텍처와 <em>LLM 파이프라인</em>을 구현합니다. <br>
-        백엔드 기반 위에
-<em>AI를 얹는 개발자</em>를 목표로 합니다.
+        <em>Java·Spring</em>으로 백엔드를, <em>Python</em>으로 LLM 파이프라인을 다룹니다.<br>
+        탄탄한 서버 위에 <em>AI를 얹는 개발자</em>로 성장하는 중입니다.
       </p>
         <br>
       <div class="hero-stack">
@@ -147,25 +175,25 @@ import Header from '../components/Header.astro';
       <div class="intro-card">
         <div class="intro-card-header">
           <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
           </svg>
-          <span class="intro-card-title">낯선 기술도 빠르게 적응하는 개발자</span>
+          <span class="intro-card-title">기록하며 성장합니다</span>
         </div>
         <p class="intro-card-body">
-          처음 접하는 기술 앞에서 물러서지 않습니다. 인턴십 기간 동안 <em>Python 기반 RAG 시스템</em>이라는 생소한 영역에 뛰어들어, 형태소 분석기 교체·프롬프트 반복 개선·<em>Hybrid Search</em> 도입까지 실무에 직접 적용하며 빠르게 익혔습니다. 어떤 환경에서도 필요한 기술을 흡수해 팀에 기여할 준비가 되어있습니다.<br><br>
-          <em>Claude, Cursor</em> 등 AI 도구를 적극 활용해 생산성을 높이는 것도 그 일환입니다.
+          새로 배운 것과 부딪힌 문제는 그날그날 <a href="/">blog</a>에 기록하고, 반복해서 꺼내 쓰는 개념은 <a href="/wiki/">wiki</a>에 정리합니다. <em>글로 남겨야 비로소 내 것이 된다</em>고 믿어서, 이 사이트 자체가 제 학습 루틴입니다.<br><br>
+          포트폴리오를 위한 공간이 아니라, <em>더 나은 백엔드 개발자가 되기 위한 기록</em>입니다.
         </p>
       </div>
       <div class="intro-card">
         <div class="intro-card-header">
           <svg class="intro-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
           </svg>
-          <span class="intro-card-title">소통을 중요시 하는 개발자</span>
+          <span class="intro-card-title">낯선 기술도 파고듭니다</span>
         </div>
         <p class="intro-card-body">
-          독단적인 판단보다 <em>질문과 확인</em>을 통해 팀의 방향성과 일치하는 코드를 짜는 것에 집중합니다. RAG 시스템 구축 중 로직의 타당성을 수시로 점검받고 피드백을 반영한 결과, 짧은 시간 안에 안정적인 파이프라인을 완성할 수 있었습니다.<br><br>
-          앞으로도 <em>메모와 소통</em>으로 팀의 리소스를 아끼는 개발자가 되겠습니다.
+          처음 보는 기술 앞에서 물러서지 않습니다. 인턴십 때 <em>Python 기반 RAG 시스템</em>에 뛰어들어 형태소 분석기 교체·프롬프트 개선·<em>Hybrid Search</em> 도입까지 직접 부딪히며 익혔습니다.<br><br>
+          <em>Claude, Cursor</em> 같은 AI 도구도 적극 활용해 더 빠르게 배우고 만듭니다.
         </p>
       </div>
     </div>
@@ -222,7 +250,7 @@ import Header from '../components/Header.astro';
   <div class="stats-section">
     <div class="stats-grid">
       <div class="stats-row">
-        <img
+        <img id="activity-graph"
           src="https://github-readme-activity-graph.vercel.app/graph?username=hi4579675&theme=tokyo-night&hide_border=true&area=true&radius=6"
           alt="Activity Graph" loading="lazy" style="width:100%;border-radius:8px;" />
       </div>
@@ -273,6 +301,27 @@ import Header from '../components/Header.astro';
     setTimeout(type, deleting ? 40 : 80);
   }
   type();
+</script>
+
+<!-- 테마에 맞춰 GitHub 활동 그래프 색을 전환 -->
+<script is:inline>
+  (function () {
+    var img = document.getElementById('activity-graph');
+    if (!img) return;
+    var base = 'https://github-readme-activity-graph.vercel.app/graph?username=hi4579675&hide_border=true&area=true&radius=6';
+    function apply() {
+      var light = document.documentElement.getAttribute('data-theme') === 'light';
+      img.src = light
+        ? base + '&bg_color=f8f9fc&title_color=2e6ff2&color=6e7491&line=2e6ff2&point=7c3aed&area_color=2e6ff2'
+        : base + '&theme=tokyo-night';
+    }
+    apply();
+    new MutationObserver(function (muts) {
+      for (var i = 0; i < muts.length; i++) {
+        if (muts[i].attributeName === 'data-theme') { apply(); break; }
+      }
+    }).observe(document.documentElement, { attributes: true });
+  })();
 </script>
 </body>
 </html>

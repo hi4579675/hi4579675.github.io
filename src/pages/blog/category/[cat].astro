@@ -3,7 +3,7 @@ import Header from '../../../components/Header.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
-  const cats = ['ticketing', 'nolleo-onna', 'develops', 'troubleshooting', 'performance', 'architecture', 'redis', 'ai'];
+  const cats = ['ticketing', 'nolleo-onna', 'develops', 'troubleshooting', 'performance', 'architecture'];
   return cats.map((cat) => ({ params: { cat } }));
 }
 
@@ -43,7 +43,7 @@ const meta = catMeta[cat!] ?? { display: cat, desc: '', color: '#c8d3f5' };
   <title>{meta.display} — hanna.log</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
-  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','dark')}})()</script>
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','light')}})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { background: #0d0f1a; }

@@ -1,0 +1,196 @@
+---
+import Header from '../../components/Header.astro';
+import { getCollection } from 'astro:content';
+import { wikiGroups, wikiTopicMap } from '../../data/wikiTopics';
+
+const notes = await getCollection('docs', (e) => e.id.startsWith('wiki/'));
+
+const countByTopic: Record<string, number> = {};
+for (const n of notes) {
+  const t = (n.data as any).category ?? 'etc';
+  countByTopic[t] = (countByTopic[t] ?? 0) + 1;
+}
+
+const notesByTopic: Record<string, typeof notes> = {};
+for (const n of notes) {
+  const t = (n.data as any).category ?? 'etc';
+  (notesByTopic[t] ??= []).push(n);
+}
+for (const t of Object.keys(notesByTopic)) {
+  notesByTopic[t].sort((a, b) => a.data.title.localeCompare(b.data.title, 'ko'));
+}
+
+const activeTopicCount = Object.keys(countByTopic).length;
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wiki — hanna.log</title>
+  <meta name="description" content="개념을 주제별로 정리해 두는 개인 위키." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','light')}})()</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #0d0f1a; scroll-behavior: smooth; }
+    html[data-theme='light'] { background: #f8f9fc; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
+
+    main { max-width: 1080px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+
+    .masthead { padding: 3rem 0 1.6rem; border-bottom: 1px solid #1e2340; }
+    .mast-kicker { font-size: 13px; font-weight: 400; color: #636d94; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; }
+    .mast-title { font-size: 32px; font-weight: 500; color: #c8d3f5; line-height: 1.2; }
+    .mast-desc { font-size: 13px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.7; margin-top: .7rem; }
+    .mast-meta { display: flex; gap: 1.1rem; margin-top: 1.1rem; font-size: 11px; color: #444b6a; letter-spacing: .04em; flex-wrap: wrap; }
+    .mast-meta b { color: #86e1fc; font-weight: 500; }
+
+    .layout { display: grid; grid-template-columns: 200px 1fr; gap: 3rem; align-items: start; margin-top: 1.8rem; }
+
+    /* sidebar topic tree */
+    .sidebar { position: sticky; top: 72px; }
+    .tree-group { margin-bottom: 1.5rem; }
+    .tree-label { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #444b6a; margin-bottom: .55rem; padding-left: .15rem; }
+    .tree-item {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .6rem; text-decoration: none;
+      font-family: 'JetBrains Mono', monospace; font-size: 12.5px; letter-spacing: .02em;
+      padding: .4rem .55rem; border-radius: 6px; border-left: 2px solid transparent;
+      color: #8a93b8; transition: background .15s, color .15s, border-color .15s;
+    }
+    .tree-item:hover { background: #111528; color: #c8d3f5; }
+    .tree-item .tree-count { font-size: 11px; color: #444b6a; }
+    .tree-item.active { background: #141830; border-left-color: #82aaff; color: #c8d3f5; }
+    .tree-item.active .tree-count { color: #82aaff; }
+
+    /* topic sections */
+    .topic-section { margin-bottom: 2.6rem; scroll-margin-top: 68px; }
+    .topic-head { display: flex; align-items: baseline; gap: .6rem; padding-bottom: .7rem; margin-bottom: .3rem; border-bottom: 1px solid #1e2340; }
+    .topic-name { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; color: #c8d3f5; letter-spacing: .02em; }
+    .topic-num { font-size: 12px; color: #444b6a; }
+
+    .note-list { list-style: none; }
+    .note-row { padding: .9rem 0; border-bottom: 1px solid #141830; }
+    .note-row:last-child { border-bottom: none; }
+    .note-title { font-family: 'Noto Sans KR', sans-serif; font-size: 14.5px; font-weight: 500; color: #c8d3f5; text-decoration: none; line-height: 1.45; transition: color .15s; }
+    .note-title:hover { color: #82aaff; }
+    .note-desc { margin-top: .3rem; font-size: 12.5px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.65; }
+
+    footer { margin-top: 5rem; border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #444b6a; letter-spacing: .08em; }
+
+    @media (max-width: 720px) {
+      .layout { grid-template-columns: 1fr; gap: 1.5rem; }
+      .sidebar { position: static; top: auto; display: flex; flex-wrap: wrap; gap: 1.2rem; }
+      .tree-group { margin-bottom: 0; }
+    }
+
+    /* light mode */
+    [data-theme='light'] body { color: #1e2030; }
+    [data-theme='light'] .masthead { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .mast-kicker { color: #9599b3; }
+    [data-theme='light'] .mast-title { color: #1e2030; }
+    [data-theme='light'] .mast-desc { color: #6e7491; }
+    [data-theme='light'] .mast-meta { color: #bcc1d4; }
+    [data-theme='light'] .mast-meta b { color: #2e6ff2; }
+    [data-theme='light'] .tree-label { color: #bcc1d4; }
+    [data-theme='light'] .tree-item { color: #6e7491; }
+    [data-theme='light'] .tree-item:hover { background: #f0f2f7; color: #1e2030; }
+    [data-theme='light'] .tree-item .tree-count { color: #bcc1d4; }
+    [data-theme='light'] .tree-item.active { background: #eef1fb; border-left-color: #2e6ff2; color: #1e2030; }
+    [data-theme='light'] .tree-item.active .tree-count { color: #2e6ff2; }
+    [data-theme='light'] .topic-section { }
+    [data-theme='light'] .topic-head { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .topic-name { color: #1e2030; }
+    [data-theme='light'] .topic-num { color: #bcc1d4; }
+    [data-theme='light'] .note-row { border-bottom-color: #eef0f6; }
+    [data-theme='light'] .note-title { color: #1e2030; }
+    [data-theme='light'] .note-title:hover { color: #2e6ff2; }
+    [data-theme='light'] .note-desc { color: #6e7491; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
+  </style>
+</head>
+<body>
+
+<Header />
+
+<main>
+  <div class="masthead">
+    <p class="mast-kicker">hanna.log / wiki</p>
+    <h1 class="mast-title">개념을 주제별로 정리합니다</h1>
+    <p class="mast-desc">blog가 "그때 무엇을 했나"의 기록이라면, wiki는 "이 개념이 무엇인가"를 주제별로 모아 두는 개인 위키입니다.</p>
+    <div class="mast-meta">
+      <span><b>{notes.length}</b> notes</span>
+      <span><b>{activeTopicCount}</b> topics</span>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- topic tree -->
+    <aside class="sidebar">
+      {wikiGroups.map(({ label, topics }) => {
+        const visible = topics.filter((t) => (countByTopic[t.id] ?? 0) > 0);
+        return visible.length === 0 ? null : (
+          <div class="tree-group">
+            <div class="tree-label">{label}</div>
+            {visible.map(({ id, display }) => (
+              <a class="tree-item" href={`#topic-${id}`} data-topic={id}>
+                <span>{display}</span><span class="tree-count">{countByTopic[id] ?? 0}</span>
+              </a>
+            ))}
+          </div>
+        );
+      })}
+    </aside>
+
+    <!-- topic sections -->
+    <div class="content-col">
+      {wikiGroups.flatMap(({ topics }) => topics).filter((t) => (countByTopic[t.id] ?? 0) > 0).map(({ id }) => {
+        const topic = wikiTopicMap[id];
+        const list = notesByTopic[id] ?? [];
+        return (
+          <section class="topic-section" id={`topic-${id}`}>
+            <div class="topic-head">
+              <h2 class="topic-name">{topic?.display ?? id}</h2>
+              <span class="topic-num">{list.length}</span>
+            </div>
+            <ul class="note-list">
+              {list.map((note) => {
+                const slug = note.id.replace(/^wiki\//, '');
+                return (
+                  <li class="note-row">
+                    <a href={`/wiki/${slug}/`} class="note-title">{note.data.title}</a>
+                    {note.data.description && <p class="note-desc">{note.data.description}</p>}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  </div>
+</main>
+
+<footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+
+<script is:inline>
+  (function () {
+    var nodes = document.querySelectorAll('.tree-item');
+    var sections = document.querySelectorAll('.topic-section');
+    if (!nodes.length || !sections.length) return;
+    function setActive(id) {
+      nodes.forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-topic') === id); });
+    }
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) setActive(e.target.id.replace('topic-', ''));
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    sections.forEach(function (s) { obs.observe(s); });
+  })();
+</script>
+
+</body>
+</html>

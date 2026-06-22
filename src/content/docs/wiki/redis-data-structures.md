@@ -1,30 +1,12 @@
 ---
-title: "Redis 자료구조 깊이 보기"
-date: 2026-04-09
-tags:
-  - Redis
-  - 자료구조
-  - Spring Boot
-excerpt: String, List, Hash, Set, Sorted Set, Stream — Redis가 제공하는 자료구조를 내부 인코딩까지 포함해서 정리한다. 어떤 상황에서 어떤 자료구조를 선택해야 하는지 판단 기준을 다룬다.
+title: "Redis 자료구조"
 category: redis
+description: "String, List, Hash, Set, Sorted Set, Stream — Redis가 제공하는 자료구조와 내부 인코딩, 그리고 어떤 상황에 무엇을 고를지 판단 기준."
 ---
 
-> String, List, Hash, Set, Sorted Set, Stream —
-> Redis가 제공하는 자료구조를 내부 인코딩까지 포함해서 정리한다.
+Redis의 진짜 강점은 단순 `GET`/`SET`을 넘어 **서버 사이드에서 자료구조를 직접 조작**한다는 데 있다. DB는 꺼내서 애플리케이션에서 가공하지만, Redis는 **저장과 동시에 정렬·집합 연산·범위 조회**를 처리한다. 그래서 자료구조 선택이 곧 성능·메모리를 가른다.
 
----
-
-## 왜 자료구조를 알아야 하나
-
-Redis를 캐시로만 쓰면 `GET`/`SET`만 알면 된다.
-하지만 Redis의 진짜 강점은 **서버 사이드에서 자료구조를 직접 조작**할 수 있다는 것이다.
-
-DB에서는 데이터를 꺼내서 → 애플리케이션에서 가공하지만,
-Redis에서는 **저장과 동시에 정렬, 집합 연산, 범위 조회**를 처리할 수 있다.
-
-자료구조를 잘못 선택하면 메모리를 낭비하거나, 쉽게 풀 수 있는 문제를 복잡하게 구현하게 된다.
-
----
+> 기본기인 "Redis가 왜 빠른가"는 [Redis란](/wiki/redis-intro/), 캐시 패턴은 [캐시 전략](/wiki/cache-strategy/) 참고.
 
 ## 1. String — 가장 기본, 가장 많이 쓰는 타입
 

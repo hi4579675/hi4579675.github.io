@@ -1,25 +1,85 @@
 ---
 import ThemeToggle from './ThemeToggle.astro';
+import { getCollection } from 'astro:content';
 const path = Astro.url.pathname;
+
+// ── 통합검색 인덱스 (blog + wiki) ──
+const blog = await getCollection('docs', (e) => e.id.startsWith('blog/'));
+const wiki = await getCollection('docs', (e) => e.id.startsWith('wiki/'));
+const searchIndex = [
+  ...blog.filter((p) => p.data.date).map((p) => ({
+    t: p.data.title,
+    d: (p.data as any).excerpt ?? '',
+    k: `${((p.data.tags as string[]) ?? []).join(' ')} ${(p.data as any).category ?? ''}`,
+    u: `/blog/${p.id.replace(/^blog\//, '')}/`,
+    g: 'blog',
+  })),
+  ...wiki.map((n) => ({
+    t: n.data.title,
+    d: n.data.description ?? '',
+    k: `${(n.data as any).category ?? ''}`,
+    u: `/wiki/${n.id.replace(/^wiki\//, '')}/`,
+    g: 'wiki',
+  })),
+];
 ---
 <nav>
   <a href="/" class="logo">hanna<span>.log</span></a>
-  <div class="nav-links">
-    <a href="/" class={path === '/' ? 'active' : ''}>home</a>
-    <a href="/about/" class={path.startsWith('/about') ? 'active' : ''}>about</a>
-    <a href="/blog/" class={path.startsWith('/blog') ? 'active' : ''}>blog</a>
-    <a href="/portfolio/" class={path.startsWith('/portfolio') ? 'active' : ''}>portfolio</a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="/" class={path === '/' || path.startsWith('/blog') ? 'active' : ''}>blog</a>
+      <a href="/wiki/" class={path.startsWith('/wiki') ? 'active' : ''}>wiki</a>
+      <a href="/about/" class={path.startsWith('/about') ? 'active' : ''}>about</a>
+    </div>
+    <div class="nav-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+      </svg>
+      <input id="search" type="search" placeholder="전체 검색" autocomplete="off" aria-label="전체 검색" />
+      <div id="search-results" class="search-results" role="listbox"></div>
+    </div>
   </div>
   <ThemeToggle />
 </nav>
+
+<script type="application/json" id="search-index" is:inline set:html={JSON.stringify(searchIndex)} />
 
 <style>
   nav { background: #090b14; border-bottom: 1px solid #1e2340; padding: 0 2.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
   .logo { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #82aaff; font-weight: 500; letter-spacing: .06em; text-decoration: none; }
   .logo span { color: #c099ff; }
+  .nav-right { display: flex; align-items: center; gap: 1.5rem; }
   .nav-links { display: flex; gap: 2rem; }
   .nav-links a { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .05em; transition: color .15s; }
   .nav-links a:hover, .nav-links a.active { color: #82aaff; }
+
+  /* toss 스타일 통합검색 */
+  .nav-search { position: relative; display: flex; align-items: center; gap: .45rem; background: #0f1120; border: 1px solid #1a1f38; border-radius: 999px; padding: .34rem .85rem; width: 200px; transition: border-color .15s, width .22s ease, background .15s; }
+  .nav-search:focus-within { border-color: #2d3561; width: 240px; }
+  .nav-search > svg { width: 14px; height: 14px; color: #444b6a; flex-shrink: 0; }
+  .nav-search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: #c8d3f5; font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; font-size: 12px; }
+  .nav-search input::placeholder { color: #444b6a; }
+  .nav-search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+  /* 결과 드롭다운 */
+  .search-results { display: none; position: absolute; top: calc(100% + 8px); right: 0; width: 340px; max-height: 60vh; overflow-y: auto; background: #0f1120; border: 1px solid #232a4d; border-radius: 10px; padding: .4rem; box-shadow: 0 12px 32px rgba(0,0,0,.45); z-index: 200; }
+  .search-results.open { display: block; }
+  .sr-item { display: flex; align-items: baseline; gap: .6rem; padding: .55rem .6rem; border-radius: 7px; text-decoration: none; }
+  .sr-item:hover, .sr-item.sel { background: #161b33; }
+  .sr-type { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: .06em; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+  .sr-blog { background: rgba(130,170,255,.12); color: #82aaff; }
+  .sr-wiki { background: rgba(192,153,255,.12); color: #c099ff; }
+  .sr-t { font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px; color: #c8d3f5; line-height: 1.4; }
+  .sr-empty { padding: .7rem .6rem; font-size: 12px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; }
+
+  @media (max-width: 640px) {
+    nav { padding: 0 1.2rem; }
+    .nav-right { gap: 1rem; }
+    .nav-links { gap: 1.2rem; }
+    .nav-search { width: 120px; padding: .3rem .65rem; }
+    .nav-search:focus-within { width: 150px; }
+    .search-results { width: 280px; }
+  }
 
   :global(html[data-theme="light"]) nav { background: #ffffff; border-bottom-color: #dfe2ef; }
   :global(html[data-theme="light"]) .logo { color: #2e6ff2; }
@@ -27,4 +87,63 @@ const path = Astro.url.pathname;
   :global(html[data-theme="light"]) .nav-links a { color: #9599b3; }
   :global(html[data-theme="light"]) .nav-links a:hover,
   :global(html[data-theme="light"]) .nav-links a.active { color: #2e6ff2; }
+  :global(html[data-theme="light"]) .nav-search { background: #f0f2f7; border-color: #dfe2ef; }
+  :global(html[data-theme="light"]) .nav-search:focus-within { background: #ffffff; border-color: #bcc1d4; }
+  :global(html[data-theme="light"]) .nav-search > svg { color: #9599b3; }
+  :global(html[data-theme="light"]) .nav-search input { color: #1e2030; }
+  :global(html[data-theme="light"]) .nav-search input::placeholder { color: #9599b3; }
+  :global(html[data-theme="light"]) .search-results { background: #ffffff; border-color: #e2e5ef; box-shadow: 0 12px 32px rgba(30,32,48,.12); }
+  :global(html[data-theme="light"]) .sr-item:hover, :global(html[data-theme="light"]) .sr-item.sel { background: #f0f2f7; }
+  :global(html[data-theme="light"]) .sr-t { color: #1e2030; }
+  :global(html[data-theme="light"]) .sr-empty { color: #9599b3; }
 </style>
+
+<script is:inline>
+  (function () {
+    var input = document.getElementById('search');
+    var panel = document.getElementById('search-results');
+    var idxEl = document.getElementById('search-index');
+    if (!input || !panel || !idxEl) return;
+    var idx = [];
+    try { idx = JSON.parse(idxEl.textContent || '[]'); } catch (e) {}
+
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    var sel = -1, hits = [];
+
+    function render(q) {
+      q = q.trim().toLowerCase();
+      sel = -1;
+      if (!q) { panel.classList.remove('open'); panel.innerHTML = ''; return; }
+      hits = idx.filter(function (it) {
+        return (it.t + ' ' + it.d + ' ' + it.k).toLowerCase().indexOf(q) !== -1;
+      }).slice(0, 8);
+      if (!hits.length) { panel.innerHTML = '<div class="sr-empty">검색 결과가 없습니다</div>'; panel.classList.add('open'); return; }
+      panel.innerHTML = hits.map(function (it) {
+        return '<a class="sr-item" href="' + it.u + '"><span class="sr-type sr-' + it.g + '">' + it.g + '</span><span class="sr-t">' + esc(it.t) + '</span></a>';
+      }).join('');
+      panel.classList.add('open');
+    }
+
+    function highlight() {
+      var items = panel.querySelectorAll('.sr-item');
+      items.forEach(function (el, i) { el.classList.toggle('sel', i === sel); });
+      if (sel >= 0 && items[sel]) items[sel].scrollIntoView({ block: 'nearest' });
+    }
+
+    input.addEventListener('input', function () { render(input.value); });
+    input.addEventListener('focus', function () { if (input.value) render(input.value); });
+    input.addEventListener('keydown', function (e) {
+      if (!panel.classList.contains('open')) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); sel = Math.min(sel + 1, hits.length - 1); highlight(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); sel = Math.max(sel - 1, 0); highlight(); }
+      else if (e.key === 'Enter') {
+        var items = panel.querySelectorAll('.sr-item');
+        if (sel >= 0 && items[sel]) { e.preventDefault(); location.href = items[sel].getAttribute('href'); }
+        else if (items[0]) { e.preventDefault(); location.href = items[0].getAttribute('href'); }
+      } else if (e.key === 'Escape') { panel.classList.remove('open'); input.blur(); }
+    });
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.nav-search')) panel.classList.remove('open');
+    });
+  })();
+</script>

@@ -99,6 +99,17 @@ const mermaidBootstrap = `
 
 export default defineConfig({
   site: 'https://hi4579675.github.io',
+  // stack(redis·ai) 글을 wiki로 옮기면서 구 URL 리다이렉트
+  redirects: {
+    '/blog/redis-data-structures': '/wiki/redis-data-structures',
+    '/blog/redis-intro-msa': '/wiki/redis-msa',
+    '/wiki/redis-intro-msa': '/wiki/redis-msa',
+    '/blog/redis-use-cases': '/wiki/redis-use-cases',
+    '/blog/ai-engineering': '/wiki/ai-engineering',
+    '/blog/rag-hallucination': '/wiki/rag-basics',
+    '/blog/category/redis': '/wiki/',
+    '/blog/category/ai': '/wiki/',
+  },
   markdown: {
     remarkPlugins: [remarkMermaid],
   },
@@ -119,7 +130,7 @@ export default defineConfig({
       head: [
         {
           tag: 'script',
-          content: `(function(){var t=localStorage.getItem('theme')||localStorage.getItem('starlight-theme');if(t){document.documentElement.setAttribute('data-theme',t)}})()`,
+          content: `(function(){var t=localStorage.getItem('theme')||localStorage.getItem('starlight-theme');document.documentElement.setAttribute('data-theme',t||'light')})()`,
         },
         {
           tag: 'script',
