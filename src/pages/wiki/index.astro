@@ -34,11 +34,11 @@ const activeTopicCount = Object.keys(countByTopic).length;
   <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','light')}})()</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { background: #0d0f1a; scroll-behavior: smooth; }
+    html { background: #0d0f1a; }
     html[data-theme='light'] { background: #f8f9fc; }
     body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
 
-    main { max-width: 1080px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+    main { max-width: 880px; margin: 0 auto; padding: 0 2.5rem 5rem; }
 
     .masthead { padding: 3rem 0 1.6rem; border-bottom: 1px solid #1e2340; }
     .mast-kicker { font-size: 13px; font-weight: 400; color: #636d94; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .6rem; }
@@ -47,43 +47,30 @@ const activeTopicCount = Object.keys(countByTopic).length;
     .mast-meta { display: flex; gap: 1.1rem; margin-top: 1.1rem; font-size: 11px; color: #444b6a; letter-spacing: .04em; flex-wrap: wrap; }
     .mast-meta b { color: #86e1fc; font-weight: 500; }
 
-    .layout { display: grid; grid-template-columns: 200px 1fr; gap: 3rem; align-items: start; margin-top: 1.8rem; }
+    .group { margin-top: 2.6rem; }
+    .group-label { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #444b6a; margin-bottom: .9rem; padding-left: .15rem; }
+    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
 
-    /* sidebar topic tree */
-    .sidebar { position: sticky; top: 72px; }
-    .tree-group { margin-bottom: 1.5rem; }
-    .tree-label { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #444b6a; margin-bottom: .55rem; padding-left: .15rem; }
-    .tree-item {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: .6rem; text-decoration: none;
-      font-family: 'JetBrains Mono', monospace; font-size: 12.5px; letter-spacing: .02em;
-      padding: .4rem .55rem; border-radius: 6px; border-left: 2px solid transparent;
-      color: #8a93b8; transition: background .15s, color .15s, border-color .15s;
+    .cat-card {
+      display: block; text-decoration: none;
+      background: #0f1120; border: 1px solid #1a1f38; border-radius: 12px;
+      padding: 1.3rem 1.4rem; transition: border-color .18s, transform .15s, background .18s;
     }
-    .tree-item:hover { background: #111528; color: #c8d3f5; }
-    .tree-item .tree-count { font-size: 11px; color: #444b6a; }
-    .tree-item.active { background: #141830; border-left-color: #82aaff; color: #c8d3f5; }
-    .tree-item.active .tree-count { color: #82aaff; }
-
-    /* topic sections */
-    .topic-section { margin-bottom: 2.6rem; scroll-margin-top: 68px; }
-    .topic-head { display: flex; align-items: baseline; gap: .6rem; padding-bottom: .7rem; margin-bottom: .3rem; border-bottom: 1px solid #1e2340; }
-    .topic-name { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 500; color: #c8d3f5; letter-spacing: .02em; }
-    .topic-num { font-size: 12px; color: #444b6a; }
-
-    .note-list { list-style: none; }
-    .note-row { padding: .9rem 0; border-bottom: 1px solid #141830; }
-    .note-row:last-child { border-bottom: none; }
-    .note-title { font-family: 'Noto Sans KR', sans-serif; font-size: 14.5px; font-weight: 500; color: #c8d3f5; text-decoration: none; line-height: 1.45; transition: color .15s; }
-    .note-title:hover { color: #82aaff; }
-    .note-desc { margin-top: .3rem; font-size: 12.5px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.65; }
+    .cat-card:hover { border-color: #2d3561; transform: translateY(-2px); }
+    .cat-head { display: flex; align-items: baseline; justify-content: space-between; gap: .6rem; margin-bottom: .8rem; }
+    .cat-name { font-family: 'JetBrains Mono', monospace; font-size: 17px; font-weight: 500; color: #c8d3f5; letter-spacing: .02em; }
+    .cat-count { font-size: 11px; color: #444b6a; letter-spacing: .04em; white-space: nowrap; }
+    .cat-card:hover .cat-name { color: #82aaff; }
+    .cat-notes { list-style: none; display: flex; flex-direction: column; gap: .32rem; }
+    .cat-note { font-family: 'Noto Sans KR', sans-serif; font-size: 12.5px; color: #636d94; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-note::before { content: '·'; color: #2d3561; margin-right: .45rem; }
+    .cat-more { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #444b6a; margin-top: .5rem; }
 
     footer { margin-top: 5rem; border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #444b6a; letter-spacing: .08em; }
 
-    @media (max-width: 720px) {
-      .layout { grid-template-columns: 1fr; gap: 1.5rem; }
-      .sidebar { position: static; top: auto; display: flex; flex-wrap: wrap; gap: 1.2rem; }
-      .tree-group { margin-bottom: 0; }
+    @media (max-width: 680px) {
+      main { padding: 0 1.4rem 4rem; }
+      .card-grid { grid-template-columns: 1fr; }
     }
 
     /* light mode */
@@ -94,20 +81,15 @@ const activeTopicCount = Object.keys(countByTopic).length;
     [data-theme='light'] .mast-desc { color: #6e7491; }
     [data-theme='light'] .mast-meta { color: #bcc1d4; }
     [data-theme='light'] .mast-meta b { color: #2e6ff2; }
-    [data-theme='light'] .tree-label { color: #bcc1d4; }
-    [data-theme='light'] .tree-item { color: #6e7491; }
-    [data-theme='light'] .tree-item:hover { background: #f0f2f7; color: #1e2030; }
-    [data-theme='light'] .tree-item .tree-count { color: #bcc1d4; }
-    [data-theme='light'] .tree-item.active { background: #eef1fb; border-left-color: #2e6ff2; color: #1e2030; }
-    [data-theme='light'] .tree-item.active .tree-count { color: #2e6ff2; }
-    [data-theme='light'] .topic-section { }
-    [data-theme='light'] .topic-head { border-bottom-color: #dfe2ef; }
-    [data-theme='light'] .topic-name { color: #1e2030; }
-    [data-theme='light'] .topic-num { color: #bcc1d4; }
-    [data-theme='light'] .note-row { border-bottom-color: #eef0f6; }
-    [data-theme='light'] .note-title { color: #1e2030; }
-    [data-theme='light'] .note-title:hover { color: #2e6ff2; }
-    [data-theme='light'] .note-desc { color: #6e7491; }
+    [data-theme='light'] .group-label { color: #bcc1d4; }
+    [data-theme='light'] .cat-card { background: #ffffff; border-color: #e7e9f2; }
+    [data-theme='light'] .cat-card:hover { border-color: #c7ccdd; }
+    [data-theme='light'] .cat-name { color: #1e2030; }
+    [data-theme='light'] .cat-card:hover .cat-name { color: #2e6ff2; }
+    [data-theme='light'] .cat-count { color: #bcc1d4; }
+    [data-theme='light'] .cat-note { color: #6e7491; }
+    [data-theme='light'] .cat-note::before { color: #c7ccdd; }
+    [data-theme='light'] .cat-more { color: #bcc1d4; }
     [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
   </style>
 </head>
@@ -119,78 +101,43 @@ const activeTopicCount = Object.keys(countByTopic).length;
   <div class="masthead">
     <p class="mast-kicker">hanna.log / wiki</p>
     <h1 class="mast-title">개념을 주제별로 정리합니다</h1>
-    <p class="mast-desc">blog가 "그때 무엇을 했나"의 기록이라면, wiki는 "이 개념이 무엇인가"를 주제별로 모아 두는 개인 위키입니다.</p>
+    <p class="mast-desc">blog가 "그때 무엇을 했나"의 기록이라면, wiki는 "이 개념이 무엇인가"를 주제별로 모아 두는 개인 위키입니다. 카테고리를 골라 들어가세요.</p>
     <div class="mast-meta">
       <span><b>{notes.length}</b> notes</span>
       <span><b>{activeTopicCount}</b> topics</span>
     </div>
   </div>
 
-  <div class="layout">
-    <!-- topic tree -->
-    <aside class="sidebar">
-      {wikiGroups.map(({ label, topics }) => {
-        const visible = topics.filter((t) => (countByTopic[t.id] ?? 0) > 0);
-        return visible.length === 0 ? null : (
-          <div class="tree-group">
-            <div class="tree-label">{label}</div>
-            {visible.map(({ id, display }) => (
-              <a class="tree-item" href={`#topic-${id}`} data-topic={id}>
-                <span>{display}</span><span class="tree-count">{countByTopic[id] ?? 0}</span>
+  {wikiGroups.map(({ label, topics }) => {
+    const visible = topics.filter((t) => (countByTopic[t.id] ?? 0) > 0);
+    return visible.length === 0 ? null : (
+      <div class="group">
+        <div class="group-label">{label}</div>
+        <div class="card-grid">
+          {visible.map(({ id, display }) => {
+            const list = notesByTopic[id] ?? [];
+            const preview = list.slice(0, 4);
+            const rest = list.length - preview.length;
+            return (
+              <a class="cat-card" href={`/wiki/category/${id}/`}>
+                <div class="cat-head">
+                  <span class="cat-name">{display}</span>
+                  <span class="cat-count">{list.length} notes</span>
+                </div>
+                <ul class="cat-notes">
+                  {preview.map((n) => <li class="cat-note">{n.data.title}</li>)}
+                </ul>
+                {rest > 0 && <div class="cat-more">+{rest} more →</div>}
               </a>
-            ))}
-          </div>
-        );
-      })}
-    </aside>
-
-    <!-- topic sections -->
-    <div class="content-col">
-      {wikiGroups.flatMap(({ topics }) => topics).filter((t) => (countByTopic[t.id] ?? 0) > 0).map(({ id }) => {
-        const topic = wikiTopicMap[id];
-        const list = notesByTopic[id] ?? [];
-        return (
-          <section class="topic-section" id={`topic-${id}`}>
-            <div class="topic-head">
-              <h2 class="topic-name">{topic?.display ?? id}</h2>
-              <span class="topic-num">{list.length}</span>
-            </div>
-            <ul class="note-list">
-              {list.map((note) => {
-                const slug = note.id.replace(/^wiki\//, '');
-                return (
-                  <li class="note-row">
-                    <a href={`/wiki/${slug}/`} class="note-title">{note.data.title}</a>
-                    {note.data.description && <p class="note-desc">{note.data.description}</p>}
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        );
-      })}
-    </div>
-  </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  })}
 </main>
 
 <footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
-
-<script is:inline>
-  (function () {
-    var nodes = document.querySelectorAll('.tree-item');
-    var sections = document.querySelectorAll('.topic-section');
-    if (!nodes.length || !sections.length) return;
-    function setActive(id) {
-      nodes.forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-topic') === id); });
-    }
-    var obs = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) setActive(e.target.id.replace('topic-', ''));
-      });
-    }, { rootMargin: '-20% 0px -70% 0px' });
-    sections.forEach(function (s) { obs.observe(s); });
-  })();
-</script>
 
 </body>
 </html>
