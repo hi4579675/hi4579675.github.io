@@ -4,6 +4,8 @@ category: ai
 description: "하네스 엔지니어링을 자동화하는 클로드 코드 플러그인 Harness(Agent Team & Skill Architect). 한 줄 도메인 설명을 입력하면 에이전트 정의 파일과 스킬 파일을 자동 생성한다. 핵심 4기능, 에이전트 팀 vs 서브 에이전트 선택, 그리고 6가지 아키텍처 패턴(파이프라인·팬아웃/팬인·전문가 풀·생성-검증·감독자·계층적 위임)과 패턴 선택 진단표까지."
 ---
 
+> 📚 [AI를 다루는 법](/wiki/ai-model-to-agent/) 시리즈 **③편 · 마지막** (자동화하다). 앞편은 [하네스 엔지니어링](/wiki/harness-engineering/).
+
 [하네스 엔지니어링](/wiki/harness-engineering/)이 "에이전트가 올바르게 일하도록 **환경을 설계하는 사고방식**"이라면, **Harness**는 그 설계를 **대신 해주는 클로드 코드 플러그인**입니다.
 
 > **Harness** — *Agent Team & Skill Architect*. 한 줄 도메인 설명을 주면, 그에 맞는 **에이전트 정의 파일**과 **스킬 파일**을 자동 생성하는 메타 스킬.

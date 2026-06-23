@@ -4,6 +4,8 @@ category: ai
 description: 검색(Retrieval)으로 찾은 외부 문서를 LLM 프롬프트에 넣어 답하게 하는 구조. 환각을 줄이고 최신·도메인 지식을 반영한다.
 ---
 
+> 📚 [AI를 다루는 법](/wiki/ai-model-to-agent/) 시리즈 **곁다리**. ①편 [AI 엔지니어링](/wiki/ai-engineering/)의 RAG 파트를 떼어 자세히 본다.
+
 **RAG(Retrieval-Augmented Generation)** 는 LLM이 답하기 전에 관련 문서를 **검색해서 프롬프트에 끼워 넣는** 구조다. 모델의 파라미터에 없는 최신·도메인 지식을 답변에 반영하고 환각을 줄인다.
 
 ## 흐름
