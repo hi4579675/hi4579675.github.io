@@ -4,6 +4,8 @@ category: spring
 description: IoC 컨테이너가 객체(빈)를 만들어 관리하고, 필요한 의존성을 대신 넣어주는(DI) 원리.
 ---
 
+> 📚 [스프링 인증, 어떻게 굴러가나](/wiki/spring-auth-track/) 시리즈 **①편** (객체). 모든 빈의 바닥 → 다음은 요청을 거르는 [필터체인](/wiki/spring-security-filter-chain/).
+
 ## IoC
 
 객체의 생성·생명주기 제어를 개발자가 아니라 **컨테이너(IoC)** 가 가져간다. 스프링이 관리하는 객체를 **빈(Bean)** 이라 부른다.

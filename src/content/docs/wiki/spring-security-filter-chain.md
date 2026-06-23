@@ -4,6 +4,8 @@ category: spring
 description: Spring Security의 요청 처리 핵심 단위인 SecurityFilterChain(2-메서드 인터페이스)과, 체인들을 순회하는 단일 진입점 FilterChainProxy. @Order로 보안 정책을 물리적으로 분리하는 법.
 ---
 
+> 📚 [스프링 인증, 어떻게 굴러가나](/wiki/spring-auth-track/) 시리즈 **②편** (요청). 앞편은 [빈과 DI](/wiki/spring-bean-di/), 다음은 이 위에서 도는 [Authorization Server 빈](/wiki/spring-authorization-server-beans/).
+
 `SecurityFilterChain`은 Spring Security 전체 동작의 핵심 단위다. 인터페이스 자체는 메서드 **딱 2개**로 단순하지만 의미가 크다.
 
 ```java

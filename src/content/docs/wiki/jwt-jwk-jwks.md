@@ -4,6 +4,8 @@ category: spring
 description: JWT의 3단 구조, 키를 JSON으로 표현한 JWK/JWKS, 키를 조달하는 JWKSource 추상화, 그리고 받은 JWT를 서명+클레임으로 검증하는 NimbusJwtDecoder의 동작 단계.
 ---
 
+> 📚 [스프링 인증, 어떻게 굴러가나](/wiki/spring-auth-track/) 시리즈 **④편 · 마지막** (검증). 앞편은 [Authorization Server 빈](/wiki/spring-authorization-server-beans/).
+
 ## 토큰 기반 vs 세션(쿠키) 기반
 
 약어를 보기 전에, 왜 "토큰"인지부터. 로그인 상태를 기억하는 방식은 크게 둘이다.

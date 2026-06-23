@@ -4,6 +4,8 @@ category: spring
 description: AS를 부팅·발급 가능하게 만드는 빈들 — OAuth2AuthorizationServerConfigurer(컨트롤 타워), AuthorizationServerSettings(issuer), RegisteredClientRepository(클라이언트 명부), JwtAuthenticationConverter(권한 매핑)를 하나씩 뜯어본다.
 ---
 
+> 📚 [스프링 인증, 어떻게 굴러가나](/wiki/spring-auth-track/) 시리즈 **③편** (발급). 앞편은 [필터체인](/wiki/spring-security-filter-chain/), 다음은 발급된 토큰을 검증하는 [JWT·JWK·JWKS](/wiki/jwt-jwk-jwks/).
+
 [SecurityFilterChain](/wiki/spring-security-filter-chain/)에서 본 AS 필터체인은 4줄짜리지만, 그게 부팅하고 토큰을 발급하려면 반드시 있어야 하는 빈들이 있다. 이 글은 그 빈들을 하나씩 본다.
 
 먼저 **부팅·발급에 관여하는 빈 목록**:
