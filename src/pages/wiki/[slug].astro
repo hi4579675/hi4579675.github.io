@@ -28,6 +28,12 @@ for (const n of allNotes) {
 for (const t of Object.keys(notesByTopic)) {
   notesByTopic[t].sort((a, b) => a.data.title.localeCompare(b.data.title, 'ko'));
 }
+
+// 같은 카테고리의 다른 글 (현재 글 제외)
+const relatedNotes = (notesByTopic[currentTopic] ?? []).filter(
+  (n) => n.id.replace(/^wiki\//, '') !== currentSlug,
+);
+const currentTopicDisplay = wikiTopicMap[currentTopic]?.display ?? currentTopic;
 ---
 <!DOCTYPE html>
 <html lang="ko">
@@ -119,6 +125,19 @@ for (const t of Object.keys(notesByTopic)) {
     .back-link:hover { color: #82aaff; }
     .back-link-sub { margin-left: .5rem; opacity: .7; }
 
+    /* 같은 카테고리의 다른 글 */
+    .doc-related { margin-top: 3rem; padding-top: 1.6rem; border-top: 1px solid #1e2340; }
+    .related-head { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; margin-bottom: 1rem; }
+    .related-label { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 500; color: #8a93b8; letter-spacing: .02em; }
+    .related-all { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #444b6a; text-decoration: none; white-space: nowrap; transition: color .15s; }
+    .related-all:hover { color: #82aaff; }
+    .related-list { list-style: none; display: flex; flex-direction: column; }
+    .related-row { padding: .7rem 0; border-bottom: 1px solid #141830; }
+    .related-row:last-child { border-bottom: none; }
+    .related-title { display: block; font-family: 'Noto Sans KR', sans-serif; font-size: 13.5px; font-weight: 500; color: #c8d3f5; text-decoration: none; line-height: 1.4; transition: color .15s; }
+    .related-title:hover { color: #82aaff; }
+    .related-desc { display: block; margin-top: .25rem; font-family: 'Noto Sans KR', sans-serif; font-size: 12px; color: #636d94; line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
+
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
 
     @media (max-width: 1080px) {
@@ -170,6 +189,14 @@ for (const t of Object.keys(notesByTopic)) {
     [data-theme='light'] .doc-footer { border-top-color: #dfe2ef; }
     [data-theme='light'] .back-link { color: #9599b3; }
     [data-theme='light'] .back-link:hover { color: #2e6ff2; }
+    [data-theme='light'] .doc-related { border-top-color: #dfe2ef; }
+    [data-theme='light'] .related-label { color: #6e7491; }
+    [data-theme='light'] .related-all { color: #9599b3; }
+    [data-theme='light'] .related-all:hover { color: #2e6ff2; }
+    [data-theme='light'] .related-row { border-bottom-color: #eef0f6; }
+    [data-theme='light'] .related-title { color: #1e2030; }
+    [data-theme='light'] .related-title:hover { color: #2e6ff2; }
+    [data-theme='light'] .related-desc { color: #6e7491; }
     [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
   </style>
 </head>
@@ -226,8 +253,28 @@ for (const t of Object.keys(notesByTopic)) {
         <Content />
       </div>
 
+      {relatedNotes.length > 0 && (
+        <div class="doc-related">
+          <div class="related-head">
+            <span class="related-label">{currentTopicDisplay} 카테고리의 다른 글</span>
+            <a href={`/wiki/category/${currentTopic}/`} class="related-all">전체 보기 →</a>
+          </div>
+          <ul class="related-list">
+            {relatedNotes.map((n) => {
+              const s = n.id.replace(/^wiki\//, '');
+              return (
+                <li class="related-row">
+                  <a href={`/wiki/${s}/`} class="related-title">{n.data.title}</a>
+                  {n.data.description && <span class="related-desc">{n.data.description}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
       <div class="doc-footer">
-        <a href={`/wiki/category/${currentTopic}/`} class="back-link">← {wikiTopicMap[currentTopic]?.display ?? currentTopic} 위키</a>
+        <a href={`/wiki/category/${currentTopic}/`} class="back-link">← {currentTopicDisplay} 위키</a>
         <a href="/wiki/" class="back-link back-link-sub">· 전체 위키</a>
       </div>
     </div>
