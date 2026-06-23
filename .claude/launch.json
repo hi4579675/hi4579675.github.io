@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/Users/hanna/.nvm/versions/node/v22.22.3/bin/node",
+      "runtimeArgs": ["node_modules/astro/bin/astro.mjs", "dev", "--port", "4321"],
       "autoPort": true,
       "port": 4321
     }

@@ -1,0 +1,136 @@
+---
+import Header from '../../../components/Header.astro';
+import { getCollection } from 'astro:content';
+import { wikiGroups, wikiTopicMap } from '../../../data/wikiTopics';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('docs', (e) => e.id.startsWith('wiki/'));
+  const cats = new Set<string>();
+  for (const n of notes) cats.add((n.data as any).category ?? 'etc');
+  return [...cats].map((cat) => ({ params: { cat }, props: { cat } }));
+}
+
+const { cat } = Astro.props;
+
+const allNotes = await getCollection('docs', (e) => e.id.startsWith('wiki/'));
+
+const countByTopic: Record<string, number> = {};
+for (const n of allNotes) {
+  const t = (n.data as any).category ?? 'etc';
+  countByTopic[t] = (countByTopic[t] ?? 0) + 1;
+}
+
+const notes = allNotes
+  .filter((n) => ((n.data as any).category ?? 'etc') === cat)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title, 'ko'));
+
+const display = wikiTopicMap[cat]?.display ?? cat;
+
+// 칩 네비: wikiGroups 순서대로, 글 있는 주제만
+const chipTopics = wikiGroups
+  .flatMap((g) => g.topics)
+  .filter((t) => (countByTopic[t.id] ?? 0) > 0);
+---
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{display} — hanna.log wiki</title>
+  <meta name="description" content={`${display} 주제로 정리한 개인 위키 노트 모음.`} />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet" />
+  <script is:inline>(function(){var t=localStorage.getItem('theme');if(t){document.documentElement.setAttribute('data-theme',t)}else{document.documentElement.setAttribute('data-theme','light')}})()</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #0d0f1a; }
+    html[data-theme='light'] { background: #f8f9fc; }
+    body { font-family: 'JetBrains Mono', 'Noto Sans KR', sans-serif; background: transparent; color: #c8d3f5; min-height: 100vh; }
+
+    main { max-width: 800px; margin: 0 auto; padding: 0 2.5rem 5rem; }
+
+    .crumb { padding: 2.4rem 0 0; }
+    .crumb a { font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .04em; transition: color .15s; }
+    .crumb a:hover { color: #82aaff; }
+
+    .masthead { padding: 1rem 0 1.5rem; border-bottom: 1px solid #1e2340; }
+    .mast-kicker { font-size: 12px; color: #636d94; letter-spacing: .1em; text-transform: uppercase; margin-bottom: .55rem; }
+    .mast-title { font-size: 30px; font-weight: 500; color: #c8d3f5; line-height: 1.2; }
+    .mast-meta { margin-top: .9rem; font-size: 11px; color: #444b6a; letter-spacing: .04em; }
+    .mast-meta b { color: #86e1fc; font-weight: 500; }
+
+    /* category chips */
+    .chips { display: flex; flex-wrap: wrap; gap: .5rem; padding: 1.5rem 0 1.8rem; }
+    .chip { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .02em; padding: .4rem .85rem; border-radius: 999px; text-decoration: none; background: #0f1120; border: 1px solid #1a1f38; color: #8a93b8; transition: border-color .15s, background .15s, color .15s; }
+    .chip:hover { border-color: #2d3561; color: #c8d3f5; }
+    .chip.active { background: #1a2142; border-color: #82aaff; color: #c8d3f5; }
+    .chip .c-num { color: #444b6a; margin-left: .35rem; font-size: 11px; }
+    .chip.active .c-num { color: #82aaff; }
+
+    .note-list { list-style: none; }
+    .note-row { padding: 1.05rem 0; border-bottom: 1px solid #141830; }
+    .note-row:last-child { border-bottom: none; }
+    .note-title { font-family: 'Noto Sans KR', sans-serif; font-size: 15px; font-weight: 500; color: #c8d3f5; text-decoration: none; line-height: 1.45; transition: color .15s; }
+    .note-title:hover { color: #82aaff; }
+    .note-desc { margin-top: .35rem; font-size: 12.5px; color: #636d94; font-family: 'Noto Sans KR', sans-serif; line-height: 1.65; }
+
+    footer { margin-top: 5rem; border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #444b6a; letter-spacing: .08em; }
+
+    /* light mode */
+    [data-theme='light'] body { color: #1e2030; }
+    [data-theme='light'] .crumb a { color: #9599b3; }
+    [data-theme='light'] .crumb a:hover { color: #2e6ff2; }
+    [data-theme='light'] .masthead { border-bottom-color: #dfe2ef; }
+    [data-theme='light'] .mast-kicker { color: #9599b3; }
+    [data-theme='light'] .mast-title { color: #1e2030; }
+    [data-theme='light'] .mast-meta { color: #bcc1d4; }
+    [data-theme='light'] .mast-meta b { color: #2e6ff2; }
+    [data-theme='light'] .chip { background: #ffffff; border-color: #dfe2ef; color: #6e7491; }
+    [data-theme='light'] .chip:hover { border-color: #bcc1d4; color: #1e2030; }
+    [data-theme='light'] .chip.active { background: #eef1fb; border-color: #2e6ff2; color: #1e2030; }
+    [data-theme='light'] .chip .c-num { color: #bcc1d4; }
+    [data-theme='light'] .chip.active .c-num { color: #2e6ff2; }
+    [data-theme='light'] .note-row { border-bottom-color: #eef0f6; }
+    [data-theme='light'] .note-title { color: #1e2030; }
+    [data-theme='light'] .note-title:hover { color: #2e6ff2; }
+    [data-theme='light'] .note-desc { color: #6e7491; }
+    [data-theme='light'] footer { border-top-color: #dfe2ef; color: #bcc1d4; }
+  </style>
+</head>
+<body>
+
+<Header />
+
+<main>
+  <div class="crumb"><a href="/wiki/">← 전체 위키</a></div>
+
+  <div class="masthead">
+    <p class="mast-kicker">hanna.log / wiki</p>
+    <h1 class="mast-title">{display}</h1>
+    <div class="mast-meta"><b>{notes.length}</b> notes</div>
+  </div>
+
+  <div class="chips">
+    <a class="chip" href="/wiki/">all<span class="c-num">{allNotes.length}</span></a>
+    {chipTopics.map(({ id, display: d }) => (
+      <a class={`chip ${id === cat ? 'active' : ''}`} href={`/wiki/category/${id}/`}>{d}<span class="c-num">{countByTopic[id] ?? 0}</span></a>
+    ))}
+  </div>
+
+  <ul class="note-list">
+    {notes.map((note) => {
+      const slug = note.id.replace(/^wiki\//, '');
+      return (
+        <li class="note-row">
+          <a href={`/wiki/${slug}/`} class="note-title">{note.data.title}</a>
+          {note.data.description && <p class="note-desc">{note.data.description}</p>}
+        </li>
+      );
+    })}
+  </ul>
+</main>
+
+<footer>© 2026 hanna.log · Built with Astro & Starlight</footer>
+
+</body>
+</html>

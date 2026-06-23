@@ -117,6 +117,7 @@ for (const t of Object.keys(notesByTopic)) {
     .doc-footer { padding-top: 1.6rem; border-top: 1px solid #1e2340; }
     .back-link { font-size: 12px; color: #444b6a; text-decoration: none; letter-spacing: .04em; transition: color .15s; }
     .back-link:hover { color: #82aaff; }
+    .back-link-sub { margin-left: .5rem; opacity: .7; }
 
     footer { border-top: 1px solid #1e2340; padding: 1.5rem 2.5rem; text-align: center; font-size: 11px; color: #2e3455; letter-spacing: .08em; }
 
@@ -216,7 +217,7 @@ for (const t of Object.keys(notesByTopic)) {
     <!-- CENTER: content -->
     <div class="doc-content">
       <div class="doc-header">
-        <a href={`/wiki/#topic-${currentTopic}`} class="doc-topic">{wikiTopicMap[currentTopic]?.display ?? currentTopic}</a>
+        <a href={`/wiki/category/${currentTopic}/`} class="doc-topic">{wikiTopicMap[currentTopic]?.display ?? currentTopic}</a>
         <h1 class="doc-title">{note.data.title}</h1>
         {note.data.description && <p class="doc-lead">{note.data.description}</p>}
       </div>
@@ -226,7 +227,8 @@ for (const t of Object.keys(notesByTopic)) {
       </div>
 
       <div class="doc-footer">
-        <a href="/wiki/" class="back-link">← 전체 위키</a>
+        <a href={`/wiki/category/${currentTopic}/`} class="back-link">← {wikiTopicMap[currentTopic]?.display ?? currentTopic} 위키</a>
+        <a href="/wiki/" class="back-link back-link-sub">· 전체 위키</a>
       </div>
     </div>
 
