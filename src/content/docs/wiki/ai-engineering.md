@@ -4,7 +4,7 @@ category: ai
 description: "ML 엔지니어링과 AI 엔지니어링은 무엇이 다른가. 프롬프트 엔지니어링, RAG, 파인튜닝, 추론 최적화, 평가까지 — 파운데이션 모델 시대의 AI 시스템 성능을 결정하는 기술들을 정리합니다."
 ---
 
-> 📚 [AI를 다루는 법](/wiki/ai-model-to-agent/) 시리즈 **①편** (모델을 다루다). 다음은 에이전트를 다루는 [하네스 엔지니어링](/wiki/harness-engineering/). 'RAG' 조각만 따로 보려면 → [RAG란](/wiki/rag-basics/).
+> 📚 [AI를 다루는 법](/wiki/ai-model-to-agent/) 시리즈 **①편** (모델을 다루다). 다음은 에이전트를 다루는 [하네스 엔지니어링](/wiki/harness-engineering/).
 
 AI 엔지니어링이라는 말이 등장한 건 아주 최근입니다. 그리고 그 배경에는 하나의 키워드가 있습니다. **규모(Scale)**.
 
