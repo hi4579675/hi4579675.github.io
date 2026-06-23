@@ -24,8 +24,36 @@ eyJhbGciOiJSUzI1NiIsImtpZCI6ImlkcC1qd3QifQ   ← ① Header
 ```
 
 - **① Header** — 서명 알고리즘(`alg`, 예: `RS256`)과 키 식별자(`kid`). 검증자는 이 `kid`로 "어느 공개키로 검증할지" 고른다.
-- **② Payload(클레임)** — 실제 데이터. `sub`(주체=userId), `iss`(발급자), `exp`(만료), `nbf`(사용 시작), 그리고 커스텀 클레임(`authorities` 등).
+- **② Payload(클레임)** — 실제 데이터. `sub`(주체=userId), `iss`(발급자), `aud`(수신 대상), `exp`(만료), `nbf`(사용 시작), 그리고 커스텀 클레임(`authorities` 등).
 - **③ Signature** — 헤더+페이로드를 발급자의 **개인키로 서명**한 값. 페이로드를 한 글자라도 바꾸면 서명이 깨지므로 **위변조를 막는다**(암호화가 아니라 무결성 보장 — payload는 누구나 디코딩해 읽을 수 있다).
+
+> 📌 우리가 쓰는 "서명된 JWT"는 정확히는 **JWS**(JSON Web Signature)다. JWT엔 내용을 **암호화**하는 **JWE**(JSON Web Encryption)도 있는데, 인증 토큰은 보통 JWS를 쓴다 — payload를 가릴 필요는 없고 위변조만 막으면 되기 때문. 그래서 "JWT는 누구나 읽을 수 있다"가 성립한다. **민감정보를 payload에 넣지 말 것.**
+
+### 검증해야 할 핵심 클레임
+
+서명이 진짜여도 클레임을 안 보면 반쪽이다. 리소스 서버가 봐야 하는 것:
+
+| 클레임 | 막는 것 | Spring Security 설정 |
+|---|---|---|
+| `iss` | 우리 IdP가 아닌 발급처의 토큰 | `issuer-uri` (자동으로 `iss` 검증) |
+| `exp`/`nbf` | 만료됐거나 아직 유효하지 않은 토큰 | 기본 포함 (`JwtTimestampValidator`, 기본 60초 clock skew 허용) |
+| `aud` | **다른 서비스용 토큰의 재사용** — A 서비스 토큰을 B에 들이미는 것 | `audiences` 별도 설정 |
+
+`iss`만 검증하면 "우리 IdP 토큰"까지만 보장된다. 멀티앱이면 `aud`까지 봐야 "이 토큰이 *나에게* 발급된 게 맞다"가 보장된다.
+
+## 왜 비대칭 키(RS256)인가 — JWKS가 존재하는 이유
+
+서명 방식은 크게 둘이다. 이 선택이 곧 "왜 JWKS라는 게 필요한가"의 답이다.
+
+| | 대칭 (HS256) | 비대칭 (RS256) |
+|---|---|---|
+| 키 | **하나**의 비밀키로 서명·검증 모두 | 개인키로 **서명**, 공개키로 **검증** (쌍) |
+| 검증자에게 주는 것 | 그 비밀키 (= 서명도 가능) | 공개키만 (= 검증만 가능) |
+| 멀티 서비스 | 리소스 서버 전부가 비밀키 보유 → **아무나 토큰 위조 가능** | 공개키는 새어도 위조 불가 |
+
+리소스 서버가 여럿인 IdP 구조에서 HS256을 쓰면, 토큰을 검증하려고 모든 서비스에 **서명까지 가능한 비밀키**를 나눠줘야 한다 — 그중 하나만 뚫려도 전 서비스 토큰이 위조된다. 그래서 **개인키는 IdP만 갖고, 공개키만 배포**하는 RS256(비대칭)을 쓴다. 이 "공개키만 모아 공개하는 창구"가 바로 **JWKS 엔드포인트**다.
+
+> ⚠️ **alg confusion 공격**: 공격자가 헤더의 `alg`를 `none`으로 바꾸거나, RSA 공개키를 HS256의 *비밀키*로 악용해 서명을 위조하려 든다. 방어는 **검증 측에서 허용 알고리즘을 RS256 하나로 못 박는 것**. 발급 측도 `RS256` 하나만 쓰고, 디코더도 그 알고리즘만 받게 제한한다.
 
 ## JWKSource — 키를 어디서 가져올지 추상화
 
@@ -62,6 +90,8 @@ public JWKSource<SecurityContext> jwkSource(RSAKey rsaKey) {
 
 > 부팅마다 키를 새로 생성하면 재시작·재배포 시 기존 토큰이 전부 서명 검증에 실패한다(= 전 사용자 강제 로그아웃). 그래서 발급·검증 양쪽이 **같은 영속 키 한 쌍**을 공유해야 한다.
 
+> 🔁 **회전의 한계**: `ImmutableJWKSet`에 키를 *하나만* 담으면 회전(rotation)이 불가능하다. 키를 교체하려면 **새 키엔 새 `kid`를 주고**(옛 `kid` 재사용 금지 — 캐시된 검증이 꼬인다), 전환 기간엔 **old+new 두 키를 JWKS에 함께 노출**해 새 키로만 서명하되 옛 토큰도 만료까지 검증되게 한다. 즉 진짜 회전을 하려면 `JWKSet(newKey, oldKey)`처럼 여러 키를 담는다.
+
 키가 흐르는 경로:
 
 ```mermaid
@@ -86,6 +116,8 @@ flowchart TD
 
 > 핵심은 **서명 검증(키)** 과 **클레임 검증(시간·발급자)** 이 분리돼 있다는 점이다. 키는 `JWKSource`가, 클레임은 `OAuth2TokenValidator`가 담당한다.
 
+> ⚠️ **stateless의 대가 — 즉시 무효화가 안 된다.** 리소스 서버가 JWKS로 **로컬 검증**한다는 건 매 요청마다 IdP에 안 물어본다는 뜻이다. 덕분에 빠르지만, 토큰을 서버에서 강제 폐기(`/oauth2/revoke`)해도 **이미 발급된 access token은 `exp` 전까지 그대로 통과**한다. 즉시 차단이 필요하면 ① **짧은 access TTL**(예: 5~15분) + 긴 refresh, ② 매 요청 IdP에 확인하는 **introspection**, ③ 폐기 토큰 **denylist**(보통 Redis) 중 하나를 더한다.
+
 IdP 내부에서는 발급에 쓰는 키와 검증에 쓰는 키가 완전히 동일하도록, 이미 가진 영속 `JWKSource`를 그대로 주입해 디코더를 만든다.
 
 ```java
@@ -105,7 +137,9 @@ JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource, @Value("${app.issuer
 
 ## 정리
 
-- JWT = `header.payload.signature`. 서명은 위변조를 막을 뿐 payload는 누구나 읽는다.
-- JWK(키 1개) → JWKS(Set) → `JWKSource`(키 공급 추상화). IdP는 영속 키를 박은 `ImmutableJWKSet`을 발급·검증에 함께 쓴다.
-- `NimbusJwtDecoder.decode()` = 파싱 + 서명 검증(키) + 클레임 검증(시간·발급자).
+- JWT(=JWS) = `header.payload.signature`. 서명은 위변조를 막을 뿐 payload는 누구나 읽는다 → 민감정보 금지.
+- 멀티 서비스라 **비대칭(RS256)** 을 쓴다. 개인키는 IdP만, 공개키는 JWKS로 배포 → 리소스 서버는 위조 못 하고 검증만.
+- 검증은 서명(키, `JWKSource`) + 클레임(`iss`/`exp`/`nbf`/`aud`, `OAuth2TokenValidator`) 두 축.
+- `ImmutableJWKSet`에 단일 키면 회전 불가 — 회전하려면 새 `kid` + old/new 동시 노출.
+- JWT는 stateless라 **즉시 무효화가 안 된다** — 짧은 TTL·introspection·denylist로 보완.
 - 관련: [Spring Authorization Server 핵심 빈 해부](/wiki/spring-authorization-server-beans/), [SecurityFilterChain과 FilterChainProxy](/wiki/spring-security-filter-chain/)

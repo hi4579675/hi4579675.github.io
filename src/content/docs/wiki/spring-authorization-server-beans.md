@@ -18,6 +18,16 @@ description: AS를 부팅·발급 가능하게 만드는 빈들 — OAuth2Author
 
 `jwkSource`·`jwtDecoder`는 [JWT·JWK·JWKS](/wiki/jwt-jwk-jwks/)에서 다뤘다. 여기서는 나머지와, 이 모든 걸 조립하는 컨트롤 타워를 본다.
 
+> ⚠️ **이 빈들로 도달하는 지점을 정확히 알자.** 위 빈 + AS 필터체인으로 되는 건 **`GET /oauth2/jwks` 응답 + 기계 대 기계(`client_credentials`) 토큰 발급**까지다. **사람이 브라우저로 로그인하는 `authorization_code`/OIDC 흐름은 이걸로 부족하다** — `authorization_code`는 자원 주인(사용자)을 실제로 인증하는 메커니즘이 별도로 있어야 한다(공식 문서 명시). 그래서 다음이 더 필요하다.
+>
+> | 추가로 필요한 것 | 왜 |
+> |---|---|
+> | catch-all `SecurityFilterChain`(`@Order(2)`) + `formLogin()`/`oauth2Login()` | `/login` 등 일반 요청을 받고 **로그인 화면**을 띄울 체인 ([SecurityFilterChain](/wiki/spring-security-filter-chain/)) |
+> | `UserDetailsService` (또는 다른 사용자 인증 수단) | "이 사용자가 누구이고 비번이 맞나"를 검증할 주체 |
+> | AS 체인의 `LoginUrlAuthenticationEntryPoint` | 미인증으로 `/oauth2/authorize`에 오면 로그인으로 리다이렉트 |
+>
+> 즉 **"AS 엔드포인트가 살아있다"**(아래 빈들)와 **"사람이 로그인해 인가 코드를 받는다"**(+사용자 인증)는 다른 단계다.
+
 ## OAuth2AuthorizationServerConfigurer — 컨트롤 타워
 
 `OAuth2AuthorizationServerConfigurer`는 Spring AS의 **OAuth2/OIDC 엔드포인트 8~9종 + URL 매처 + 각 필터 + CSRF 예외 + JWKS 노출**을 통째로 조립해 `HttpSecurity`에 꽂아주는 단일 설정 모듈이다. 람다 DSL(`http.with(...)`) 안에서 인증 서버 구축에 필요한 모든 걸 총괄하는 컨트롤 타워.
@@ -94,6 +104,16 @@ if (issuerUri.getQuery() != null || issuerUri.getFragment() != null) {
 | dev 예시 | 클라이언트 1개, `client_credentials`, 평문 시크릿, 인메모리 |
 | prod 전환 | `{bcrypt}` 시크릿 + `JdbcRegisteredClientRepository` |
 
+클라이언트마다 **어떤 grant type을 허용할지**가 핵심 설정이다.
+
+| grant type | 누가 | 비밀 보관 | 비고 |
+|---|---|---|---|
+| `client_credentials` | 서비스 A→B (사용자 없음) | 서버라 안전 | 클라이언트 시크릿으로 인증 |
+| `authorization_code` + **PKCE** | SPA·모바일 (public client) | 못 숨김 | `redirect-uri` 등록 필수, PKCE로 코드 가로채기 방어 |
+| `refresh_token` | 위와 함께 | — | access 만료 시 갱신 |
+
+> public client(SPA·모바일)는 시크릿을 안전하게 못 숨기므로 `client_credentials`가 아니라 **`authorization_code` + PKCE**가 표준이다. 이때 `redirectUri`를 정확히 등록해야 한다(미등록 URI로는 코드를 안 돌려줌).
+
 하이브리드 구조(자사 로그인은 커스텀 발급, AS는 JWKS·서비스간 호출만)에서는 이 명부가 **부팅·JWKS 유지를 위한 최소 등록**에 가깝다. 멀티앱 생태계가 커지면 각 앱의 신뢰·스코프·콜백을 관리하는 핵심 테이블이 된다.
 
 ## JwtAuthenticationConverter — JWT를 인증 객체로
@@ -136,12 +156,26 @@ JwtTokenProvider.issueAccessToken(..., authorities=["repair:user"]) ← 클레�
 클라이언트 → 리소스 서버 → JwtAuthenticationConverter가 다시 권한으로 복원
 ```
 
-> **Access 토큰에만 권한을 싣고 Refresh 토큰엔 싣지 않는다.** Refresh는 오래 살아서, 권한을 박아두면 권한이 회수돼도 옛 권한이 박제된다. 그래서 Refresh엔 `sub`+`sid`만 담고, 권한은 Access를 새로 발급할 때마다 최신값으로 채운다. 서명은 `RS256` **하나만** 허용해 `alg: none`/`HS256` 바꿔치기(alg confusion) 공격을 막는다.
+> **Access 토큰에만 권한을 싣고 Refresh 토큰엔 싣지 않는다.** Refresh는 오래 살아서, 권한을 박아두면 권한이 회수돼도 옛 권한이 박제된다. 그래서 Refresh엔 `sub`+`sid`만 담고, 권한은 Access를 새로 발급할 때마다 최신값으로 채운다. 서명은 `RS256` **하나만** 허용해 `alg: none`/`HS256` 바꿔치기(alg confusion) 공격을 막는다([JWT·JWK·JWKS](/wiki/jwt-jwk-jwks/) 참고).
+
+> **위는 "커스텀 발급기(`JwtTokenProvider`)가 AS 밖에서 직접 찍는" 경로다.** AS 자신이 표준 흐름(`authorization_code`/`client_credentials`)으로 발급하는 토큰에 클레임을 넣고 싶다면, 직접 찍지 말고 **`OAuth2TokenCustomizer<JwtEncodingContext>`** 빈을 등록해 발급 직전에 `authorities`·`aud` 등을 끼운다. 이 길은 introspection·revocation이 그대로 적용된다는 게 커스텀 직접 발급과의 결정적 차이다.
+
+```java
+@Bean
+OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
+    return ctx -> {
+        if (OAuth2TokenType.ACCESS_TOKEN.equals(ctx.getTokenType())) {
+            ctx.getClaims().claim("authorities", /* DB에서 조립한 권한 목록 */);
+        }
+    };
+}
+```
 
 ## 정리
 
+- **이 빈들로는 JWKS 응답 + `client_credentials`까지.** 브라우저 `authorization_code`/OIDC는 사용자 인증 체인(`formLogin`/`oauth2Login`·`UserDetailsService`·`LoginUrlAuthenticationEntryPoint`)이 더 필요하다.
 - `OAuth2AuthorizationServerConfigurer` = 엔드포인트·필터·CSRF 예외·JWKS 노출을 통째로 조립하는 컨트롤 타워.
 - `AuthorizationServerSettings` = `issuer`(발급·검증의 단일 앵커) + 엔드포인트 경로. 부팅 필수.
-- `RegisteredClientRepository` = 토큰을 요청할 수 있는 **앱**의 화이트리스트(회원 아님). 부팅 필수.
-- `JwtAuthenticationConverter` = 검증된 JWT에서 `sub`(주체)·`authorities`(권한)를 뽑아 인증 객체로. 멀티앱 스코프 권한을 스프링 보안에 연결하는 접착제.
+- `RegisteredClientRepository` = 토큰을 요청할 수 있는 **앱**의 화이트리스트(회원 아님). grant type별로 public client는 `authorization_code`+PKCE. 부팅 필수.
+- `JwtAuthenticationConverter` = 검증된 JWT에서 `sub`·`authorities`를 뽑아 인증 객체로. AS-발급 토큰에 클레임을 넣을 땐 `OAuth2TokenCustomizer`를 쓴다(커스텀 직접 발급과 달리 introspection/revocation 적용됨).
 - 관련: [SecurityFilterChain과 FilterChainProxy](/wiki/spring-security-filter-chain/), [JWT·JWK·JWKS](/wiki/jwt-jwk-jwks/)
